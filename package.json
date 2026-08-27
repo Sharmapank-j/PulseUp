@@ -1,0 +1,14 @@
+{
+  "name": "pulseup",
+  "version": "0.1.0",
+  "private": true,
+  "description": "Professional opportunity discovery for India's medical ecosystem.",
+  "scripts": {
+    "dev": "vite",
+    "build": "vite build",
+    "preview": "vite preview"
+  },
+  "devDependencies": {
+    "vite": "^7.1.3"
+  }
+}
