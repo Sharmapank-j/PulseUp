@@ -13,12 +13,19 @@ npm run dev
 
 The app is also a valid static site: open `index.html` directly or serve the folder with any static web server.
 
-## Current product slice
+## Current MVP product slice
 
-- Personalized home action center
-- Opportunity discovery with search and category filters
-- Persistent saved opportunities using browser `localStorage`
-- Create entry points for events and research collaborations
-- Basic professional profile view
+PulseUp is currently a focused frontend MVP for the Career Operating System vision:
 
-The current frontend uses local sample data. Supabase authentication, moderation, database persistence, and notifications are the next integration layer.
+- Verified-professional profile shell with live saved-opportunity metrics
+- Internship, fellowship, conference, and research opportunity discovery
+- Search, category filters, and persistent saved opportunities
+- Career OS actions for CV building, career planning, and mentor matching
+- Goal Spaces with persistent join state
+- Application pipeline with tracked opportunities and removal controls
+- Profile verification request state with pending status
+
+The frontend uses local sample data and browser `localStorage`. A first Supabase data
+model is available in [`supabase/schema.sql`](./supabase/schema.sql), with configuration
+placeholders in [`.env.example`](./.env.example). Authentication, credential verification,
+moderation, messaging, and notifications can be wired to that model next.
