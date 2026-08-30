@@ -11,7 +11,13 @@ npm install
 npm run dev
 ```
 
-The app is also a valid static site: open `index.html` directly or serve the folder with any static web server.
+The app is a static site that requires serving via a local development server to support ES module imports. Run:
+
+```bash
+npm run dev
+```
+
+This starts a Vite dev server at `http://localhost:5173`. ES modules do not work when opening `index.html` directly in the browser due to browser security restrictions.
 
 ## Current MVP product slice
 

@@ -123,7 +123,8 @@ document.addEventListener('click', (event) => {
   const viewLink = event.target.closest('[data-view]');
   if (viewLink) {
     event.preventDefault();
-    history.pushState(null, '', viewLink.getAttribute('href'));
+    const href = viewLink.getAttribute('href');
+    if (href) history.pushState(null, '', href);
     showView(viewLink.dataset.view);
   }
   const saveButton = event.target.closest('.save-button');
@@ -177,8 +178,8 @@ document.addEventListener('click', (event) => {
       cv: 'CV builder is ready for your verified profile data.',
       planner: 'Career planner saved as your next step.',
       mentor: 'Mentor matching will use your specialty and goals.',
-      spaces: 'Goal Space directory is coming next.'
-      , verify: 'Verification request submitted for review.'
+      spaces: 'Goal Space directory is coming next.',
+      verify: 'Verification request submitted for review.'
     };
     showFeedback(messages[action.dataset.action]);
     if (action.dataset.action === 'verify') {
