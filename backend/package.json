@@ -1,0 +1,18 @@
+{
+    "version":  "0.1.0",
+    "name":  "pulseup-backend",
+    "scripts":  {
+                    "test":  "echo no tests yet",
+                    "dev":  "node --watch src/index.js",
+                    "start":  "node src/index.js"
+                },
+    "type":  "module",
+    "dependencies":  {
+                         "dotenv":  "^16.0.3",
+                         "helmet":  "^7.0.0",
+                         "express":  "^4.18.2",
+                         "@supabase/supabase-js":  "^2.38.0",
+                         "cors":  "^2.8.5"
+                     },
+    "main":  "src/index.js"
+}
