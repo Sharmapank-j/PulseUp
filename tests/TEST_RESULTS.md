@@ -1,6 +1,6 @@
 # PulseUp E2E Verification Test Results
 
-**Timestamp**: 2026-09-03T17:48:48.560Z  
+**Timestamp**: 2026-09-03T17:59:58.717Z  
 **Target Directory**: `C:\Users\pr218\OneDrive\Documents\projects Antigravity\PulseUp`  
 **Status**: **PASSED**  
 **Summary**: 46 Passed, 0 Failed of 46 Assertions (17ms)
@@ -11,34 +11,34 @@
 
 | Test ID | Description | Status | Duration |
 | :--- | :--- | :--- | :--- |
-| `T1-DOC-001` | Core directory layout matches specification | ✅ PASS | 0ms |
+| `T1-DOC-001` | Core directory layout matches specification | ✅ PASS | 1ms |
 | `T1-DOC-002` | README.md exists and meets minimum documentation payload threshold | ✅ PASS | 0ms |
 | `T1-DOC-003` | README.md contains 2-sentence PulseUp career OS overview | ✅ PASS | 0ms |
 | `T1-DOC-004` | README.md contains explicit browser launch instructions for prototype/index.html | ✅ PASS | 0ms |
-| `T1-DOC-005` | README.md contains explanation of research database deliverables | ✅ PASS | 0ms |
+| `T1-DOC-005` | README.md contains explanation of research database deliverables | ✅ PASS | 1ms |
 | `T1-DOC-006` | README.md documents clinical design system tokens and screen shortcuts | ✅ PASS | 0ms |
 
 ### SUITE 2: High-Fidelity Browser Prototype DOM & Style Engine (R1)
 
 | Test ID | Description | Status | Duration |
 | :--- | :--- | :--- | :--- |
-| `T1-PROTO-001` | Prototype HTML file exists and exceeds 15KB payload threshold | ✅ PASS | 0ms |
+| `T1-PROTO-001` | Prototype HTML file exists and exceeds 15KB payload threshold | ✅ PASS | 1ms |
 | `T1-PROTO-002` | Offline self-containment: zero external scripts and only Google Fonts CDN allowed | ✅ PASS | 0ms |
-| `T1-PROTO-003` | Google Fonts CDN imports Inter, Plus Jakarta Sans, and JetBrains Mono | ✅ PASS | 1ms |
+| `T1-PROTO-003` | Google Fonts CDN imports Inter, Plus Jakarta Sans, and JetBrains Mono | ✅ PASS | 0ms |
 | `T1-PROTO-004` | CSS font-family rules declare and apply all 3 typography families | ✅ PASS | 0ms |
 | `T1-PROTO-005` | Clinical dark design system hex color tokens implemented accurately | ✅ PASS | 4ms |
 | `T1-PROTO-006` | Layout dimensions conform to specification (220px sidebar, 52px topbar, 12px card radius) | ✅ PASS | 0ms |
-| `T1-PROTO-007` | Screen 1: Daily Career Board elements present | ✅ PASS | 0ms |
+| `T1-PROTO-007` | Screen 1: Daily Career Board elements present | ✅ PASS | 1ms |
 | `T1-PROTO-008` | Screen 2: Research & Publishing Hub elements present | ✅ PASS | 0ms |
 | `T1-PROTO-009` | Screen 3: Goal Spaces Workbench elements present | ✅ PASS | 0ms |
-| `T1-PROTO-010` | Screen 4: AETCOM Bioethics Hub elements present | ✅ PASS | 1ms |
+| `T1-PROTO-010` | Screen 4: AETCOM Bioethics Hub elements present | ✅ PASS | 0ms |
 | `T1-PROTO-011` | Screen 5: Async Mentorship Triage elements present | ✅ PASS | 0ms |
 | `T1-PROTO-012` | Screen 6: Campus Pulse & Med-Q elements present | ✅ PASS | 0ms |
 | `T1-PROTO-013` | Screen 7: Bharat Opportunities Engine elements present | ✅ PASS | 0ms |
-| `T1-PROTO-014` | Screen 8: Verified Medical Passport elements present | ✅ PASS | 0ms |
+| `T1-PROTO-014` | Screen 8: Verified Medical Passport elements present | ✅ PASS | 1ms |
 | `T1-PROTO-015` | Command search overlay (Cmd+K / Ctrl+K) contains all 8 screen links | ✅ PASS | 0ms |
 | `T1-PROTO-016` | Toast notification engine exists in DOM and CSS | ✅ PASS | 0ms |
-| `T1-PROTO-017` | Inline JavaScript parses and compiles cleanly without syntax errors | ✅ PASS | 1ms |
+| `T1-PROTO-017` | Inline JavaScript parses and compiles cleanly without syntax errors | ✅ PASS | 0ms |
 | `T1-PROTO-018` | Static safety audit: script avoids unsafe eval() and document.write() | ✅ PASS | 1ms |
 
 ### SUITE 3: Medical Events Research Database Verification (R2)
@@ -74,7 +74,7 @@
 | Test ID | Description | Status | Duration |
 | :--- | :--- | :--- | :--- |
 | `T4-E2E-001` | Persona 1 Journey (Dr. Aarav Sharma - 3rd Year MBBS Student @ MAMC Delhi) | ✅ PASS | 0ms |
-| `T4-E2E-002` | Persona 2 Journey (Dr. Priya Nair - Compulsory Rotating Medical Intern) | ✅ PASS | 0ms |
-| `T4-E2E-003` | Persona 3 Journey (Dr. Rohan Verma - Junior Resident MD Medicine) | ✅ PASS | 1ms |
+| `T4-E2E-002` | Persona 2 Journey (Dr. Priya Nair - Compulsory Rotating Medical Intern) | ✅ PASS | 1ms |
+| `T4-E2E-003` | Persona 3 Journey (Dr. Rohan Verma - Junior Resident MD Medicine) | ✅ PASS | 0ms |
 | `T4-E2E-004` | Persona 4 Journey: Comprehensive Forensic Auditor Integrity Pass | ✅ PASS | 0ms |
 

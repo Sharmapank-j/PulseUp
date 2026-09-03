@@ -1,5 +1,5 @@
 {
-  "timestamp": "2026-09-03T17:48:48.560Z",
+  "timestamp": "2026-09-03T17:59:58.717Z",
   "targetDirectory": "C:\\Users\\pr218\\OneDrive\\Documents\\projects Antigravity\\PulseUp",
   "stats": {
     "total": 46,
@@ -18,7 +18,7 @@
           "id": "T1-DOC-001",
           "name": "Core directory layout matches specification",
           "status": "PASS",
-          "durationMs": 0
+          "durationMs": 1
         },
         {
           "id": "T1-DOC-002",
@@ -42,7 +42,7 @@
           "id": "T1-DOC-005",
           "name": "README.md contains explanation of research database deliverables",
           "status": "PASS",
-          "durationMs": 0
+          "durationMs": 1
         },
         {
           "id": "T1-DOC-006",
@@ -61,7 +61,7 @@
           "id": "T1-PROTO-001",
           "name": "Prototype HTML file exists and exceeds 15KB payload threshold",
           "status": "PASS",
-          "durationMs": 0
+          "durationMs": 1
         },
         {
           "id": "T1-PROTO-002",
@@ -73,7 +73,7 @@
           "id": "T1-PROTO-003",
           "name": "Google Fonts CDN imports Inter, Plus Jakarta Sans, and JetBrains Mono",
           "status": "PASS",
-          "durationMs": 1
+          "durationMs": 0
         },
         {
           "id": "T1-PROTO-004",
@@ -97,7 +97,7 @@
           "id": "T1-PROTO-007",
           "name": "Screen 1: Daily Career Board elements present",
           "status": "PASS",
-          "durationMs": 0
+          "durationMs": 1
         },
         {
           "id": "T1-PROTO-008",
@@ -115,7 +115,7 @@
           "id": "T1-PROTO-010",
           "name": "Screen 4: AETCOM Bioethics Hub elements present",
           "status": "PASS",
-          "durationMs": 1
+          "durationMs": 0
         },
         {
           "id": "T1-PROTO-011",
@@ -139,7 +139,7 @@
           "id": "T1-PROTO-014",
           "name": "Screen 8: Verified Medical Passport elements present",
           "status": "PASS",
-          "durationMs": 0
+          "durationMs": 1
         },
         {
           "id": "T1-PROTO-015",
@@ -157,7 +157,7 @@
           "id": "T1-PROTO-017",
           "name": "Inline JavaScript parses and compiles cleanly without syntax errors",
           "status": "PASS",
-          "durationMs": 1
+          "durationMs": 0
         },
         {
           "id": "T1-PROTO-018",
@@ -304,13 +304,13 @@
           "id": "T4-E2E-002",
           "name": "Persona 2 Journey (Dr. Priya Nair - Compulsory Rotating Medical Intern)",
           "status": "PASS",
-          "durationMs": 0
+          "durationMs": 1
         },
         {
           "id": "T4-E2E-003",
           "name": "Persona 3 Journey (Dr. Rohan Verma - Junior Resident MD Medicine)",
           "status": "PASS",
-          "durationMs": 1
+          "durationMs": 0
         },
         {
           "id": "T4-E2E-004",

@@ -1,0 +1,11 @@
+{
+  "name": "pulseup-root",
+  "version": "1.0.0",
+  "private": true,
+  "description": "PulseUp - Career Operating System for Indian Healthcare Professionals",
+  "scripts": {
+    "build": "npm --prefix webapp install && npm --prefix webapp run build && node -e \"const fs=require('fs'); fs.cpSync('webapp/dist', 'dist', {recursive: true});\"",
+    "dev": "npm --prefix webapp run dev",
+    "test": "node tests/test_runner.js"
+  }
+}
