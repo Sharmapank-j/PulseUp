@@ -1,0 +1,324 @@
+{
+  "timestamp": "2026-09-03T16:16:37.531Z",
+  "targetDirectory": "C:\\Users\\pr218\\OneDrive\\Documents\\projects Antigravity\\PulseUp",
+  "stats": {
+    "total": 46,
+    "passed": 46,
+    "failed": 0,
+    "skipped": 0,
+    "durationMs": 18
+  },
+  "suites": [
+    {
+      "name": "SUITE 1: Project Layout, File Structure & Documentation (R3)",
+      "passed": 6,
+      "failed": 0,
+      "tests": [
+        {
+          "id": "T1-DOC-001",
+          "name": "Core directory layout matches specification",
+          "status": "PASS",
+          "durationMs": 1
+        },
+        {
+          "id": "T1-DOC-002",
+          "name": "README.md exists and meets minimum documentation payload threshold",
+          "status": "PASS",
+          "durationMs": 0
+        },
+        {
+          "id": "T1-DOC-003",
+          "name": "README.md contains 2-sentence PulseUp career OS overview",
+          "status": "PASS",
+          "durationMs": 0
+        },
+        {
+          "id": "T1-DOC-004",
+          "name": "README.md contains explicit browser launch instructions for prototype/index.html",
+          "status": "PASS",
+          "durationMs": 0
+        },
+        {
+          "id": "T1-DOC-005",
+          "name": "README.md contains explanation of research database deliverables",
+          "status": "PASS",
+          "durationMs": 0
+        },
+        {
+          "id": "T1-DOC-006",
+          "name": "README.md documents clinical design system tokens and screen shortcuts",
+          "status": "PASS",
+          "durationMs": 0
+        }
+      ]
+    },
+    {
+      "name": "SUITE 2: High-Fidelity Browser Prototype DOM & Style Engine (R1)",
+      "passed": 18,
+      "failed": 0,
+      "tests": [
+        {
+          "id": "T1-PROTO-001",
+          "name": "Prototype HTML file exists and exceeds 15KB payload threshold",
+          "status": "PASS",
+          "durationMs": 0
+        },
+        {
+          "id": "T1-PROTO-002",
+          "name": "Offline self-containment: zero external scripts and only Google Fonts CDN allowed",
+          "status": "PASS",
+          "durationMs": 1
+        },
+        {
+          "id": "T1-PROTO-003",
+          "name": "Google Fonts CDN imports Inter, Plus Jakarta Sans, and JetBrains Mono",
+          "status": "PASS",
+          "durationMs": 0
+        },
+        {
+          "id": "T1-PROTO-004",
+          "name": "CSS font-family rules declare and apply all 3 typography families",
+          "status": "PASS",
+          "durationMs": 0
+        },
+        {
+          "id": "T1-PROTO-005",
+          "name": "Clinical dark design system hex color tokens implemented accurately",
+          "status": "PASS",
+          "durationMs": 4
+        },
+        {
+          "id": "T1-PROTO-006",
+          "name": "Layout dimensions conform to specification (220px sidebar, 52px topbar, 12px card radius)",
+          "status": "PASS",
+          "durationMs": 0
+        },
+        {
+          "id": "T1-PROTO-007",
+          "name": "Screen 1: Daily Career Board elements present",
+          "status": "PASS",
+          "durationMs": 0
+        },
+        {
+          "id": "T1-PROTO-008",
+          "name": "Screen 2: Research & Publishing Hub elements present",
+          "status": "PASS",
+          "durationMs": 1
+        },
+        {
+          "id": "T1-PROTO-009",
+          "name": "Screen 3: Goal Spaces Workbench elements present",
+          "status": "PASS",
+          "durationMs": 0
+        },
+        {
+          "id": "T1-PROTO-010",
+          "name": "Screen 4: AETCOM Bioethics Hub elements present",
+          "status": "PASS",
+          "durationMs": 0
+        },
+        {
+          "id": "T1-PROTO-011",
+          "name": "Screen 5: Async Mentorship Triage elements present",
+          "status": "PASS",
+          "durationMs": 0
+        },
+        {
+          "id": "T1-PROTO-012",
+          "name": "Screen 6: Campus Pulse & Med-Q elements present",
+          "status": "PASS",
+          "durationMs": 0
+        },
+        {
+          "id": "T1-PROTO-013",
+          "name": "Screen 7: Bharat Opportunities Engine elements present",
+          "status": "PASS",
+          "durationMs": 0
+        },
+        {
+          "id": "T1-PROTO-014",
+          "name": "Screen 8: Verified Medical Passport elements present",
+          "status": "PASS",
+          "durationMs": 0
+        },
+        {
+          "id": "T1-PROTO-015",
+          "name": "Command search overlay (Cmd+K / Ctrl+K) contains all 8 screen links",
+          "status": "PASS",
+          "durationMs": 1
+        },
+        {
+          "id": "T1-PROTO-016",
+          "name": "Toast notification engine exists in DOM and CSS",
+          "status": "PASS",
+          "durationMs": 0
+        },
+        {
+          "id": "T1-PROTO-017",
+          "name": "Inline JavaScript parses and compiles cleanly without syntax errors",
+          "status": "PASS",
+          "durationMs": 1
+        },
+        {
+          "id": "T1-PROTO-018",
+          "name": "Static safety audit: script avoids unsafe eval() and document.write()",
+          "status": "PASS",
+          "durationMs": 0
+        }
+      ]
+    },
+    {
+      "name": "SUITE 3: Medical Events Research Database Verification (R2)",
+      "passed": 10,
+      "failed": 0,
+      "tests": [
+        {
+          "id": "T1-DATA-001",
+          "name": "medical_events_database.md exists and covers Categories A through E",
+          "status": "PASS",
+          "durationMs": 1
+        },
+        {
+          "id": "T1-DATA-002",
+          "name": "seed_data.json exists and parses cleanly as a top-level JSON array",
+          "status": "PASS",
+          "durationMs": 0
+        },
+        {
+          "id": "T1-DATA-003",
+          "name": "seed_data.json conforms strictly to the required 12-field schema",
+          "status": "PASS",
+          "durationMs": 0
+        },
+        {
+          "id": "T1-DATA-004",
+          "name": "Minimum category quotas fulfilled (>=12 fests, >=10 quizzes, >=20 certs, >=8 grants, >=8 obs, total >=58)",
+          "status": "PASS",
+          "durationMs": 0
+        },
+        {
+          "id": "T1-DATA-005",
+          "name": "pulse_credits_suggested is strictly a positive finite number across all entries",
+          "status": "PASS",
+          "durationMs": 0
+        },
+        {
+          "id": "T1-DATA-006",
+          "name": "ICMR-STS entry exists and specifies verified INR 10,000/month stipend amount",
+          "status": "PASS",
+          "durationMs": 1
+        },
+        {
+          "id": "T1-DATA-007",
+          "name": "USMLE entries specify eligibility criteria for Indian MBBS students/graduates",
+          "status": "PASS",
+          "durationMs": 0
+        },
+        {
+          "id": "T1-DATA-008",
+          "name": "At least 5 verified official website URLs exist per category (>=25 total)",
+          "status": "PASS",
+          "durationMs": 0
+        },
+        {
+          "id": "T1-DATA-009",
+          "name": "All record IDs are unique strings without collisions",
+          "status": "PASS",
+          "durationMs": 0
+        },
+        {
+          "id": "T1-DATA-010",
+          "name": "Fee representations in fee_inr are non-negative and valid",
+          "status": "PASS",
+          "durationMs": 0
+        }
+      ]
+    },
+    {
+      "name": "SUITE 4: Boundary Values, Edge Cases & Combinatorial Invariants (Tiers 2 & 3)",
+      "passed": 8,
+      "failed": 0,
+      "tests": [
+        {
+          "id": "T2-EDGE-001",
+          "name": "Cross-platform keyboard shortcut listens for both ctrlKey and metaKey",
+          "status": "PASS",
+          "durationMs": 0
+        },
+        {
+          "id": "T2-EDGE-002",
+          "name": "Countdown timer handles zero boundary and negative underflow prevention",
+          "status": "PASS",
+          "durationMs": 1
+        },
+        {
+          "id": "T2-EDGE-003",
+          "name": "Quiz interaction handler disables multiple clicks or freezes selection state",
+          "status": "PASS",
+          "durationMs": 0
+        },
+        {
+          "id": "T2-EDGE-004",
+          "name": "Toast notification cleans up running timers before spawning new notifications",
+          "status": "PASS",
+          "durationMs": 0
+        },
+        {
+          "id": "T2-EDGE-005",
+          "name": "Font fallbacks defined in CSS prevent blank screens if external CDN is blocked",
+          "status": "PASS",
+          "durationMs": 0
+        },
+        {
+          "id": "T3-COMB-001",
+          "name": "Sidebar navigation and Command Bar targets align 1:1 with screen containers",
+          "status": "PASS",
+          "durationMs": 0
+        },
+        {
+          "id": "T3-COMB-002",
+          "name": "Workbench view switching logic cleanly isolates sub-panels",
+          "status": "PASS",
+          "durationMs": 0
+        },
+        {
+          "id": "T3-COMB-003",
+          "name": "Pairwise seed data spans diverse career stages (UG, Intern, Resident)",
+          "status": "PASS",
+          "durationMs": 0
+        }
+      ]
+    },
+    {
+      "name": "SUITE 5: Real-World Persona & End-to-End User Workload Journeys (Tier 4)",
+      "passed": 4,
+      "failed": 0,
+      "tests": [
+        {
+          "id": "T4-E2E-001",
+          "name": "Persona 1 Journey (Dr. Aarav Sharma - 3rd Year MBBS Student @ MAMC Delhi)",
+          "status": "PASS",
+          "durationMs": 1
+        },
+        {
+          "id": "T4-E2E-002",
+          "name": "Persona 2 Journey (Dr. Priya Nair - Compulsory Rotating Medical Intern)",
+          "status": "PASS",
+          "durationMs": 0
+        },
+        {
+          "id": "T4-E2E-003",
+          "name": "Persona 3 Journey (Dr. Rohan Verma - Junior Resident MD Medicine)",
+          "status": "PASS",
+          "durationMs": 0
+        },
+        {
+          "id": "T4-E2E-004",
+          "name": "Persona 4 Journey: Comprehensive Forensic Auditor Integrity Pass",
+          "status": "PASS",
+          "durationMs": 0
+        }
+      ]
+    }
+  ]
+}
