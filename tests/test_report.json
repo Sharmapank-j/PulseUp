@@ -1,12 +1,12 @@
 {
-  "timestamp": "2026-09-03T16:16:37.531Z",
+  "timestamp": "2026-09-03T17:48:48.560Z",
   "targetDirectory": "C:\\Users\\pr218\\OneDrive\\Documents\\projects Antigravity\\PulseUp",
   "stats": {
     "total": 46,
     "passed": 46,
     "failed": 0,
     "skipped": 0,
-    "durationMs": 18
+    "durationMs": 17
   },
   "suites": [
     {
@@ -18,7 +18,7 @@
           "id": "T1-DOC-001",
           "name": "Core directory layout matches specification",
           "status": "PASS",
-          "durationMs": 1
+          "durationMs": 0
         },
         {
           "id": "T1-DOC-002",
@@ -67,13 +67,13 @@
           "id": "T1-PROTO-002",
           "name": "Offline self-containment: zero external scripts and only Google Fonts CDN allowed",
           "status": "PASS",
-          "durationMs": 1
+          "durationMs": 0
         },
         {
           "id": "T1-PROTO-003",
           "name": "Google Fonts CDN imports Inter, Plus Jakarta Sans, and JetBrains Mono",
           "status": "PASS",
-          "durationMs": 0
+          "durationMs": 1
         },
         {
           "id": "T1-PROTO-004",
@@ -103,7 +103,7 @@
           "id": "T1-PROTO-008",
           "name": "Screen 2: Research & Publishing Hub elements present",
           "status": "PASS",
-          "durationMs": 1
+          "durationMs": 0
         },
         {
           "id": "T1-PROTO-009",
@@ -115,7 +115,7 @@
           "id": "T1-PROTO-010",
           "name": "Screen 4: AETCOM Bioethics Hub elements present",
           "status": "PASS",
-          "durationMs": 0
+          "durationMs": 1
         },
         {
           "id": "T1-PROTO-011",
@@ -145,7 +145,7 @@
           "id": "T1-PROTO-015",
           "name": "Command search overlay (Cmd+K / Ctrl+K) contains all 8 screen links",
           "status": "PASS",
-          "durationMs": 1
+          "durationMs": 0
         },
         {
           "id": "T1-PROTO-016",
@@ -163,7 +163,7 @@
           "id": "T1-PROTO-018",
           "name": "Static safety audit: script avoids unsafe eval() and document.write()",
           "status": "PASS",
-          "durationMs": 0
+          "durationMs": 1
         }
       ]
     },
@@ -176,13 +176,13 @@
           "id": "T1-DATA-001",
           "name": "medical_events_database.md exists and covers Categories A through E",
           "status": "PASS",
-          "durationMs": 1
+          "durationMs": 0
         },
         {
           "id": "T1-DATA-002",
           "name": "seed_data.json exists and parses cleanly as a top-level JSON array",
           "status": "PASS",
-          "durationMs": 0
+          "durationMs": 1
         },
         {
           "id": "T1-DATA-003",
@@ -206,7 +206,7 @@
           "id": "T1-DATA-006",
           "name": "ICMR-STS entry exists and specifies verified INR 10,000/month stipend amount",
           "status": "PASS",
-          "durationMs": 1
+          "durationMs": 0
         },
         {
           "id": "T1-DATA-007",
@@ -218,7 +218,7 @@
           "id": "T1-DATA-008",
           "name": "At least 5 verified official website URLs exist per category (>=25 total)",
           "status": "PASS",
-          "durationMs": 0
+          "durationMs": 1
         },
         {
           "id": "T1-DATA-009",
@@ -249,7 +249,7 @@
           "id": "T2-EDGE-002",
           "name": "Countdown timer handles zero boundary and negative underflow prevention",
           "status": "PASS",
-          "durationMs": 1
+          "durationMs": 0
         },
         {
           "id": "T2-EDGE-003",
@@ -273,7 +273,7 @@
           "id": "T3-COMB-001",
           "name": "Sidebar navigation and Command Bar targets align 1:1 with screen containers",
           "status": "PASS",
-          "durationMs": 0
+          "durationMs": 1
         },
         {
           "id": "T3-COMB-002",
@@ -298,7 +298,7 @@
           "id": "T4-E2E-001",
           "name": "Persona 1 Journey (Dr. Aarav Sharma - 3rd Year MBBS Student @ MAMC Delhi)",
           "status": "PASS",
-          "durationMs": 1
+          "durationMs": 0
         },
         {
           "id": "T4-E2E-002",
@@ -310,7 +310,7 @@
           "id": "T4-E2E-003",
           "name": "Persona 3 Journey (Dr. Rohan Verma - Junior Resident MD Medicine)",
           "status": "PASS",
-          "durationMs": 0
+          "durationMs": 1
         },
         {
           "id": "T4-E2E-004",
