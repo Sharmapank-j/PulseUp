@@ -8,7 +8,8 @@ import {
   ArrowRight,
   ShieldCheck,
   CheckCircle2,
-  Clock
+  Clock,
+  Target
 } from 'lucide-react';
 import KpiCard from '../common/KpiCard';
 import CareerScoreRadar from '../charts/CareerScoreRadar';
@@ -119,6 +120,60 @@ export default function CareerBoardView({ onNavigate, isDarkMode, onToast }) {
             </button>
           </div>
           <OpportunityBarChart isDarkMode={isDarkMode} />
+        </div>
+      </div>
+
+      {/* Goal Spaces Quick Dock */}
+      <div className="bg-white dark:bg-[#1A2235] border border-zinc-200 dark:border-white/[0.07] rounded-xl p-5 shadow-sm space-y-3">
+        <div className="flex items-center justify-between">
+          <h3 className="font-display font-bold text-sm text-zinc-900 dark:text-zinc-100 flex items-center gap-2">
+            <Target size={16} className="text-emerald" />
+            <span>Goal Spaces Workbench Dock</span>
+          </h3>
+          <button
+            onClick={() => onNavigate('goalspaces')}
+            className="text-xs font-semibold text-emerald hover:underline flex items-center gap-1"
+          >
+            <span>Open All 6 Spaces</span>
+            <ArrowRight size={12} />
+          </button>
+        </div>
+
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
+          <div
+            onClick={() => onNavigate('goalspaces')}
+            className="p-3.5 bg-zinc-50 dark:bg-white/[0.03] border border-zinc-100 dark:border-white/[0.06] rounded-xl cursor-pointer hover:border-emerald/40 transition-colors"
+          >
+            <div className="flex items-center justify-between mb-1.5">
+              <span className="text-lg">🫀</span>
+              <span className="text-[10px] font-mono font-bold text-emerald bg-emerald/10 px-2 py-0.5 rounded">Active Sprint</span>
+            </div>
+            <h4 className="text-xs font-bold text-zinc-900 dark:text-zinc-100">AI ECG Multi-Center Study</h4>
+            <p className="text-[11px] text-zinc-500 dark:text-[#94A3B8] mt-0.5">Week 4 / 12 · 4 co-investigators</p>
+          </div>
+
+          <div
+            onClick={() => onNavigate('goalspaces')}
+            className="p-3.5 bg-zinc-50 dark:bg-white/[0.03] border border-zinc-100 dark:border-white/[0.06] rounded-xl cursor-pointer hover:border-emerald/40 transition-colors"
+          >
+            <div className="flex items-center justify-between mb-1.5">
+              <span className="text-lg">📚</span>
+              <span className="text-[10px] font-mono font-bold text-emerald bg-emerald/10 px-2 py-0.5 rounded">Daily 20</span>
+            </div>
+            <h4 className="text-xs font-bold text-zinc-900 dark:text-zinc-100">NEET PG High-Yield 2027</h4>
+            <p className="text-[11px] text-zinc-500 dark:text-[#94A3B8] mt-0.5">Grand Viva Prep · +39 peers</p>
+          </div>
+
+          <div
+            onClick={() => onNavigate('goalspaces')}
+            className="p-3.5 bg-zinc-50 dark:bg-white/[0.03] border border-dashed border-zinc-200 dark:border-white/10 rounded-xl cursor-pointer hover:border-emerald/40 transition-colors flex flex-col items-center justify-center text-center group"
+          >
+            <div className="w-8 h-8 rounded-full bg-emerald/10 text-emerald flex items-center justify-center mb-1 group-hover:scale-110 transition-transform">
+              <Target size={16} />
+            </div>
+            <h4 className="text-xs font-bold text-zinc-900 dark:text-zinc-100">Explore All Goal Spaces</h4>
+            <p className="text-[10px] text-zinc-500 dark:text-[#94A3B8]">USMLE · ICMR · Laparo Club</p>
+          </div>
         </div>
       </div>
 
