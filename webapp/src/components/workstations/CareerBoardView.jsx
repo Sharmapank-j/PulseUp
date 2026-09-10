@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState } from 'react';
 import {
   TrendingUp,
   FlaskConical,
@@ -291,6 +291,62 @@ export default function CareerBoardView({ onNavigate, isDarkMode, onToast }) {
             <span className="text-[10px] font-bold text-emerald bg-emerald/10 px-2 py-1 rounded-full">
               Booked ✓
             </span>
+          </div>
+        </div>
+      </div>
+
+      {/* AETCOM NMC Nudge Card + Daily Pulse Credits Activity Ring */}
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+        {/* AETCOM Nudge */}
+        <div
+          onClick={() => onNavigate('aetcom')}
+          className="bg-gradient-to-br from-purple-500/10 via-blue-500/5 to-transparent border border-purple-500/20 rounded-xl p-4 flex items-start gap-4 cursor-pointer hover:border-purple-500/40 transition-colors shadow-sm"
+        >
+          <div className="w-10 h-10 rounded-xl bg-purple-500/15 border border-purple-500/20 flex items-center justify-center flex-shrink-0">
+            <Stethoscope size={20} className="text-purple-400" />
+          </div>
+          <div className="flex-1 min-w-0">
+            <div className="flex items-center justify-between gap-2 mb-1">
+              <h4 className="font-bold text-xs text-zinc-900 dark:text-zinc-100">AETCOM NMC Clearance</h4>
+              <span className="text-[10px] font-mono font-bold text-amber-500 bg-amber-500/10 px-2 py-0.5 rounded flex-shrink-0">5 Left</span>
+            </div>
+            <p className="text-[11px] text-zinc-500 dark:text-[#94A3B8] mb-2">22 / 27 modules signed. Complete End-of-Life DNR &amp; Clinical Audit modules to unlock NMC Residency Completion Certificate.</p>
+            <div className="w-full bg-zinc-200 dark:bg-white/[0.08] h-1.5 rounded-full overflow-hidden">
+              <div className="bg-purple-400 h-full rounded-full" style={{ width: '81.5%' }} />
+            </div>
+            <p className="text-[10px] text-zinc-400 mt-0.5 font-mono">81.5% complete · Phase IV Resident Active</p>
+          </div>
+        </div>
+
+        {/* Daily PC Activity Ring */}
+        <div className="bg-white dark:bg-[#1A2235] border border-zinc-200 dark:border-white/[0.07] rounded-xl p-4 flex items-center gap-5 shadow-sm">
+          {/* SVG Ring */}
+          <div className="relative flex-shrink-0">
+            <svg width="72" height="72" viewBox="0 0 72 72">
+              <circle cx="36" cy="36" r="28" fill="none" stroke="currentColor" className="text-zinc-100 dark:text-white/10" strokeWidth="8" />
+              <circle
+                cx="36" cy="36" r="28" fill="none"
+                stroke="#10B981" strokeWidth="8"
+                strokeLinecap="round"
+                strokeDasharray={`${2 * Math.PI * 28 * 0.68} ${2 * Math.PI * 28 * (1 - 0.68)}`}
+                strokeDashoffset={2 * Math.PI * 28 * 0.25}
+                transform="rotate(-90 36 36)"
+              />
+            </svg>
+            <div className="absolute inset-0 flex flex-col items-center justify-center">
+              <span className="font-mono font-extrabold text-base text-emerald leading-none">136</span>
+              <span className="text-[9px] text-zinc-400 font-bold">PC</span>
+            </div>
+          </div>
+          <div>
+            <h4 className="font-bold text-xs text-zinc-900 dark:text-zinc-100 mb-0.5">Daily Pulse Credits</h4>
+            <p className="text-[11px] text-zinc-500 dark:text-[#94A3B8] mb-1.5">136 / 200 PC earned today</p>
+            <div className="space-y-0.5 text-[10px] text-zinc-400">
+              <p>✅ Med-Q Sprint <span className="text-emerald font-semibold ml-1">+50 PC</span></p>
+              <p>✅ AETCOM SPIKES Sim <span className="text-emerald font-semibold ml-1">+50 PC</span></p>
+              <p>✅ Research Bounty Review <span className="text-emerald font-semibold ml-1">+36 PC</span></p>
+              <p className="text-zinc-300 dark:text-zinc-500">⏳ Peer Review Slot <span className="ml-1">+64 PC pending</span></p>
+            </div>
           </div>
         </div>
       </div>

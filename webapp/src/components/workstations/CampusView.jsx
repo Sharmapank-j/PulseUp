@@ -10,7 +10,9 @@ import {
   Clock,
   Award,
   Printer,
-  RotateCcw
+  RotateCcw,
+  ChevronDown,
+  ChevronUp
 } from 'lucide-react';
 
 export default function CampusView({ onToast, onAddCredits }) {
@@ -21,6 +23,12 @@ export default function CampusView({ onToast, onAddCredits }) {
   const [showExplanation, setShowExplanation] = useState(false);
   const [showScorecard, setShowScorecard] = useState(false);
   const [countdown, setCountdown] = useState({ d: 8, h: 14, m: 27, s: 43 });
+  const [showHistory, setShowHistory] = useState(false);
+  const [quizHistory, setQuizHistory] = useState([
+    { date: '2026-09-09', specialty: 'Pediatrics, Cardiology', score: 150, total: 5, percentile: '94.2%' },
+    { date: '2026-09-07', specialty: 'Pharmacology, Obstetrics', score: 100, total: 5, percentile: '88.7%' },
+    { date: '2026-09-04', specialty: 'Trauma Surgery, Medicine', score: 200, total: 5, percentile: '98.1%' },
+  ]);
 
   const quizQuestions = [
     {
@@ -123,6 +131,8 @@ export default function CampusView({ onToast, onAddCredits }) {
     } else {
       setQuizStarted(false);
       setShowScorecard(true);
+      const today = new Date().toISOString().split('T')[0];
+      setQuizHistory(prev => [{ date: today, specialty: 'Multi-Specialty Sprint', score, total: quizQuestions.length, percentile: '96.8%' }, ...prev.slice(0, 4)]);
       onToast({
         type: 'success',
         title: 'National Grand Prix Completed!',
@@ -340,6 +350,70 @@ export default function CampusView({ onToast, onAddCredits }) {
               </div>
             </div>
           </div>
+
+          <div
+            onClick={() => onToast({ type: 'info', title: 'CMC Pegasus 2026', message: 'Abstract submission for CMC Vellore Pegasus 2026 registered.' })}
+            className="bg-white dark:bg-[#1A2235] border border-zinc-200 dark:border-white/[0.07] rounded-xl overflow-hidden shadow-sm hover:-translate-y-0.5 transition-all cursor-pointer"
+          >
+            <div className="h-20 bg-gradient-to-r from-emerald-900 via-teal-900 to-navy-950 flex items-center justify-center text-white font-display font-black text-xl tracking-wider">
+              CMC PEGASUS
+            </div>
+            <div className="p-4 space-y-2">
+              <h4 className="font-bold text-xs text-zinc-900 dark:text-zinc-100">Christian Medical College, Vellore</h4>
+              <p className="text-[11px] text-zinc-500 dark:text-[#94A3B8]">Nov 2026 · Ultrasound Skills Lab, Surgery & Microbiology Olympiad</p>
+              <div className="pt-2 flex items-center justify-between text-xs">
+                <span className="text-amber-500 font-semibold">Abstracts Open</span>
+                <span className="font-mono text-zinc-400">₹950 Fee</span>
+              </div>
+            </div>
+          </div>
+
+          <div
+            onClick={() => onToast({ type: 'info', title: 'JIPMER Spandan 2026', message: 'JIPMER Spandan cultural and clinical fest registration opened.' })}
+            className="bg-white dark:bg-[#1A2235] border border-zinc-200 dark:border-white/[0.07] rounded-xl overflow-hidden shadow-sm hover:-translate-y-0.5 transition-all cursor-pointer"
+          >
+            <div className="h-20 bg-gradient-to-r from-rose-900 via-orange-900 to-navy-950 flex items-center justify-center text-white font-display font-black text-xl tracking-wider">
+              JIPMER SPANDAN
+            </div>
+            <div className="p-4 space-y-2">
+              <h4 className="font-bold text-xs text-zinc-900 dark:text-zinc-100">JIPMER Puducherry (National Importance)</h4>
+              <p className="text-[11px] text-zinc-500 dark:text-[#94A3B8]">Dec 2026 · Clinical Quiz Circuit, Anatomy Dissection Challenge</p>
+              <div className="pt-2 flex items-center justify-between text-xs">
+                <span className="text-blue-500 font-semibold">Early Bird Open</span>
+                <span className="font-mono text-zinc-400">₹700 Fee</span>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        {/* Quiz History Log */}
+        <div className="bg-white dark:bg-[#1A2235] border border-zinc-200 dark:border-white/[0.07] rounded-xl overflow-hidden shadow-sm">
+          <button
+            onClick={() => setShowHistory(h => !h)}
+            className="w-full flex items-center justify-between p-4 text-left hover:bg-zinc-50 dark:hover:bg-white/[0.02] transition-colors"
+          >
+            <h4 className="font-display font-bold text-sm text-zinc-900 dark:text-zinc-100 flex items-center gap-2">
+              <Trophy size={15} className="text-amber-500" />
+              My Quiz History ({quizHistory.length} sessions)
+            </h4>
+            {showHistory ? <ChevronUp size={16} className="text-zinc-400" /> : <ChevronDown size={16} className="text-zinc-400" />}
+          </button>
+          {showHistory && (
+            <div className="border-t border-zinc-100 dark:border-white/[0.06] divide-y divide-zinc-100 dark:divide-white/[0.05]">
+              {quizHistory.map((h, i) => (
+                <div key={i} className="flex items-center justify-between px-4 py-3 text-xs">
+                  <div>
+                    <p className="font-semibold text-zinc-900 dark:text-zinc-100">{h.specialty}</p>
+                    <p className="text-[10px] text-zinc-400">{h.date} · {h.total} questions</p>
+                  </div>
+                  <div className="text-right">
+                    <p className="font-mono font-bold text-amber-500">+{h.score} PC</p>
+                    <p className="text-[10px] text-emerald font-semibold">{h.percentile} Percentile</p>
+                  </div>
+                </div>
+              ))}
+            </div>
+          )}
         </div>
       </div>
     </div>

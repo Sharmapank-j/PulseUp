@@ -115,6 +115,22 @@ export default function OpportunitiesView({ onToast }) {
     });
   };
 
+  // Urgency helper: generates a stable simulated days-remaining value per item
+  const getUrgencyDays = (itemId) => {
+    const seed = itemId ? itemId.split('').reduce((acc, c) => acc + c.charCodeAt(0), 0) : 999;
+    return ((seed * 7) % 45) + 3; // 3 to 47 days
+  };
+
+  const APPLICATION_STAGES = ['Submitted', 'Doc Verification', 'Interview', 'Offer'];
+  const getStageIndex = (status) => {
+    if (!status) return 0;
+    const s = status.toLowerCase();
+    if (s.includes('interview')) return 2;
+    if (s.includes('offer') || s.includes('selected')) return 3;
+    if (s.includes('document') || s.includes('verification')) return 1;
+    return 0;
+  };
+
   return (
     <div className="space-y-4">
       {/* Header & Stats Banner */}
@@ -240,13 +256,19 @@ export default function OpportunitiesView({ onToast }) {
                             }`}
                           >
                             <td className="p-3">
-                              <div className="font-semibold text-zinc-900 dark:text-zinc-100 text-xs flex items-center gap-1.5">
+                              <div className="font-semibold text-zinc-900 dark:text-zinc-100 text-xs flex items-center gap-1.5 flex-wrap">
                                 <span>{item.name}</span>
                                 {hasApplied && (
-                                  <span className="text-[9px] font-bold text-emerald bg-emerald/10 border border-emerald/20 px-1.5 py-0.2 rounded">
+                                  <span className="text-[9px] font-bold text-emerald bg-emerald/10 border border-emerald/20 px-1.5 py-0.5 rounded">
                                     Applied ✓
                                   </span>
                                 )}
+                                {(() => {
+                                  const days = getUrgencyDays(item.id);
+                                  if (days <= 7) return <span className="text-[9px] font-bold text-rose-500 bg-rose-500/10 border border-rose-500/20 px-1.5 py-0.5 rounded">⚡ {days}d left</span>;
+                                  if (days <= 14) return <span className="text-[9px] font-bold text-amber-500 bg-amber-500/10 border border-amber-500/20 px-1.5 py-0.5 rounded">⏰ {days}d left</span>;
+                                  return null;
+                                })()}
                               </div>
                               <div className="text-[10px] text-zinc-400 dark:text-[#94A3B8] truncate max-w-xs">
                                 {item.eligibility}
@@ -474,23 +496,56 @@ export default function OpportunitiesView({ onToast }) {
                     </div>
                   </div>
 
-                  <div className="flex items-center gap-3">
-                    <span className="text-xs font-bold text-amber-500 bg-amber-500/10 border border-amber-500/20 px-3 py-1 rounded-full flex items-center gap-1.5">
-                      <span className="w-1.5 h-1.5 rounded-full bg-amber-500 animate-pulse"></span>
-                      <span>{app.status}</span>
-                    </span>
-                    <button
-                      onClick={() =>
-                        onToast({
-                          type: 'info',
-                          title: 'Dossier Downloaded',
-                          message: `Downloaded official application packet for #${app.trackingHash} with cryptographic seal.`
-                        })
-                      }
-                      className="px-3 py-1.5 text-xs font-semibold rounded-lg bg-zinc-100 dark:bg-white/[0.06] hover:bg-zinc-200 dark:hover:bg-white/[0.1] text-zinc-700 dark:text-zinc-200"
-                    >
-                      View Dossier
-                    </button>
+                  <div className="flex flex-col items-end gap-2">
+                    {/* Stage Progress Bar */}
+                    <div className="w-full min-w-[200px]">
+                      <div className="flex items-center justify-between mb-1">
+                        {APPLICATION_STAGES.map((stage, si) => {
+                          const activeIdx = getStageIndex(app.status);
+                          return (
+                            <span
+                              key={si}
+                              className={`text-[9px] font-semibold ${
+                                si < activeIdx ? 'text-emerald' :
+                                si === activeIdx ? 'text-amber-500' :
+                                'text-zinc-300 dark:text-zinc-600'
+                              }`}
+                            >
+                              {stage}
+                            </span>
+                          );
+                        })}
+                      </div>
+                      <div className="relative w-full h-1.5 bg-zinc-200 dark:bg-white/[0.08] rounded-full overflow-hidden">
+                        <div
+                          className="h-full bg-emerald rounded-full transition-all"
+                          style={{ width: `${((getStageIndex(app.status) + 1) / APPLICATION_STAGES.length) * 100}%` }}
+                        />
+                        {/* Active stage pulse dot */}
+                        <div
+                          className="absolute top-0 h-full w-2 bg-amber-500 rounded-full animate-pulse"
+                          style={{ left: `calc(${((getStageIndex(app.status)) / APPLICATION_STAGES.length) * 100}% + 2px)` }}
+                        />
+                      </div>
+                    </div>
+                    <div className="flex items-center gap-2">
+                      <span className="text-[10px] font-bold text-amber-500 bg-amber-500/10 border border-amber-500/20 px-2 py-0.5 rounded-full flex items-center gap-1">
+                        <span className="w-1.5 h-1.5 rounded-full bg-amber-500 animate-pulse"></span>
+                        {app.status}
+                      </span>
+                      <button
+                        onClick={() =>
+                          onToast({
+                            type: 'info',
+                            title: 'Dossier Downloaded',
+                            message: `Downloaded official application packet for #${app.trackingHash} with cryptographic seal.`
+                          })
+                        }
+                        className="px-3 py-1.5 text-xs font-semibold rounded-lg bg-zinc-100 dark:bg-white/[0.06] hover:bg-zinc-200 dark:hover:bg-white/[0.1] text-zinc-700 dark:text-zinc-200"
+                      >
+                        View Dossier
+                      </button>
+                    </div>
                   </div>
                 </div>
               ))

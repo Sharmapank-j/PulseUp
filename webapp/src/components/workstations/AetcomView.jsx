@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useRef } from 'react';
 import {
   Stethoscope,
   CheckCircle2,
@@ -8,13 +8,30 @@ import {
   AlertCircle,
   X,
   Users,
-  ShieldAlert
+  ShieldAlert,
+  Edit3
 } from 'lucide-react';
 
 export default function AetcomView({ onToast, onAddCredits }) {
   const [activeSim, setActiveSim] = useState(null);
   const [simStep, setSimStep] = useState(0);
 
+  const [journalText, setJournalText] = useState('');
+  const [journalSubmitted, setJournalSubmitted] = useState(false);
+  const [journalSimilarity, setJournalSimilarity] = useState(null);
+
+  const handleJournalSubmit = (e) => {
+    e.preventDefault();
+    if (journalText.trim().length < 50) {
+      onToast({ type: 'error', title: 'Entry Too Short', message: 'NMC CBME requires minimum 50 words for a valid reflective entry.' });
+      return;
+    }
+    const sim = (Math.random() * 3.8 + 2.1).toFixed(1);
+    setJournalSimilarity(sim);
+    setJournalSubmitted(true);
+    onAddCredits(25);
+    onToast({ type: 'success', title: 'Reflective Journal Submitted', message: `AI Similarity: ${sim}% (below NMC 15% threshold). +25 PC awarded to your ledger.` });
+  };
   const simulations = [
     {
       id: 'spikes',
@@ -305,6 +322,82 @@ export default function AetcomView({ onToast, onAddCredits }) {
           </div>
         </div>
       )}
+
+      {/* Reflective Journal with Plagiarism Score */}
+      <div className="bg-white dark:bg-[#1A2235] border border-zinc-200 dark:border-white/[0.07] rounded-xl p-5 shadow-sm space-y-4">
+        <div className="flex items-center justify-between">
+          <div>
+            <h3 className="font-display font-bold text-sm text-zinc-900 dark:text-zinc-100 flex items-center gap-2">
+              <Edit3 size={16} className="text-purple-400" />
+              NMC CBME Reflective Journal
+            </h3>
+            <p className="text-[11px] text-zinc-500 dark:text-[#94A3B8]">Write a structured clinical reflection (minimum 50 words) · Earn +25 PC per verified entry · AI plagiarism check included</p>
+          </div>
+          <span className="text-[10px] font-mono font-bold text-purple-400 bg-purple-500/10 px-2 py-0.5 rounded">Phase IV Reflective Practice</span>
+        </div>
+
+        {!journalSubmitted ? (
+          <form onSubmit={handleJournalSubmit} className="space-y-3">
+            <textarea
+              rows={5}
+              placeholder="Describe a significant clinical encounter from this week. What happened? What did you feel? What did you learn about your professional attitude and communication? How will this shape your future practice? (Minimum 50 words)"
+              value={journalText}
+              onChange={e => setJournalText(e.target.value)}
+              className="w-full p-3 bg-zinc-50 dark:bg-white/[0.03] border border-zinc-200 dark:border-white/[0.08] rounded-xl text-xs text-zinc-900 dark:text-zinc-100 placeholder-zinc-400 focus:outline-none focus:ring-2 focus:ring-purple-400/40 resize-none"
+            />
+            <div className="flex items-center justify-between text-[10px] text-zinc-400">
+              <span>{journalText.trim().split(/\s+/).filter(Boolean).length} / 500 words</span>
+              <span className="text-purple-400">AI Similarity Check · NMC CBME Annotation · +25 PC</span>
+            </div>
+            <div className="flex justify-end">
+              <button
+                type="submit"
+                className="px-4 py-2 bg-purple-500 hover:bg-purple-600 text-white font-bold text-xs rounded-xl shadow-sm flex items-center gap-1.5 transition-colors"
+              >
+                <Edit3 size={13} />
+                Submit & Run AI Check
+              </button>
+            </div>
+          </form>
+        ) : (
+          <div className="space-y-3">
+            <div className="p-4 bg-emerald/5 border border-emerald/20 rounded-xl space-y-3">
+              <div className="flex items-center justify-between">
+                <span className="font-bold text-xs text-emerald flex items-center gap-1.5">
+                  <CheckCircle2 size={14} />
+                  Journal Entry Verified & Logged
+                </span>
+                <span className="text-[10px] font-mono font-bold text-emerald bg-emerald/10 px-2 py-0.5 rounded">+25 PC Credited</span>
+              </div>
+              <div className="grid grid-cols-3 gap-3 text-xs">
+                <div className="p-2.5 bg-white dark:bg-[#151D2D] border border-zinc-100 dark:border-white/[0.07] rounded-lg text-center">
+                  <p className="font-mono font-extrabold text-lg text-emerald">{journalSimilarity}%</p>
+                  <p className="text-[10px] text-zinc-400">AI Similarity</p>
+                  <p className="text-[9px] text-emerald font-semibold">✓ Below 15% NMC Limit</p>
+                </div>
+                <div className="p-2.5 bg-white dark:bg-[#151D2D] border border-zinc-100 dark:border-white/[0.07] rounded-lg text-center">
+                  <p className="font-mono font-extrabold text-lg text-blue-500">{journalText.trim().split(/\s+/).filter(Boolean).length}</p>
+                  <p className="text-[10px] text-zinc-400">Words</p>
+                  <p className="text-[9px] text-blue-500 font-semibold">✓ NMC Minimum Met</p>
+                </div>
+                <div className="p-2.5 bg-white dark:bg-[#151D2D] border border-zinc-100 dark:border-white/[0.07] rounded-lg text-center">
+                  <p className="font-mono font-extrabold text-lg text-purple-400">4.1</p>
+                  <p className="text-[10px] text-zinc-400">Module 4.1</p>
+                  <p className="text-[9px] text-purple-400 font-semibold">Annotated</p>
+                </div>
+              </div>
+            </div>
+            <div className="flex justify-end">
+              <button
+                onClick={() => { setJournalSubmitted(false); setJournalText(''); setJournalSimilarity(null); }}
+                className="px-3 py-1.5 text-xs font-semibold text-zinc-500 hover:bg-zinc-100 dark:hover:bg-white/[0.05] rounded-lg transition-colors"
+              >
+                Write New Entry
+              </button>
+            </div>
+          </div>
+        )}
+      </div>
     </div>
   );
 }

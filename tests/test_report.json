@@ -1,12 +1,12 @@
 {
-  "timestamp": "2026-09-10T16:03:05.706Z",
+  "timestamp": "2026-09-10T16:27:38.623Z",
   "targetDirectory": "C:\\Users\\pr218\\OneDrive\\Documents\\projects Antigravity\\PulseUp",
   "stats": {
     "total": 46,
     "passed": 46,
     "failed": 0,
     "skipped": 0,
-    "durationMs": 17
+    "durationMs": 20
   },
   "suites": [
     {
@@ -18,13 +18,13 @@
           "id": "T1-DOC-001",
           "name": "Core directory layout matches specification",
           "status": "PASS",
-          "durationMs": 1
+          "durationMs": 0
         },
         {
           "id": "T1-DOC-002",
           "name": "README.md exists and meets minimum documentation payload threshold",
           "status": "PASS",
-          "durationMs": 0
+          "durationMs": 1
         },
         {
           "id": "T1-DOC-003",
@@ -79,7 +79,7 @@
           "id": "T1-PROTO-004",
           "name": "CSS font-family rules declare and apply all 3 typography families",
           "status": "PASS",
-          "durationMs": 0
+          "durationMs": 1
         },
         {
           "id": "T1-PROTO-005",
@@ -91,7 +91,7 @@
           "id": "T1-PROTO-006",
           "name": "Layout dimensions conform to specification (220px sidebar, 52px topbar, 12px card radius)",
           "status": "PASS",
-          "durationMs": 1
+          "durationMs": 0
         },
         {
           "id": "T1-PROTO-007",
@@ -139,7 +139,7 @@
           "id": "T1-PROTO-014",
           "name": "Screen 8: Verified Medical Passport elements present",
           "status": "PASS",
-          "durationMs": 0
+          "durationMs": 1
         },
         {
           "id": "T1-PROTO-015",
@@ -151,19 +151,19 @@
           "id": "T1-PROTO-016",
           "name": "Toast notification engine exists in DOM and CSS",
           "status": "PASS",
-          "durationMs": 1
+          "durationMs": 0
         },
         {
           "id": "T1-PROTO-017",
           "name": "Inline JavaScript parses and compiles cleanly without syntax errors",
           "status": "PASS",
-          "durationMs": 0
+          "durationMs": 1
         },
         {
           "id": "T1-PROTO-018",
           "name": "Static safety audit: script avoids unsafe eval() and document.write()",
           "status": "PASS",
-          "durationMs": 1
+          "durationMs": 0
         }
       ]
     },
@@ -212,13 +212,13 @@
           "id": "T1-DATA-007",
           "name": "USMLE entries specify eligibility criteria for Indian MBBS students/graduates",
           "status": "PASS",
-          "durationMs": 0
+          "durationMs": 1
         },
         {
           "id": "T1-DATA-008",
           "name": "At least 5 verified official website URLs exist per category (>=25 total)",
           "status": "PASS",
-          "durationMs": 1
+          "durationMs": 0
         },
         {
           "id": "T1-DATA-009",
@@ -249,7 +249,7 @@
           "id": "T2-EDGE-002",
           "name": "Countdown timer handles zero boundary and negative underflow prevention",
           "status": "PASS",
-          "durationMs": 0
+          "durationMs": 1
         },
         {
           "id": "T2-EDGE-003",
@@ -273,7 +273,7 @@
           "id": "T3-COMB-001",
           "name": "Sidebar navigation and Command Bar targets align 1:1 with screen containers",
           "status": "PASS",
-          "durationMs": 1
+          "durationMs": 0
         },
         {
           "id": "T3-COMB-002",
@@ -310,7 +310,7 @@
           "id": "T4-E2E-003",
           "name": "Persona 3 Journey (Dr. Rohan Verma - Junior Resident MD Medicine)",
           "status": "PASS",
-          "durationMs": 0
+          "durationMs": 1
         },
         {
           "id": "T4-E2E-004",

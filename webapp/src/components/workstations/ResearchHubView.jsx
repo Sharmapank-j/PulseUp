@@ -88,6 +88,51 @@ export default function ResearchHubView({ onToast, onAddCredits }) {
         </div>
       </div>
 
+      {/* Manuscript Milestone Timeline */}
+      <div className="bg-white dark:bg-[#1A2235] border border-zinc-200 dark:border-white/[0.07] rounded-xl p-5 shadow-sm">
+        <div className="flex items-center justify-between mb-4">
+          <div>
+            <h3 className="font-display font-bold text-sm text-zinc-900 dark:text-zinc-100">Manuscript Pipeline Milestones</h3>
+            <p className="text-[11px] text-zinc-500 dark:text-[#94A3B8] mt-0.5">Multi-Center Stroke Thrombolysis Registry · Lancet Regional Health submission track</p>
+          </div>
+          <span className="text-[10px] font-mono font-bold text-blue-500 bg-blue-500/10 px-2 py-0.5 rounded">Stage 4 / 6</span>
+        </div>
+
+        {/* Timeline Bar */}
+        <div className="relative">
+          {/* Connecting Line */}
+          <div className="absolute top-4 left-0 right-0 h-0.5 bg-zinc-200 dark:bg-white/[0.07]" />
+          <div className="absolute top-4 left-0 h-0.5 bg-emerald" style={{ width: '60%' }} />
+
+          <div className="relative grid grid-cols-6 gap-1 text-center">
+            {[
+              { label: 'Protocol', sub: 'CTRI Reg.', done: true },
+              { label: 'IEC Cleared', sub: 'MAMC + KEM', done: true },
+              { label: 'Data Collection', sub: '214 / 250', done: true },
+              { label: 'Analysis', sub: 'R + SPSS', done: false, active: true },
+              { label: 'Manuscript', sub: 'Draft v1', done: false },
+              { label: 'Submitted', sub: 'Lancet RH', done: false },
+            ].map((ms, i) => (
+              <div key={i} className="flex flex-col items-center gap-1.5">
+                <div className={`relative z-10 w-8 h-8 rounded-full border-2 flex items-center justify-center text-[10px] font-bold transition-all ${
+                  ms.done
+                    ? 'bg-emerald border-emerald text-white'
+                    : ms.active
+                    ? 'bg-white dark:bg-[#1A2235] border-blue-500 text-blue-500 ring-4 ring-blue-500/20'
+                    : 'bg-white dark:bg-[#1A2235] border-zinc-300 dark:border-white/20 text-zinc-400'
+                }`}>
+                  {ms.done ? '✓' : i + 1}
+                </div>
+                <p className={`text-[10px] font-semibold leading-tight ${
+                  ms.done ? 'text-emerald' : ms.active ? 'text-blue-500' : 'text-zinc-400 dark:text-zinc-500'
+                }`}>{ms.label}</p>
+                <p className="text-[9px] text-zinc-400">{ms.sub}</p>
+              </div>
+            ))}
+          </div>
+        </div>
+      </div>
+
       {/* CRediT Authorship Matrix Table */}
       <div className="bg-white dark:bg-[#1A2235] border border-zinc-200 dark:border-white/[0.07] rounded-xl p-5 shadow-sm space-y-4">
         <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
