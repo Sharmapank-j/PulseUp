@@ -14,7 +14,7 @@ import {
 export default function GoalSpacesView({ onToast }) {
   const [activeTab, setActiveTab] = useState('kanban'); // 'kanban', 'chat', 'files'
   const [chatInput, setChatInput] = useState('');
-  const [messages, setMessages] = useState([
+  const defaultMessages = [
     {
       id: 1,
       sender: 'Dr. Vikram Nair (PI)',
@@ -42,16 +42,44 @@ export default function GoalSpacesView({ onToast }) {
       time: 'Today, 4:12 PM',
       isAi: true,
     }
-  ]);
+  ];
 
-  const [tasks, setTasks] = useState([
+  const defaultTasks = [
     { id: 1, title: 'IEC Ethics Clearance for Site 3 (CMC Vellore)', assignee: 'Dr. Marcus', status: 'todo', tag: 'Overdue', tagColor: 'rose' },
     { id: 2, title: 'Upload De-identified Echo Reports Batch B (80 patients)', assignee: 'Dr. Aarav', status: 'todo', tag: 'Due Friday', tagColor: 'amber' },
     { id: 3, title: 'ECG Waveform Annotation for Cohort A (134 tracings)', assignee: 'Dr. Priya', status: 'review', tag: 'Reviewing', tagColor: 'amber' },
     { id: 4, title: 'PRISMA-P Protocol Registration on PROSPERO', assignee: 'Dr. Vikram', status: 'done', tag: 'Done', tagColor: 'emerald' },
     { id: 5, title: 'Systematic Literature Search (PubMed & Cochrane)', assignee: 'Dr. Aarav', status: 'done', tag: 'Done', tagColor: 'emerald' },
     { id: 6, title: 'Institutional Ethics Clearance — KEM Hospital', assignee: 'Dr. Priya', status: 'done', tag: 'Done', tagColor: 'emerald' }
-  ]);
+  ];
+
+  const [messages, setMessages] = useState(() => {
+    try {
+      const saved = localStorage.getItem('pulseup_messages');
+      if (saved) return JSON.parse(saved);
+    } catch (e) { console.error(e); }
+    return defaultMessages;
+  });
+
+  const [tasks, setTasks] = useState(() => {
+    try {
+      const saved = localStorage.getItem('pulseup_tasks');
+      if (saved) return JSON.parse(saved);
+    } catch (e) { console.error(e); }
+    return defaultTasks;
+  });
+
+  useEffect(() => {
+    try {
+      localStorage.setItem('pulseup_tasks', JSON.stringify(tasks));
+    } catch (e) { console.error(e); }
+  }, [tasks]);
+
+  useEffect(() => {
+    try {
+      localStorage.setItem('pulseup_messages', JSON.stringify(messages));
+    } catch (e) { console.error(e); }
+  }, [messages]);
 
   const moveTask = (taskId, newStatus) => {
     setTasks(prev => prev.map(t => t.id === taskId ? { ...t, status: newStatus } : t));

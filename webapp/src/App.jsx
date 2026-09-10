@@ -17,9 +17,49 @@ export default function App() {
   const [activeScreen, setActiveScreen] = useState('dashboard');
   const [isDarkMode, setIsDarkMode] = useState(true);
   const [isRedShift, setIsRedShift] = useState(false);
-  const [credits, setCredits] = useState(340);
+  const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const [toasts, setToasts] = useState([]);
   const [isSearchOpen, setIsSearchOpen] = useState(false);
+
+  // Persistent User Profile
+  const defaultProfile = {
+    name: 'Dr. Aarav Sharma',
+    role: 'Senior Resident (JR-2) · MAMC',
+    college: 'Maulana Azad Medical College (MAMC), New Delhi',
+    nmcNumber: 'DMC/R/142981',
+    abdmId: 'aarav.sharma@hpid.abdm',
+    score: 785,
+    initials: 'AS'
+  };
+
+  const [userProfile, setUserProfile] = useState(() => {
+    try {
+      const saved = localStorage.getItem('pulseup_profile');
+      if (saved) return JSON.parse(saved);
+    } catch (e) { console.error(e); }
+    return defaultProfile;
+  });
+
+  useEffect(() => {
+    try {
+      localStorage.setItem('pulseup_profile', JSON.stringify(userProfile));
+    } catch (e) { console.error(e); }
+  }, [userProfile]);
+
+  // Persistent Pulse Credits
+  const [credits, setCredits] = useState(() => {
+    try {
+      const saved = localStorage.getItem('pulseup_credits');
+      if (saved !== null) return Number(saved);
+    } catch (e) { console.error(e); }
+    return 340;
+  });
+
+  useEffect(() => {
+    try {
+      localStorage.setItem('pulseup_credits', String(credits));
+    } catch (e) { console.error(e); }
+  }, [credits]);
 
   // Sync dark mode class with root html element
   useEffect(() => {
@@ -69,23 +109,27 @@ export default function App() {
 
   return (
     <div className="flex h-screen overflow-hidden bg-zinc-50 dark:bg-[#0B101B] text-zinc-900 dark:text-[#F1F5F9] font-sans antialiased">
-      {/* 220px Fixed Sidebar Navigation */}
+      {/* Sidebar Navigation (Desktop Persistent + Mobile Drawer) */}
       <Sidebar
         activeScreen={activeScreen}
         onSelectScreen={setActiveScreen}
         credits={credits}
+        isMobileOpen={isMobileMenuOpen}
+        onCloseMobile={() => setIsMobileMenuOpen(false)}
+        userProfile={userProfile}
+        onOpenProfile={() => setActiveScreen('identity')}
         onOpenCredits={() =>
           addToast({
             type: 'info',
             title: 'Pulse Credits Balance',
-            message: `Current Balance: ${credits} PC. Earned via Med-Q (+200), Peer Review (+140). 150 PC in Active Escrow.`,
+            message: `Current Balance: ${credits} PC. Earned via Med-Q, Peer Review & AETCOM Simulations. 150 PC in Active Escrow.`,
           })
         }
       />
 
       {/* Main Viewport */}
       <div className="flex-1 flex flex-col min-w-0 overflow-hidden">
-        {/* 52px Sticky Frosted Topbar */}
+        {/* Sticky Frosted Topbar */}
         <Topbar
           title={screenTitles[activeScreen] || 'PulseUp Clinical OS'}
           onOpenSearch={() => setIsSearchOpen(true)}
@@ -116,10 +160,11 @@ export default function App() {
               message: 'Connected to National Medical Commission & ABDM Registry. Latency: 24ms.',
             })
           }
+          onToggleMobileMenu={() => setIsMobileMenuOpen(prev => !prev)}
         />
 
         {/* Scrollable Workspace Body */}
-        <main className="flex-1 overflow-y-auto p-6 max-w-[1500px] w-full mx-auto">
+        <main className="flex-1 overflow-y-auto p-4 md:p-6 max-w-[1500px] w-full mx-auto">
           {activeScreen === 'dashboard' && (
             <CareerBoardView
               onNavigate={setActiveScreen}
@@ -158,7 +203,12 @@ export default function App() {
             />
           )}
           {activeScreen === 'identity' && (
-            <PassportView onToast={addToast} credits={credits} />
+            <PassportView
+              onToast={addToast}
+              credits={credits}
+              userProfile={userProfile}
+              onUpdateProfile={setUserProfile}
+            />
           )}
         </main>
       </div>

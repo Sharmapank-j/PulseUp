@@ -6,56 +6,119 @@ import {
   Play,
   FileCheck,
   AlertCircle,
-  X
+  X,
+  Users,
+  ShieldAlert
 } from 'lucide-react';
 
 export default function AetcomView({ onToast, onAddCredits }) {
   const [activeSim, setActiveSim] = useState(null);
   const [simStep, setSimStep] = useState(0);
 
-  const simData = {
-    title: 'SPIKES Protocol: Breaking Bad News',
-    desc: '35-year-old patient with inoperable Glioblastoma Multiforme. Family waiting in Consultation Room 4.',
-    stages: [
-      {
-        step: 'Setting (S)',
-        question: 'How do you arrange the consultation environment for the family?',
-        options: [
-          { text: 'A. Deliver news in the corridor while monitoring ward vitals.', correct: false, score: 20, fb: 'Breaches privacy and psychological safety.' },
-          { text: 'B. Private room, seated for all, turn off pager sound, tissues ready.', correct: true, score: 100, fb: 'Exemplary Setting. Follows SPIKES guidelines.' },
-          { text: 'C. Ask the nurse to inform the family first.', correct: false, score: 30, fb: 'Abdicates primary clinical responsibility.' }
-        ]
-      },
-      {
-        step: 'Perception (P) & Empathy (E)',
-        question: 'The mother begins weeping after hearing the MRI findings. What is your response?',
-        options: [
-          { text: 'A. "Please do not cry, medicine has many chemotherapy options."', correct: false, score: 40, fb: 'Premature reassurance invalidates acute bereavement.' },
-          { text: 'B. Empathetic silence, hand tissues, say: "I see how heartbreaking this news is."', correct: true, score: 100, fb: 'NURSE Empathy Protocol in action.' },
-          { text: 'C. Step out to let them cry alone.', correct: false, score: 35, fb: 'Perceived as abandonment by distressed relatives.' }
-        ]
-      }
-    ]
-  };
+  const simulations = [
+    {
+      id: 'spikes',
+      title: 'SPIKES Protocol: Breaking Bad News',
+      desc: '35-year-old patient with inoperable Glioblastoma Multiforme. Family waiting in Consultation Room 4. Navigate Setting, Perception, Knowledge, and Empathy without technical jargon.',
+      tag: 'Phase III Part 1',
+      scoreNeeded: '88% Empathy',
+      creditsReward: 50,
+      icon: Stethoscope,
+      stages: [
+        {
+          step: 'Setting (S)',
+          question: 'How do you arrange the consultation environment for the family?',
+          options: [
+            { text: 'A. Deliver news in the busy casualty corridor while checking pending ward vitals.', correct: false, score: 20, fb: 'Breaches patient privacy, confidentiality and psychological safety.' },
+            { text: 'B. Private counseling room, seated together, turn off pager/phone chime, tissues ready.', correct: true, score: 100, fb: 'Exemplary Setting. Follows SPIKES consensus guidelines.' },
+            { text: 'C. Ask the nursing staff to inform the attendants before you arrive.', correct: false, score: 30, fb: 'Abdicates primary clinical and ethical responsibility.' }
+          ]
+        },
+        {
+          step: 'Perception (P) & Empathy (E)',
+          question: 'The mother begins weeping inconsolably upon hearing the MRI diagnosis. What is your immediate response?',
+          options: [
+            { text: 'A. "Please control yourself, crying will not change the biology of the tumor."', correct: false, score: 10, fb: 'Dismissive and damaging; shuts down emotional expression.' },
+            { text: 'B. Empathetic silence, offer water/tissues, say: "I see how agonizing this news is. We are here with you."', correct: true, score: 100, fb: 'NURSE Empathy Protocol in action. Validates acute grief.' },
+            { text: 'C. Immediately begin listing aggressive second-line clinical trial regimens.', correct: false, score: 40, fb: 'Premature intellectualization overwhelms the family in shock.' }
+          ]
+        }
+      ]
+    },
+    {
+      id: 'casualty',
+      title: 'Casualty Mob De-escalation & Acute Bereavement',
+      desc: '24-year-old traumatic cardiac arrest refractory to 45 minutes of ACLS. Hostile crowd gathering at ER triage doors alleging medical negligence.',
+      tag: 'Emergency Medicine / Medico-Legal',
+      scoreNeeded: '90% Non-Violent Crisis Intervention',
+      creditsReward: 60,
+      icon: ShieldAlert,
+      stages: [
+        {
+          step: 'First Contact & Triage Isolation',
+          question: 'A group of 8 agitated attendants bang on the casualty glass window shouting accusations. How do you engage?',
+          options: [
+            { text: 'A. Shout back through the window ordering them to clear the hospital premises immediately.', correct: false, score: 10, fb: 'Escalates aggression and precipitates physical assault.' },
+            { text: 'B. Step out calmly with the CMO, invite 2 primary family elders inside a secure room, acknowledge anguish.', correct: true, score: 100, fb: 'De-escalation mastery: isolates leaders, de-densifies mob, validates emotion.' },
+            { text: 'C. Lock the casualty doors and refuse all communication until police forces arrive.', correct: false, score: 35, fb: 'Leaves relatives uninformed, causing rumors of body withholding.' }
+          ]
+        },
+        {
+          step: 'Communicating Resuscitation Timeline',
+          question: 'The brother shouts: "You killed him! He was talking in the ambulance!" What is your explanation?',
+          options: [
+            { text: 'A. Hand him the CPR rhythm printout and state: "Look at the asystole tracing yourself."', correct: false, score: 30, fb: 'Defensive and technically alienating to a grieving layperson.' },
+            { text: 'B. Walk him through resuscitation efforts with compassion: "We administered 6 rounds of adrenaline and shocked his heart 4 times, but his injury was fatal."', correct: true, score: 100, fb: 'Transparent disclosure of medical efforts with zero defensiveness.' },
+            { text: 'C. Threaten him with a police FIR under Medical Protection Act 2008.', correct: false, score: 20, fb: 'Premature legal threats inflame the mob further.' }
+          ]
+        }
+      ]
+    },
+    {
+      id: 'consent',
+      title: 'Emergency Laparotomy: Medico-Legal Informed Consent',
+      desc: 'Unconscious polytrauma patient in hemorrhagic shock (FAST positive, grade IV splenic laceration). Next of kin unavailable on phone.',
+      tag: 'CPA & Supreme Court Doctrine',
+      scoreNeeded: '95% Medicolegal Precision',
+      creditsReward: 50,
+      icon: FileCheck,
+      stages: [
+        {
+          step: 'Doctrine of Emergency Necessity',
+          question: 'The patient requires immediate exploratory laparotomy. Attendants are 3 hours away. What is the lawful protocol?',
+          options: [
+            { text: 'A. Wait for attendants to reach the hospital to obtain written signature before opening abdomen.', correct: false, score: 10, fb: 'Gross clinical negligence. Patient will exsanguinate.' },
+            { text: 'B. Proceed with life-saving surgery under Emergency Doctrine (Samira Kohli vs Dr. Prabha Manchanda SC rule), documented by two consultants.', correct: true, score: 100, fb: 'Flawless medicolegal compliance with Supreme Court emergency precedents.' },
+            { text: 'C. Refuse surgery and transfer patient to a private trauma center.', correct: false, score: 0, fb: 'Abandonment under EMTALA/NMC ethics guidelines.' }
+          ]
+        }
+      ]
+    }
+  ];
 
-  const handleRunSim = () => {
-    setActiveSim(simData);
+  const handleRunSim = (sim) => {
+    setActiveSim(sim);
     setSimStep(0);
   };
 
   const handleSimChoice = (opt) => {
     if (opt.correct) {
-      onToast({ type: 'success', title: 'Exemplary Communication', message: `${opt.fb} (+50 Pulse Credits)` });
-      onAddCredits(50);
+      onToast({ type: 'success', title: 'Exemplary Communication', message: `${opt.fb} (+${activeSim.creditsReward} Pulse Credits)` });
+      onAddCredits(activeSim.creditsReward);
     } else {
-      onToast({ type: 'error', title: 'Communication Flaw', message: opt.fb });
+      onToast({ type: 'error', title: 'Communication Flaw Flagged', message: opt.fb });
     }
 
-    if (simStep + 1 < simData.stages.length) {
+    if (simStep + 1 < activeSim.stages.length) {
       setSimStep(s => s + 1);
     } else {
+      const finishedSim = activeSim;
       setActiveSim(null);
-      onToast({ type: 'success', title: 'AETCOM Simulation Completed', message: 'Evaluation: 95% Empathy Score. Entry recorded in CBME Reflective Journal.' });
+      onToast({
+        type: 'success',
+        title: 'AETCOM Simulation Completed',
+        message: `Evaluation for "${finishedSim.title}" recorded in NMC CBME Reflective Logbook.`
+      });
     }
   };
 
@@ -99,7 +162,7 @@ export default function AetcomView({ onToast, onAddCredits }) {
           <div className="flex items-center justify-between">
             <h3 className="font-display font-bold text-sm text-zinc-900 dark:text-zinc-100 flex items-center gap-2">
               <FileCheck size={16} className="text-emerald" />
-              <span>NMC Module Logbook</span>
+              <span>NMC Module Logbook (27 Competencies)</span>
             </h3>
             <span className="text-[10px] text-zinc-400">Phase IV Active</span>
           </div>
@@ -122,7 +185,7 @@ export default function AetcomView({ onToast, onAddCredits }) {
               <div className="flex items-center gap-3">
                 <span className="font-mono font-bold text-xs text-emerald bg-emerald/10 px-2 py-1 rounded">3.3</span>
                 <div>
-                  <p className="font-semibold text-zinc-900 dark:text-zinc-100">Informed Consent — CPA & MTP Guidelines</p>
+                  <p className="font-semibold text-zinc-900 dark:text-zinc-100">Informed Consent — CPA & Emergency Doctrine</p>
                   <p className="text-[10px] text-zinc-400">Phase III Part 1 · Dr. B. Sharma (Signed)</p>
                 </div>
               </div>
@@ -143,41 +206,67 @@ export default function AetcomView({ onToast, onAddCredits }) {
                 Awaiting MEU
               </span>
             </div>
+
+            <div className="p-3 bg-zinc-50 dark:bg-white/[0.02] border border-zinc-200 dark:border-white/[0.06] rounded-xl flex items-center justify-between text-xs">
+              <div className="flex items-center gap-3">
+                <span className="font-mono font-bold text-xs text-zinc-400 bg-zinc-100 dark:bg-white/[0.06] px-2 py-1 rounded">4.4</span>
+                <div>
+                  <p className="font-semibold text-zinc-900 dark:text-zinc-100">Clinical Audit & Remediation of Medical Errors</p>
+                  <p className="text-[10px] text-zinc-400">Phase IV Resident · Incident Reporting</p>
+                </div>
+              </div>
+              <span className="text-[10px] font-semibold text-zinc-400 bg-zinc-100 dark:bg-white/[0.06] px-2 py-0.5 rounded-full">
+                Queued
+              </span>
+            </div>
           </div>
         </div>
 
-        {/* AI Bedside Simulators */}
+        {/* AI Bedside Simulators (All 3 Modules) */}
         <div className="bg-white dark:bg-[#1A2235] border border-zinc-200 dark:border-white/[0.07] rounded-xl p-5 shadow-sm space-y-3">
           <div className="flex items-center justify-between">
             <h3 className="font-display font-bold text-sm text-zinc-900 dark:text-zinc-100 flex items-center gap-2">
               <Stethoscope size={16} className="text-blue-500" />
-              <span>Interactive Bedside Simulators</span>
+              <span>Interactive Bedside Simulators (3 Scenarios)</span>
             </h3>
             <span className="text-[10px] text-blue-500 font-semibold bg-blue-500/10 px-2 py-0.5 rounded-full">
               AI Standardized Patient
             </span>
           </div>
 
-          <div className="p-4 bg-gradient-to-br from-blue-500/5 to-purple-500/5 border border-blue-500/20 rounded-xl space-y-3">
-            <div>
-              <h4 className="font-bold text-xs text-zinc-900 dark:text-zinc-100">Breaking Bad News (SPIKES)</h4>
-              <p className="text-[11px] text-zinc-500 dark:text-[#94A3B8] mt-1 leading-relaxed">
-                Room 4: Glioblastoma Multiforme case. Family is anxious. Navigate Setting, Perception, Knowledge, and Empathy without technical jargon.
-              </p>
-            </div>
-            <div className="flex items-center justify-between pt-1">
-              <div className="flex gap-3 text-[11px] font-mono">
-                <span>Score: <strong className="text-emerald">88%</strong></span>
-                <span>Reward: <strong className="text-amber-500">+50 PC</strong></span>
-              </div>
-              <button
-                onClick={handleRunSim}
-                className="px-3.5 py-1.5 bg-emerald hover:bg-emerald-dark text-navy-950 font-bold text-xs rounded-lg flex items-center gap-1.5 transition-colors"
-              >
-                <Play size={12} fill="currentColor" />
-                <span>Launch Simulator</span>
-              </button>
-            </div>
+          <div className="space-y-3">
+            {simulations.map(sim => {
+              const Icon = sim.icon;
+              return (
+                <div
+                  key={sim.id}
+                  className="p-4 bg-zinc-50/70 dark:bg-white/[0.02] border border-zinc-200 dark:border-white/[0.07] rounded-xl space-y-2 hover:border-emerald/40 transition-colors"
+                >
+                  <div className="flex items-start justify-between gap-2">
+                    <div className="flex items-center gap-2">
+                      <div className="p-1.5 rounded-lg bg-emerald/10 text-emerald">
+                        <Icon size={15} />
+                      </div>
+                      <h4 className="font-bold text-xs text-zinc-900 dark:text-zinc-100">{sim.title}</h4>
+                    </div>
+                    <span className="font-mono text-xs font-bold text-amber-500">+{sim.creditsReward} PC</span>
+                  </div>
+                  <p className="text-[11px] text-zinc-500 dark:text-[#94A3B8] leading-relaxed">
+                    {sim.desc}
+                  </p>
+                  <div className="flex items-center justify-between pt-1">
+                    <span className="text-[10px] font-mono text-zinc-400">{sim.tag}</span>
+                    <button
+                      onClick={() => handleRunSim(sim)}
+                      className="px-3 py-1 bg-emerald hover:bg-emerald-dark text-navy-950 font-bold text-xs rounded-lg flex items-center gap-1.5 transition-colors"
+                    >
+                      <Play size={11} fill="currentColor" />
+                      <span>Run Simulator</span>
+                    </button>
+                  </div>
+                </div>
+              );
+            })}
           </div>
         </div>
       </div>
@@ -185,18 +274,20 @@ export default function AetcomView({ onToast, onAddCredits }) {
       {/* Simulator Modal */}
       {activeSim && (
         <div className="fixed inset-0 z-50 bg-black/75 backdrop-blur-sm flex items-center justify-center p-4">
-          <div className="bg-white dark:bg-[#1A2235] border border-zinc-200 dark:border-white/[0.14] rounded-2xl max-w-lg w-full p-5 shadow-2xl space-y-4">
+          <div className="bg-white dark:bg-[#1A2235] border border-zinc-200 dark:border-white/[0.14] rounded-2xl max-w-lg w-full p-5 shadow-2xl space-y-4 animate-fadeIn">
             <div className="flex items-center justify-between border-b border-zinc-200 dark:border-white/[0.07] pb-3">
               <div>
                 <h3 className="font-bold text-sm text-zinc-900 dark:text-zinc-100">{activeSim.title}</h3>
-                <p className="text-[11px] text-emerald font-semibold">{activeSim.stages[simStep].step}</p>
+                <p className="text-[11px] text-emerald font-semibold">
+                  Stage {simStep + 1} of {activeSim.stages.length}: {activeSim.stages[simStep].step}
+                </p>
               </div>
               <button onClick={() => setActiveSim(null)} className="text-zinc-400 hover:text-zinc-600">
                 <X size={16} />
               </button>
             </div>
 
-            <p className="text-xs text-zinc-700 dark:text-zinc-200 font-medium leading-relaxed">
+            <p className="text-xs text-zinc-800 dark:text-zinc-200 font-medium leading-relaxed">
               {activeSim.stages[simStep].question}
             </p>
 

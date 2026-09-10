@@ -8,10 +8,20 @@ import {
   PartyPopper,
   Compass,
   CreditCard,
-  ChevronRight
+  ChevronRight,
+  X
 } from 'lucide-react';
 
-export default function Sidebar({ activeScreen, onSelectScreen, credits = 340, onOpenCredits }) {
+export default function Sidebar({
+  activeScreen,
+  onSelectScreen,
+  credits = 340,
+  onOpenCredits,
+  isMobileOpen = false,
+  onCloseMobile,
+  userProfile = { name: 'Dr. Aarav Sharma', role: 'JR-2 Resident · MAMC', score: 785, initials: 'AS' },
+  onOpenProfile
+}) {
   const navItems = [
     { id: 'dashboard', label: 'Career Board', icon: LayoutDashboard, badge: null, section: 'Workspace' },
     { id: 'research', label: 'Research Hub', icon: FlaskConical, badge: '2', section: 'Clinical' },
@@ -25,33 +35,49 @@ export default function Sidebar({ activeScreen, onSelectScreen, credits = 340, o
 
   const sections = ['Workspace', 'Clinical', 'India', 'Credential'];
 
-  return (
-    <aside className="w-[220px] flex-shrink-0 bg-white dark:bg-[#1C2541] border-r border-zinc-200 dark:border-white/[0.07] flex flex-col h-screen z-20 select-none">
+  const sidebarContent = (
+    <div className="flex flex-col h-full bg-white dark:bg-[#1C2541] border-r border-zinc-200 dark:border-white/[0.07] select-none">
       {/* Logo Header */}
-      <div className="p-4 flex items-center gap-2.5 border-b border-zinc-200 dark:border-white/[0.07]">
-        <div className="w-8 h-8 rounded-lg bg-gradient-to-br from-emerald to-[#34D399] flex items-center justify-center font-extrabold text-navy-950 text-base shadow-sm">
-          P
+      <div className="p-4 flex items-center justify-between border-b border-zinc-200 dark:border-white/[0.07]">
+        <div className="flex items-center gap-2.5">
+          <div className="w-8 h-8 rounded-lg bg-gradient-to-br from-emerald to-[#34D399] flex items-center justify-center font-extrabold text-navy-950 text-base shadow-sm">
+            P
+          </div>
+          <div>
+            <span className="font-display font-extrabold text-base tracking-tight text-zinc-900 dark:text-white">PulseUp</span>
+            <span className="ml-1.5 text-[9px] font-bold text-emerald bg-emerald/10 px-1.5 py-0.5 rounded">BHARAT OS</span>
+          </div>
         </div>
-        <div>
-          <span className="font-display font-extrabold text-base tracking-tight text-zinc-900 dark:text-white">PulseUp</span>
-          <span className="ml-1.5 text-[9px] font-bold text-emerald bg-emerald/10 px-1.5 py-0.5 rounded">BHARAT OS</span>
-        </div>
+
+        {/* Mobile Close Button */}
+        {isMobileOpen && (
+          <button
+            onClick={onCloseMobile}
+            className="md:hidden p-1.5 rounded-lg text-zinc-400 hover:text-zinc-600 dark:hover:text-zinc-200"
+          >
+            <X size={18} />
+          </button>
+        )}
       </div>
 
       {/* User Chip */}
       <div
-        onClick={() => onSelectScreen('identity')}
+        onClick={() => {
+          if (onOpenProfile) onOpenProfile();
+          else onSelectScreen('identity');
+          if (onCloseMobile) onCloseMobile();
+        }}
         className="p-3 mx-2 my-2 rounded-xl flex items-center gap-2.5 hover:bg-zinc-100 dark:hover:bg-white/[0.04] cursor-pointer transition-colors border border-transparent hover:border-zinc-200 dark:hover:border-white/[0.05]"
       >
         <div className="w-8 h-8 rounded-full bg-gradient-to-br from-blue-500 to-purple-600 text-white font-bold text-xs flex items-center justify-center flex-shrink-0 border border-emerald/40">
-          AS
+          {userProfile.initials || 'AS'}
         </div>
         <div className="flex-1 min-w-0">
-          <p className="text-xs font-semibold text-zinc-900 dark:text-zinc-100 truncate">Dr. Aarav Sharma</p>
-          <p className="text-[10px] text-zinc-500 dark:text-[#94A3B8] truncate">JR-2 Resident · MAMC</p>
+          <p className="text-xs font-semibold text-zinc-900 dark:text-zinc-100 truncate">{userProfile.name}</p>
+          <p className="text-[10px] text-zinc-500 dark:text-[#94A3B8] truncate">{userProfile.role}</p>
         </div>
         <div className="text-[10.5px] font-mono font-bold text-emerald bg-emerald/10 border border-emerald/20 px-1.5 py-0.5 rounded-full">
-          785
+          {userProfile.score || 785}
         </div>
       </div>
 
@@ -69,7 +95,10 @@ export default function Sidebar({ activeScreen, onSelectScreen, credits = 340, o
                 return (
                   <button
                     key={item.id}
-                    onClick={() => onSelectScreen(item.id)}
+                    onClick={() => {
+                      onSelectScreen(item.id);
+                      if (onCloseMobile) onCloseMobile();
+                    }}
                     className={`w-full flex items-center gap-2.5 px-2.5 py-2 rounded-lg text-xs font-medium transition-all ${
                       isActive
                         ? 'bg-emerald/10 text-emerald dark:bg-emerald/15 dark:text-emerald font-semibold border-l-2 border-emerald'
@@ -97,7 +126,10 @@ export default function Sidebar({ activeScreen, onSelectScreen, credits = 340, o
 
       {/* Footer Pulse Credits Meter */}
       <div
-        onClick={onOpenCredits}
+        onClick={() => {
+          onOpenCredits();
+          if (onCloseMobile) onCloseMobile();
+        }}
         className="p-3 border-t border-zinc-200 dark:border-white/[0.07] bg-zinc-50 dark:bg-black/20 hover:bg-zinc-100 dark:hover:bg-white/[0.03] cursor-pointer transition-colors"
       >
         <div className="flex items-center justify-between text-[11px] mb-1.5">
@@ -108,6 +140,31 @@ export default function Sidebar({ activeScreen, onSelectScreen, credits = 340, o
           <div className="h-full bg-gradient-to-r from-emerald to-[#34D399] rounded-full" style={{ width: `${Math.min(100, (credits / 1000) * 100)}%` }} />
         </div>
       </div>
-    </aside>
+    </div>
+  );
+
+  return (
+    <>
+      {/* Desktop Persistent Sidebar */}
+      <aside className="hidden md:flex w-[220px] flex-shrink-0 flex-col h-screen z-20">
+        {sidebarContent}
+      </aside>
+
+      {/* Mobile Sliding Drawer & Backdrop */}
+      {isMobileOpen && (
+        <div className="fixed inset-0 z-50 md:hidden flex">
+          {/* Backdrop */}
+          <div
+            onClick={onCloseMobile}
+            className="fixed inset-0 bg-black/60 backdrop-blur-sm transition-opacity"
+          />
+
+          {/* Drawer content */}
+          <div className="relative w-[260px] max-w-[80vw] h-full shadow-2xl z-10 animate-slideRight">
+            {sidebarContent}
+          </div>
+        </div>
+      )}
+    </>
   );
 }

@@ -1,12 +1,12 @@
 {
-  "timestamp": "2026-09-03T17:59:58.717Z",
+  "timestamp": "2026-09-10T15:54:23.331Z",
   "targetDirectory": "C:\\Users\\pr218\\OneDrive\\Documents\\projects Antigravity\\PulseUp",
   "stats": {
     "total": 46,
     "passed": 46,
     "failed": 0,
     "skipped": 0,
-    "durationMs": 17
+    "durationMs": 24
   },
   "suites": [
     {
@@ -24,7 +24,7 @@
           "id": "T1-DOC-002",
           "name": "README.md exists and meets minimum documentation payload threshold",
           "status": "PASS",
-          "durationMs": 0
+          "durationMs": 1
         },
         {
           "id": "T1-DOC-003",
@@ -42,13 +42,13 @@
           "id": "T1-DOC-005",
           "name": "README.md contains explanation of research database deliverables",
           "status": "PASS",
-          "durationMs": 1
+          "durationMs": 0
         },
         {
           "id": "T1-DOC-006",
           "name": "README.md documents clinical design system tokens and screen shortcuts",
           "status": "PASS",
-          "durationMs": 0
+          "durationMs": 1
         }
       ]
     },
@@ -91,13 +91,13 @@
           "id": "T1-PROTO-006",
           "name": "Layout dimensions conform to specification (220px sidebar, 52px topbar, 12px card radius)",
           "status": "PASS",
-          "durationMs": 0
+          "durationMs": 1
         },
         {
           "id": "T1-PROTO-007",
           "name": "Screen 1: Daily Career Board elements present",
           "status": "PASS",
-          "durationMs": 1
+          "durationMs": 0
         },
         {
           "id": "T1-PROTO-008",
@@ -127,7 +127,7 @@
           "id": "T1-PROTO-012",
           "name": "Screen 6: Campus Pulse & Med-Q elements present",
           "status": "PASS",
-          "durationMs": 0
+          "durationMs": 1
         },
         {
           "id": "T1-PROTO-013",
@@ -139,7 +139,7 @@
           "id": "T1-PROTO-014",
           "name": "Screen 8: Verified Medical Passport elements present",
           "status": "PASS",
-          "durationMs": 1
+          "durationMs": 0
         },
         {
           "id": "T1-PROTO-015",
@@ -157,13 +157,13 @@
           "id": "T1-PROTO-017",
           "name": "Inline JavaScript parses and compiles cleanly without syntax errors",
           "status": "PASS",
-          "durationMs": 0
+          "durationMs": 1
         },
         {
           "id": "T1-PROTO-018",
           "name": "Static safety audit: script avoids unsafe eval() and document.write()",
           "status": "PASS",
-          "durationMs": 1
+          "durationMs": 0
         }
       ]
     },
@@ -176,7 +176,7 @@
           "id": "T1-DATA-001",
           "name": "medical_events_database.md exists and covers Categories A through E",
           "status": "PASS",
-          "durationMs": 0
+          "durationMs": 2
         },
         {
           "id": "T1-DATA-002",
@@ -273,13 +273,13 @@
           "id": "T3-COMB-001",
           "name": "Sidebar navigation and Command Bar targets align 1:1 with screen containers",
           "status": "PASS",
-          "durationMs": 1
+          "durationMs": 0
         },
         {
           "id": "T3-COMB-002",
           "name": "Workbench view switching logic cleanly isolates sub-panels",
           "status": "PASS",
-          "durationMs": 0
+          "durationMs": 1
         },
         {
           "id": "T3-COMB-003",

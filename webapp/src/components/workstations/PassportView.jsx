@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import {
   CreditCard,
   ShieldCheck,
@@ -8,22 +8,47 @@ import {
   Printer,
   Plus,
   FileText,
-  X
+  X,
+  Edit3
 } from 'lucide-react';
 
-export default function PassportView({ onToast, credits }) {
-  const [procedures, setProcedures] = useState([
+export default function PassportView({ onToast, credits, userProfile, onUpdateProfile }) {
+  const defaultProcedures = [
     { name: 'Venipuncture & Central IV Line (IJV)', count: '140+', type: 'Independent', verified: true },
     { name: 'Lumbar Puncture (Diagnostic & Therapeutic)', count: '24', type: 'Independent', verified: true },
     { name: 'Endotracheal Intubation (ICU / Trauma)', count: '32', type: 'Supervised', verified: true },
     { name: 'Thoracocentesis / Pleural Fluid Tap', count: '14', type: 'Supervised', verified: true },
     { name: 'Bedside Point-of-Care Ultrasound (POCUS)', count: '45', type: 'Logged', verified: true },
-  ]);
+  ];
+
+  const [procedures, setProcedures] = useState(() => {
+    try {
+      const saved = localStorage.getItem('pulseup_procedures');
+      if (saved) return JSON.parse(saved);
+    } catch (e) { console.error(e); }
+    return defaultProcedures;
+  });
+
+  useEffect(() => {
+    try {
+      localStorage.setItem('pulseup_procedures', JSON.stringify(procedures));
+    } catch (e) { console.error(e); }
+  }, [procedures]);
 
   const [showLogModal, setShowLogModal] = useState(false);
   const [showCvModal, setShowCvModal] = useState(false);
+  const [showEditModal, setShowEditModal] = useState(false);
   const [newProcName, setNewProcName] = useState('');
   const [newProcRole, setNewProcRole] = useState('Independent');
+
+  // Edit Profile Form State
+  const [profileForm, setProfileForm] = useState({
+    name: userProfile?.name || 'Dr. Aarav Sharma',
+    role: userProfile?.role || 'JR-2 Resident · MAMC',
+    college: userProfile?.college || 'Maulana Azad Medical College (MAMC), New Delhi',
+    nmcNumber: userProfile?.nmcNumber || 'DMC/R/142981',
+    abdmId: userProfile?.abdmId || 'aarav.sharma@hpid.abdm'
+  });
 
   const handleAddProcedure = (e) => {
     e.preventDefault();
@@ -33,8 +58,33 @@ export default function PassportView({ onToast, credits }) {
     setNewProcName('');
     onToast({
       type: 'success',
-      title: 'Procedure Logged',
+      title: 'Procedure Logged in e-Logbook',
       message: `Registered "${newProcName}" under supervisor Dr. S. K. Rao (DMC/R/08214).`
+    });
+  };
+
+  const handleSaveProfile = (e) => {
+    e.preventDefault();
+    const initials = profileForm.name
+      .split(' ')
+      .map(n => n[0])
+      .filter(Boolean)
+      .slice(0, 2)
+      .join('')
+      .toUpperCase();
+
+    const updated = {
+      ...userProfile,
+      ...profileForm,
+      initials: initials || 'MD'
+    };
+
+    onUpdateProfile(updated);
+    setShowEditModal(false);
+    onToast({
+      type: 'success',
+      title: 'Profile Updated',
+      message: `Verified Medical Passport updated for ${updated.name}.`
     });
   };
 
@@ -44,21 +94,30 @@ export default function PassportView({ onToast, credits }) {
       <div className="bg-gradient-to-br from-blue-500/10 via-emerald/5 to-transparent border border-blue-500/20 rounded-2xl p-6 flex flex-col md:flex-row items-start md:items-center justify-between gap-6">
         <div className="flex items-center gap-4">
           <div className="w-16 h-16 rounded-full bg-gradient-to-br from-blue-500 to-purple-600 text-white font-extrabold text-2xl flex items-center justify-center flex-shrink-0 border-2 border-emerald shadow-lg">
-            AS
+            {userProfile?.initials || 'AS'}
           </div>
           <div>
-            <h2 className="font-display font-extrabold text-xl text-zinc-900 dark:text-zinc-100">
-              Dr. Aarav Sharma, MBBS
-            </h2>
+            <div className="flex items-center gap-2">
+              <h2 className="font-display font-extrabold text-xl text-zinc-900 dark:text-zinc-100">
+                {userProfile?.name || 'Dr. Aarav Sharma, MBBS'}
+              </h2>
+              <button
+                onClick={() => setShowEditModal(true)}
+                className="p-1 rounded-lg hover:bg-zinc-200 dark:hover:bg-white/[0.08] text-zinc-500 hover:text-emerald transition-colors"
+                title="Edit Profile"
+              >
+                <Edit3 size={14} />
+              </button>
+            </div>
             <p className="text-xs text-zinc-500 dark:text-[#94A3B8] mt-0.5">
-              Senior Resident (JR-2) · Department of Internal Medicine · Maulana Azad Medical College (MAMC), New Delhi
+              {userProfile?.role || 'Senior Resident (JR-2) · Department of Internal Medicine · Maulana Azad Medical College (MAMC), New Delhi'}
             </p>
             <div className="flex flex-wrap gap-1.5 mt-2">
               <span className="text-[10px] font-mono font-semibold bg-emerald/10 text-emerald border border-emerald/20 px-2 py-0.5 rounded-full">
-                ✓ NMC: DMC/R/142981
+                ✓ NMC: {userProfile?.nmcNumber || 'DMC/R/142981'}
               </span>
               <span className="text-[10px] font-mono font-semibold bg-blue-500/10 text-blue-400 border border-blue-500/20 px-2 py-0.5 rounded-full">
-                ✓ ABDM: aarav.sharma@hpid.abdm
+                ✓ ABDM: {userProfile?.abdmId || 'aarav.sharma@hpid.abdm'}
               </span>
               <span className="text-[10px] font-mono font-semibold bg-purple-500/10 text-purple-400 border border-purple-500/20 px-2 py-0.5 rounded-full">
                 DigiLocker Synced
@@ -69,7 +128,7 @@ export default function PassportView({ onToast, credits }) {
 
         <div className="flex items-center gap-4">
           <div className="text-center px-4 border-r border-zinc-200 dark:border-white/[0.08]">
-            <p className="font-mono font-extrabold text-2xl text-emerald">785</p>
+            <p className="font-mono font-extrabold text-2xl text-emerald">{userProfile?.score || 785}</p>
             <p className="text-[10px] text-zinc-400">Career Score</p>
           </div>
           <div className="text-center px-4">
@@ -98,20 +157,20 @@ export default function PassportView({ onToast, credits }) {
             <div className="relative">
               <div className="absolute -left-[21px] top-1 w-2.5 h-2.5 rounded-full bg-emerald" />
               <p className="font-bold text-zinc-900 dark:text-zinc-100">Postgraduate Residency (MD Internal Medicine)</p>
-              <p className="text-zinc-500 dark:text-[#94A3B8]">MAMC & Lok Nayak Hospital, New Delhi</p>
-              <span className="text-[10px] font-mono text-emerald font-semibold">2026 – Present · DMC Verified</span>
+              <p className="text-zinc-500 dark:text-[#94A3B8]">{userProfile?.college || 'MAMC & Lok Nayak Hospital, New Delhi'}</p>
+              <span className="text-[10px] font-mono text-emerald font-semibold">2026 – Present · State Council Verified</span>
             </div>
 
             <div className="relative">
               <div className="absolute -left-[21px] top-1 w-2.5 h-2.5 rounded-full bg-emerald" />
               <p className="font-bold text-zinc-900 dark:text-zinc-100">Compulsory Rotatory Residential Internship (CRRI)</p>
-              <p className="text-zinc-500 dark:text-[#94A3B8]">Lok Nayak Hospital & GB Pant Institute · 12 Rotations</p>
+              <p className="text-zinc-500 dark:text-[#94A3B8]">Teaching Hospital & Emergency Triage Center · 12 Rotations</p>
               <span className="text-[10px] font-mono text-blue-400 font-semibold">2025 – 2026 · DigiLocker Verified</span>
             </div>
 
             <div className="relative">
               <div className="absolute -left-[21px] top-1 w-2.5 h-2.5 rounded-full bg-zinc-400" />
-              <p className="font-bold text-zinc-900 dark:text-zinc-100">MBBS with Distinction — MAMC Delhi</p>
+              <p className="font-bold text-zinc-900 dark:text-zinc-100">MBBS with Distinction</p>
               <p className="text-zinc-500 dark:text-[#94A3B8]">Gold Medal Pharmacology · 3x ICMR-STS Grantee</p>
               <span className="text-[10px] font-mono text-zinc-400 font-semibold">2020 – 2025 · DigiLocker Verified</span>
             </div>
@@ -150,10 +209,95 @@ export default function PassportView({ onToast, credits }) {
         </div>
       </div>
 
+      {/* Edit Profile Modal */}
+      {showEditModal && (
+        <div className="fixed inset-0 z-50 bg-black/75 backdrop-blur-sm flex items-center justify-center p-4">
+          <div className="bg-white dark:bg-[#1A2235] border border-zinc-200 dark:border-white/[0.14] rounded-2xl max-w-md w-full p-6 shadow-2xl space-y-4 text-xs animate-fadeIn">
+            <div className="flex items-center justify-between border-b border-zinc-100 dark:border-white/[0.07] pb-3">
+              <h3 className="font-bold text-sm text-zinc-900 dark:text-zinc-100">Edit Medical Practitioner Profile</h3>
+              <button onClick={() => setShowEditModal(false)} className="text-zinc-400 hover:text-zinc-600">
+                <X size={16} />
+              </button>
+            </div>
+
+            <form onSubmit={handleSaveProfile} className="space-y-3">
+              <div>
+                <label className="text-[10px] font-bold uppercase text-zinc-400">Full Name (with Title)</label>
+                <input
+                  type="text"
+                  value={profileForm.name}
+                  onChange={e => setProfileForm({ ...profileForm, name: e.target.value })}
+                  className="w-full mt-1 p-2 bg-zinc-50 dark:bg-white/[0.04] border border-zinc-200 dark:border-white/[0.08] rounded-lg text-xs"
+                  required
+                />
+              </div>
+
+              <div>
+                <label className="text-[10px] font-bold uppercase text-zinc-400">Designation & Institution</label>
+                <input
+                  type="text"
+                  value={profileForm.role}
+                  onChange={e => setProfileForm({ ...profileForm, role: e.target.value })}
+                  className="w-full mt-1 p-2 bg-zinc-50 dark:bg-white/[0.04] border border-zinc-200 dark:border-white/[0.08] rounded-lg text-xs"
+                  required
+                />
+              </div>
+
+              <div>
+                <label className="text-[10px] font-bold uppercase text-zinc-400">Medical College / Hospital</label>
+                <input
+                  type="text"
+                  value={profileForm.college}
+                  onChange={e => setProfileForm({ ...profileForm, college: e.target.value })}
+                  className="w-full mt-1 p-2 bg-zinc-50 dark:bg-white/[0.04] border border-zinc-200 dark:border-white/[0.08] rounded-lg text-xs"
+                />
+              </div>
+
+              <div className="grid grid-cols-2 gap-2">
+                <div>
+                  <label className="text-[10px] font-bold uppercase text-zinc-400">NMC / State Reg No</label>
+                  <input
+                    type="text"
+                    value={profileForm.nmcNumber}
+                    onChange={e => setProfileForm({ ...profileForm, nmcNumber: e.target.value })}
+                    className="w-full mt-1 p-2 bg-zinc-50 dark:bg-white/[0.04] border border-zinc-200 dark:border-white/[0.08] rounded-lg text-xs font-mono"
+                  />
+                </div>
+                <div>
+                  <label className="text-[10px] font-bold uppercase text-zinc-400">ABDM Health ID</label>
+                  <input
+                    type="text"
+                    value={profileForm.abdmId}
+                    onChange={e => setProfileForm({ ...profileForm, abdmId: e.target.value })}
+                    className="w-full mt-1 p-2 bg-zinc-50 dark:bg-white/[0.04] border border-zinc-200 dark:border-white/[0.08] rounded-lg text-xs font-mono"
+                  />
+                </div>
+              </div>
+
+              <div className="flex justify-end gap-2 pt-2 border-t border-zinc-100 dark:border-white/[0.07]">
+                <button
+                  type="button"
+                  onClick={() => setShowEditModal(false)}
+                  className="px-3 py-1.5 rounded-lg text-zinc-500 hover:bg-zinc-100 dark:hover:bg-white/[0.05]"
+                >
+                  Cancel
+                </button>
+                <button
+                  type="submit"
+                  className="px-4 py-1.5 bg-emerald hover:bg-emerald-dark text-navy-950 font-bold rounded-lg shadow-sm"
+                >
+                  Save Profile Changes
+                </button>
+              </div>
+            </form>
+          </div>
+        </div>
+      )}
+
       {/* Log Procedure Modal */}
       {showLogModal && (
         <div className="fixed inset-0 z-50 bg-black/75 backdrop-blur-sm flex items-center justify-center p-4">
-          <div className="bg-white dark:bg-[#1A2235] border border-zinc-200 dark:border-white/[0.14] rounded-2xl max-w-sm w-full p-5 shadow-2xl space-y-4 text-xs">
+          <div className="bg-white dark:bg-[#1A2235] border border-zinc-200 dark:border-white/[0.14] rounded-2xl max-w-sm w-full p-5 shadow-2xl space-y-4 text-xs animate-fadeIn">
             <div className="flex items-center justify-between border-b border-zinc-100 dark:border-white/[0.07] pb-3">
               <h3 className="font-bold text-sm text-zinc-900 dark:text-zinc-100">Log Clinical Procedure</h3>
               <button onClick={() => setShowLogModal(false)} className="text-zinc-400 hover:text-zinc-600">
@@ -170,6 +314,7 @@ export default function PassportView({ onToast, credits }) {
                   value={newProcName}
                   onChange={e => setNewProcName(e.target.value)}
                   className="w-full mt-1 p-2 bg-zinc-50 dark:bg-white/[0.04] border border-zinc-200 dark:border-white/[0.08] rounded-lg text-xs"
+                  required
                 />
               </div>
 
@@ -209,7 +354,7 @@ export default function PassportView({ onToast, credits }) {
       {/* CV Preview Modal */}
       {showCvModal && (
         <div className="fixed inset-0 z-50 bg-black/75 backdrop-blur-sm flex items-center justify-center p-4">
-          <div className="bg-white text-zinc-900 rounded-2xl max-w-xl w-full p-6 shadow-2xl space-y-4 text-xs font-sans">
+          <div className="bg-white text-zinc-900 rounded-2xl max-w-xl w-full p-6 shadow-2xl space-y-4 text-xs font-sans animate-fadeIn">
             <div className="flex items-center justify-between border-b pb-3">
               <div>
                 <h3 className="font-bold text-base text-zinc-900">Official Verified Medical CV</h3>
@@ -222,21 +367,26 @@ export default function PassportView({ onToast, credits }) {
 
             <div className="space-y-3">
               <div>
-                <h4 className="font-extrabold text-sm text-zinc-900">DR. AARAV SHARMA, MBBS</h4>
-                <p className="text-zinc-600">Junior Resident, MD Internal Medicine · MAMC New Delhi</p>
-                <p className="text-[10px] text-zinc-500 font-mono">NMC Reg: DMC/R/142981 · ABDM ID: aarav.sharma@hpid.abdm</p>
+                <h4 className="font-extrabold text-sm text-zinc-900 uppercase">{userProfile?.name || 'DR. AARAV SHARMA, MBBS'}</h4>
+                <p className="text-zinc-600">{userProfile?.role || 'Junior Resident, MD Internal Medicine · MAMC New Delhi'}</p>
+                <p className="text-[10px] text-zinc-500 font-mono">NMC Reg: {userProfile?.nmcNumber || 'DMC/R/142981'} · ABDM ID: {userProfile?.abdmId || 'aarav.sharma@hpid.abdm'}</p>
               </div>
 
               <div>
                 <h5 className="font-bold text-[11px] uppercase tracking-wider text-zinc-400 border-b pb-1">Residency & Training</h5>
                 <p className="mt-1 font-semibold text-zinc-800">MD Internal Medicine (2026–Present)</p>
-                <p className="text-zinc-600">Maulana Azad Medical College & Lok Nayak Hospital, New Delhi</p>
+                <p className="text-zinc-600">{userProfile?.college || 'Maulana Azad Medical College & Lok Nayak Hospital, New Delhi'}</p>
               </div>
 
               <div>
                 <h5 className="font-bold text-[11px] uppercase tracking-wider text-zinc-400 border-b pb-1">Research & Publications</h5>
                 <p className="mt-1 text-zinc-800">• Co-Investigator: Multi-Center Stroke Thrombolysis Registry (NIMHANS/MAMC)</p>
                 <p className="text-zinc-800">• 3x ICMR Short-Term Studentship (STS) Awardee</p>
+              </div>
+
+              <div>
+                <h5 className="font-bold text-[11px] uppercase tracking-wider text-zinc-400 border-b pb-1">Logged Clinical Procedures</h5>
+                <p className="mt-1 text-zinc-800">{procedures.length} verified procedures recorded in NMC e-Logbook.</p>
               </div>
             </div>
 
