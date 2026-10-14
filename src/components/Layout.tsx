@@ -62,7 +62,7 @@ export default function Layout() {
                 }`
               }
             >
-              <Icon size={18} />
+              <Icon className="h-4.5 w-4.5" size={18} />
               {label}
             </NavLink>
           ))}
@@ -132,7 +132,7 @@ export default function Layout() {
 
         <footer className="px-4 pb-6 pt-2 text-center text-[11px] text-zinc-400 md:px-8">
           PulseUp Cloud — deterministic PulseAI v1 · auditable credit ledger · zero-PHI data policy ·
-          real Indian medical-field data with official-source badges
+          demo data modeled on the public Indian opportunity ecosystem
         </footer>
       </div>
 

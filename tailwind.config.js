@@ -5,6 +5,7 @@ export default {
   theme: {
     extend: {
       colors: {
+        // PulseUp core palette (matches the original demo)
         pulse: {
           50: '#ecfdf5',
           100: '#d1fae5',
@@ -15,14 +16,14 @@ export default {
           700: '#047857',
         },
         night: {
-          950: '#0B101B',
+          950: '#0B101B', // app background (dark)
           900: '#0f1524',
-          800: '#151D2D',
+          800: '#151D2D', // card background
           700: '#1c2740',
           600: '#253352',
           400: '#334060',
         },
-        ice: '#F1F5F9',
+        ice: '#F1F5F9', // dark-mode text
         accent: {
           blue: '#3b82f6',
           purple: '#a855f7',

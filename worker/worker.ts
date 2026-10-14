@@ -1,7 +1,19 @@
-// PulseUp Cloud — Worker backend (full source) — see README for architecture.
-// Main responsibilities: static SPA serving, Freebuff auth wrap, D1 persistence
-// (user_state/ledger/sessions/opportunity_syncs/cache), agent services with
-// schema validation + deterministic fallback, and the NMC compliance feed.
+// PulseUp Cloud — Worker backend
+//
+// Responsibilities:
+//   1. Serve the built SPA (env.ASSETS) with worker-first routing for /api and /auth
+//   2. Sign in with Freebuff auth wrap (protects every user-data route server-side)
+//   3. D1 persistence: user state, credit ledger, plans, SBAR sessions, opportunity syncs
+//   4. Live agent services: /api/agent/* call an OpenAI-compatible LLM gateway
+//      (AI_GATEWAY_URL + AI_API_KEY + AI_MODEL) and always VALIDATE output shape;
+//      if the gateway is not configured or output is invalid, deterministic
+//      fallback from src/lib/agent.ts runs so the product never breaks.
+//
+// Security properties (from @freebuff/auth guidance):
+//   - getUser(request) gates every route that touches user data → 401 when null
+//   - state changes require isSameOriginRequest → 403 on foreign Origin
+//   - all rows keyed by user.sub (never client-supplied identity)
+//   - personalized responses use Cache-Control: private, no-store
 
 import { createFreebuffAuth, isSameOriginRequest, type FreebuffAuth } from '@freebuff/auth'
 import { generatePlan, scoreOpportunity, triageSBAR } from '../src/lib/agent'
@@ -15,6 +27,7 @@ interface Env {
   FREEBUFF_CLIENT_ID: string
   FREEBUFF_ISSUER?: string
   APP_ORIGIN: string
+  // OpenAI-compatible gateway (e.g. OpenLLM, OpenAI, OpenRouter)
   AI_GATEWAY_URL?: string
   AI_API_KEY?: string
   AI_MODEL?: string
@@ -23,7 +36,10 @@ interface Env {
 const JSON_HEADERS = { 'content-type': 'application/json', 'cache-control': 'private, no-store' }
 const json = (data: unknown, status = 200) => new Response(JSON.stringify(data), { status, headers: JSON_HEADERS })
 
-// ---------------------------- D1 schema (auto-migration) ----------------------------
+// ---------------------------------------------------------------------------
+// D1 schema (controlled server-side migration)
+// ---------------------------------------------------------------------------
+
 const SCHEMA = [
   `CREATE TABLE IF NOT EXISTS user_state (
      user_id TEXT PRIMARY KEY,
@@ -72,7 +88,10 @@ async function ensureSchema(db: D1Database) {
   schemaReady = true
 }
 
-// ---------------------------- D1 helpers ----------------------------
+// ---------------------------------------------------------------------------
+// D1 helpers
+// ---------------------------------------------------------------------------
+
 interface UserRow {
   user_id: string
   pulse_score: number
@@ -91,7 +110,7 @@ async function ensureUser(db: D1Database, userId: string): Promise<UserRow> {
     .prepare('INSERT OR IGNORE INTO user_state (user_id, pulse_score, credits, plan_json, updated_at) VALUES (?, 38, 120, NULL, ?)')
     .bind(userId, Date.now())
     .run()
-  await addLedger(db, userId, 'credit', 'Starting grant: 120 Pulse Credits', 0)
+  await addLedger(db, userId, 'credit', 'Starting grant: 120 Pulse Credits', 0) // balance already seeded; ledger entry records provenance
   return { user_id: userId, pulse_score: 38, credits: 120, plan_json: null }
 }
 
@@ -102,7 +121,10 @@ async function addLedger(db: D1Database, userId: string, kind: string, text: str
     .run()
 }
 
-// ---------------------------- LLM gateway ----------------------------
+// ---------------------------------------------------------------------------
+// LLM gateway (OpenAI-compatible) with strict validation + deterministic fallback
+// ---------------------------------------------------------------------------
+
 function llmConfigured(env: Env): boolean {
   return Boolean(env.AI_API_KEY)
 }
@@ -113,7 +135,8 @@ async function callLLM(
   opts?: { json?: boolean; maxTokens?: number },
 ): Promise<string | null> {
   if (!llmConfigured(env)) return null
-  // One-key free setup: default to the OpenRouter API (free-tier models).
+  // One-key free setup: if no custom gateway is configured, default to the
+  // OpenRouter API (free-tier models with :free model ids, OpenAI-compatible).
   const base = env.AI_GATEWAY_URL?.replace(/\/+$/, '') || 'https://openrouter.ai/api/v1'
   const url = base.endsWith('/chat/completions') ? base : `${base}/v1/chat/completions`
   try {
@@ -152,7 +175,10 @@ function parseJsonLoose<T>(raw: string | null): T | null {
   }
 }
 
-// ---------------------------- Agent validators ----------------------------
+// ---------------------------------------------------------------------------
+// Agent validators (defense against malformed LLM output)
+// ---------------------------------------------------------------------------
+
 const MILESTONE_KINDS = new Set(['skill', 'project', 'network', 'portfolio', 'clinical'])
 
 function validatePlan(plan: unknown): plan is CareerPlan {
@@ -183,7 +209,10 @@ function validatePlan(plan: unknown): plan is CareerPlan {
 const OPP_IDS = new Set(OPPORTUNITIES.map((o) => o.id))
 const MENTOR_IDS = new Set(MENTORS.map((m) => m.id))
 
-// ---------------------------- Request handler ----------------------------
+// ---------------------------------------------------------------------------
+// Request handler
+// ---------------------------------------------------------------------------
+
 let auth: FreebuffAuth | undefined
 
 export default {
@@ -204,11 +233,15 @@ async function handler(request: Request, env: Env): Promise<Response> {
   const { pathname } = url
 
   // ---- public routes ----
-  if (pathname === '/api/nmc-updates' && request.method === 'GET') return nmcUpdates(env)
+  if (pathname === '/api/nmc-updates' && request.method === 'GET') {
+    return nmcUpdates(env)
+  }
+
   if (pathname === '/api/health') {
     await ensureSchema(env.DB)
     return json({ ok: true, service: 'pulseup-cloud', liveAgents: llmConfigured(env) })
   }
+
   if (pathname === '/api/agents/capabilities') {
     return json({
       liveAgents: llmConfigured(env),
@@ -227,6 +260,8 @@ async function handler(request: Request, env: Env): Promise<Response> {
     await ensureSchema(env.DB)
     const user = await auth!.getUser(request)
     if (!user) return json({ error: 'Sign in required' }, 401)
+
+    // state-changing requests must be same-origin (CSRF)
     if (request.method !== 'GET' && !isSameOriginRequest(request, env.APP_ORIGIN)) {
       return new Response(null, { status: 403 })
     }
@@ -234,6 +269,7 @@ async function handler(request: Request, env: Env): Promise<Response> {
     const uid = user.sub
     const db = env.DB
 
+    // ---------- aggregate state ----------
     if (pathname === '/api/state' && request.method === 'GET') {
       const row = await ensureUser(db, uid)
       const events = await db
@@ -258,6 +294,7 @@ async function handler(request: Request, env: Env): Promise<Response> {
       })
     }
 
+    // ---------- opportunity sync (ledger-backed) ----------
     if (pathname === '/api/state/sync-opp' && request.method === 'POST') {
       const body = await request.json<{ opportunityId?: string }>().catch(() => null)
       const oppId = body?.opportunityId
@@ -277,6 +314,7 @@ async function handler(request: Request, env: Env): Promise<Response> {
       return json({ ok: true, op: 'synced', source: 'server-ledger' })
     }
 
+    // ---------- milestone completion ----------
     if (pathname === '/api/state/complete-milestone' && request.method === 'POST') {
       const body = await request.json<{ milestoneId?: string }>().catch(() => null)
       if (!body?.milestoneId) return json({ error: 'milestoneId required' }, 400)
@@ -303,6 +341,7 @@ async function handler(request: Request, env: Env): Promise<Response> {
       return json({ ok: true, op: 'completed', credits: milestone.credits, source: 'server-ledger' })
     }
 
+    // ---------- SBAR mentor session ----------
     if (pathname === '/api/mentor/session' && request.method === 'POST') {
       const body = await request.json<{ mentorId?: string; sbar?: Record<string, string> }>().catch(() => null)
       const sbar = body?.sbar
@@ -368,7 +407,9 @@ async function handler(request: Request, env: Env): Promise<Response> {
 
       const candidate = parseJsonLoose<CareerPlan>(raw)
       const usedLLM = validatePlan(candidate)
-      const plan: CareerPlan = usedLLM ? candidate! : deterministic
+      const plan: CareerPlan = usedLLM
+        ? candidate!
+        : deterministic
       plan.engine = usedLLM ? 'live-llm' : 'pulseai-v1-deterministic'
 
       await db.batch([
@@ -404,20 +445,24 @@ async function handler(request: Request, env: Env): Promise<Response> {
       let engine: string
 
       if (candidate?.result) {
-        const valid = candidate.result.filter((r) => typeof r.id === 'string' && OPP_IDS.has(r.id))
+        const valid = candidate.result.filter(
+          (r) => typeof r.id === 'string' && OPP_IDS.has(r.id),
+        )
         if (valid.length > 0) {
           engine = 'live-llm'
-          shortlist = valid.slice(0, 6).map((r) => {
-            const opp = OPPORTUNITIES.find((o) => o.id === r.id)!
-            const re = scoreOpportunity(opp, null)
-            return {
-              id: opp.id,
-              title: opp.title,
-              reason: String(r.reason || '').slice(0, 140),
-              score: Math.min(100, Math.max(0, typeof r.score === 'number' ? r.score : re)),
-              url: opp.url,
-            }
-          })
+          shortlist = valid
+            .slice(0, 6)
+            .map((r) => {
+              const opp = OPPORTUNITIES.find((o) => o.id === r.id)!
+              const re = scoreOpportunity(opp, null)
+              return {
+                id: opp.id,
+                title: opp.title,
+                reason: String(r.reason || '').slice(0, 140),
+                score: Math.min(100, Math.max(0, typeof r.score === 'number' ? r.score : re)),
+                url: opp.url,
+              }
+            })
         } else {
           engine = 'pulseai-v1-deterministic'
           shortlist = deterministic.slice(0, 6)
@@ -457,7 +502,11 @@ async function handler(request: Request, env: Env): Promise<Response> {
         })),
       ], { json: false, maxTokens: 500 })
 
-      return json({ ok: true, reply: raw ?? FALLBACK_REPLY, engine: raw ? 'live-llm' : 'fallback-guidance' })
+      return json({
+        ok: true,
+        reply: raw ?? FALLBACK_REPLY,
+        engine: raw ? 'live-llm' : 'fallback-guidance',
+      })
     }
 
     // ---------- AGENT: mentor triage ----------
@@ -496,11 +545,18 @@ async function handler(request: Request, env: Env): Promise<Response> {
   return env.ASSETS.fetch(request)
 }
 
-// ---------------------------- NMC compliance feed ----------------------------
+// ---------------------------------------------------------------------------
+// NMC compliance feed: fetch official notices from nmc.org.in/whats-new,
+// parsed server-side so the SPA never scrapes a third-party site, cached in
+// D1, and always labeled with provenance. On fetch failure the curated
+// hand-verified fallback list is served with live:false.
+// ---------------------------------------------------------------------------
+
 const NMC_UPDATES_TTL = 6 * 60 * 60 * 1000 // 6 hours
 const NMC_WHATS_NEW = 'https://nmc.org.in/whats-new'
 
-// Hand-verified snapshot used only when the live fetch fails.
+// Hand-verified snapshot (curated at build time from official pages) used
+// only when the live fetch fails — every fallback row keeps official links.
 const NMC_FALLBACK_UPDATES = [
   {
     title: 'NMR portal live since 23 Aug 2024 — application remains voluntary (Lok Sabha reply, Aug 2025)',
@@ -525,6 +581,7 @@ async function nmcUpdates(env: Env): Promise<Response> {
   await ensureSchema(env.DB)
   const cache = await env.DB.prepare("SELECT value, fetched_at FROM cache WHERE key = 'nmc_whats_new'")
     .first<{ value: string; fetched_at: number }>()
+
   if (cache && Date.now() - cache.fetched_at < NMC_UPDATES_TTL) {
     return json({ ...JSON.parse(cache.value as string), cached: true, fetchedAt: cache.fetched_at })
   }
@@ -555,6 +612,7 @@ async function nmcUpdates(env: Env): Promise<Response> {
     disclaimer:
       'Items are official notices/links as published by NMC. PulseUp interprets them only after the notice text is readable and never presents draft regulations as active rules.',
   }
+
   const fetchedAt = Date.now()
   try {
     await env.DB.prepare(
@@ -582,6 +640,9 @@ function cleanHtmlText(raw: string): string {
 
 function parseNoticeLinks(html: string): NmcUpdateItem[] {
   const seen = new Set<string>()
+
+  // Single pass over anchors: notice titles carry class wn-title-link; other
+  // notice-looking links are a fallback net.
   const wantTitles: NmcUpdateItem[] = []
   const fallback: NmcUpdateItem[] = []
   const re = /<a\s[^>]*href=["']([^"'#]+)["'][^>]*>([\s\S]*?)<\/a>/gi
@@ -605,6 +666,7 @@ function parseNoticeLinks(html: string): NmcUpdateItem[] {
   return wantTitles.length > 0 ? wantTitles : fallback.slice(0, 20)
 }
 
+// keyword rank fallback for scout
 function rankByKeyword(query: string) {
   const terms = query.toLowerCase().split(/[^a-z0-9]+/).filter((t) => t.length >= 3)
   return OPPORTUNITIES.map((o) => {
