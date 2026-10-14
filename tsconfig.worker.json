@@ -1,18 +1,8 @@
 {
+  "extends": "tsconfig.node.json",
   "compilerOptions": {
-    "target": "es2023",
-    "lib": ["ES2023"],
-    "types": ["@cloudflare/workers-types"],
-    "module": "esnext",
-    "moduleResolution": "bundler",
-    "skipLibCheck": true,
-    "strict": true,
-    "noEmit": true,
-    "noUnusedLocals": true,
-    "noUnusedParameters": true,
-    "verbatimModuleSyntax": true,
-    "noFallthroughCasesInSwitch": true,
-    "jsx": "react-jsx"
+    "composite": true,
+    "outDir": "./dist-worker-types"
   },
-  "include": ["worker", "src/lib/agent.ts", "src/data/opportunities.ts", "src/data/mentors.ts", "src/types.ts"]
+  "include": ["vite.worker.config.ts", "worker/worker.ts"]
 }
