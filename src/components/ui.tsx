@@ -1,150 +1,111 @@
-import type { ReactNode } from 'react'
-import { ShieldCheck, TriangleAlert } from 'lucide-react'
-import type { Opportunity } from '../types'
+import React from 'react'
+
+interface CardProps {
+  children: React.ReactNode
+  className?: string
+  hover?: boolean
+  glass?: boolean
+  clay?: boolean
+  padding?: 'none' | 'sm' | 'md' | 'lg'
+  onClick?: () => void
+}
 
 export function Card({
   children,
   className = '',
   hover = false,
+  glass = false,
+  clay = false,
+  padding = 'md',
+  onClick,
+}: CardProps) {
+  const padClass =
+    padding === 'none'
+      ? 'py-0 px-0'
+      : padding === 'sm'
+        ? 'py-2 px-3'
+        : padding === 'lg'
+          ? 'py-6 px-6'
+          : 'p-4'
+
+  return (
+    <div
+      onClick={onClick}
+      className={`relative isolate rounded-2xl border border-white/10 bg-white/80 shadow-sm transition-all duration-300 dark:bg-[#151D2D]/80 dark:border-white/10 ${padClass} ${className}`}
+    >
+      {glass && (
+        <div
+          className="absolute inset-0 rounded-2xl border border-white/20 bg-white/50 shadow-glass backdrop-blur-xl dark:border-white/10 dark:bg-white/[0.04] dark:shadow-glass-dark"
+          style={{ pointerEvents: 'none' }}
+        />
+      )}
+      {clay && (
+        <div
+          className="absolute inset-0 rounded-2xl border border-clay-200/60 bg-gradient-to-b from-clay-50 to-white/90 shadow-clay-lg dark:border-white/5 dark:bg-[#1c2740]/80"
+          style={{ pointerEvents: 'none' }}
+        />
+      )}
+      {hover && (
+        <div
+          className="absolute inset-0 rounded-2xl border border-transparent transition-all duration-300 hover:-translate-y-1 hover:shadow-3d-hover"
+          style={{ pointerEvents: 'none' }}
+        />
+      )}
+      <div className={glass || clay || hover ? 'relative' : ''}>{children}</div>
+    </div>
+  )
+}
+
+export function CardHeader({
+  children,
+  className = '',
 }: {
-  children: ReactNode
+  children: React.ReactNode
   className?: string
-  hover?: boolean
 }) {
-  return <div className={`card ${hover ? 'card-hover' : ''} p-5 ${className}`}>{children}</div>
+  return (
+    <div className={`mb-3 flex items-center justify-between border-b border-zinc-200/50 dark:border-white/5 pb-2.5 ${className}`}>
+      {children}
+    </div>
+  )
 }
 
-export function SectionTitle({
-  title,
-  subtitle,
-  right,
+export function CardTitle({
+  children,
+  className = '',
 }: {
-  title: string
-  subtitle?: string
-  right?: ReactNode
+  children: React.ReactNode
+  className?: string
 }) {
   return (
-    <div className="mb-4 flex items-end justify-between gap-4">
-      <div>
-        <h2 className="font-display text-lg font-bold tracking-tight">{title}</h2>
-        {subtitle && (
-          <p className="mt-0.5 text-sm text-zinc-500 dark:text-zinc-400">{subtitle}</p>
-        )}
-      </div>
-      {right}
-    </div>
+    <h3 className={`text-sm font-semibold tracking-tight text-zinc-800 dark:text-ice ${className}`}>
+      {children}
+    </h3>
   )
 }
 
-const KIND_STYLES: Record<string, string> = {
-  research: 'bg-blue-500/10 text-blue-600 dark:text-blue-300',
-  event: 'bg-purple-500/10 text-purple-600 dark:text-purple-300',
-  certification: 'bg-pulse-500/10 text-pulse-600 dark:text-pulse-300',
-  observership: 'bg-amber-500/10 text-amber-600 dark:text-amber-300',
-  grant: 'bg-emerald-500/10 text-emerald-600 dark:text-emerald-300',
-  quiz: 'bg-rose-500/10 text-rose-600 dark:text-rose-300',
-  exam: 'bg-indigo-500/10 text-indigo-600 dark:text-indigo-300',
-  webinar: 'bg-cyan-500/10 text-cyan-600 dark:text-cyan-300',
-}
-
-export function KindChip({ kind }: { kind: Opportunity['kind'] }) {
-  return <span className={`chip ${KIND_STYLES[kind]} uppercase`}>{kind}</span>
-}
-
-export function VerifiedBadge({ verified }: { verified?: 'official' | 'provisional' }) {
-  if (!verified) return null
-  return verified === 'official' ? (
-    <span className="chip bg-pulse-500/10 text-pulse-600 dark:text-pulse-300" title="Facts read from the official source page">
-      <ShieldCheck size={11} /> official source
-    </span>
-  ) : (
-    <span className="chip bg-amber-500/10 text-amber-600 dark:text-amber-300" title="From indexed listings or recent posts — confirm at the source">
-      <TriangleAlert size={11} /> confirm first
-    </span>
-  )
-}
-
-export function ScorePill({ score }: { score: number }) {
-  const tone =
-    score >= 85
-      ? 'text-pulse-500 border-pulse-500/40'
-      : score >= 70
-        ? 'text-amber-500 border-amber-500/40'
-        : 'text-zinc-500 border-zinc-400/30'
-  return (
-    <span className={`chip border bg-transparent font-mono ${tone}`} title="PulseUp relevance score">
-      {score}
-      <span className="text-[9px] font-sans opacity-70">PU</span>
-    </span>
-  )
-}
-
-export function ProgressBar({
-  value,
-  max = 100,
-  tone = 'pulse',
+export function CardDescription({
+  children,
+  className = '',
 }: {
-  value: number
-  max?: number
-  tone?: 'pulse' | 'blue' | 'purple' | 'amber'
+  children: React.ReactNode
+  className?: string
 }) {
-  const tones = {
-    pulse: 'bg-pulse-500',
-    blue: 'bg-accent-blue',
-    purple: 'bg-accent-purple',
-    amber: 'bg-accent-amber',
-  }
   return (
-    <div className="h-1.5 w-full overflow-hidden rounded-full bg-zinc-200 dark:bg-white/10">
-      <div
-        className={`h-full rounded-full transition-all duration-700 ${tones[tone]}`}
-        style={{ width: `${Math.min(100, (value / max) * 100)}%` }}
-      />
-    </div>
+    <p className={`mt-1 text-xs text-zinc-500 dark:text-zinc-400 ${className}`}>
+      {children}
+    </p>
   )
 }
 
-export function Stat({
-  label,
-  value,
-  sub,
-  accent = 'pulse',
-}: {
-  label: string
-  value: ReactNode
-  sub?: string
-  accent?: 'pulse' | 'blue' | 'purple' | 'amber'
-}) {
-  const accents = {
-    pulse: 'text-pulse-500',
-    blue: 'text-accent-blue',
-    purple: 'text-accent-purple',
-    amber: 'text-accent-amber',
-  }
-  return (
-    <div className="card p-4">
-      <div className="text-[11px] font-semibold uppercase tracking-wider text-zinc-500 dark:text-zinc-400">
-        {label}
-      </div>
-      <div className={`mt-1 font-mono text-2xl font-bold ${accents[accent]}`}>{value}</div>
-      {sub && <div className="mt-1 text-xs text-zinc-500 dark:text-zinc-400">{sub}</div>}
-    </div>
-  )
+export function CardContent({ children, className = '' }: { children: React.ReactNode; className?: string }) {
+  return <div className={className}>{children}</div>
 }
 
-export function EmptyState({ title, hint }: { title: string; hint?: string }) {
+export function CardFooter({ children, className = '' }: { children: React.ReactNode; className?: string }) {
   return (
-    <div className="card flex flex-col items-center justify-center gap-1 p-10 text-center">
-      <div className="font-display font-bold text-zinc-500 dark:text-zinc-300">{title}</div>
-      {hint && <div className="text-sm text-zinc-400">{hint}</div>}
+    <div className={`mt-3 flex items-center border-t border-zinc-200/50 dark:border-white/5 pt-3 ${className}`}>
+      {children}
     </div>
   )
-}
-
-export function timeAgo(ts: number): string {
-  const s = Math.floor((Date.now() - ts) / 1000)
-  if (s < 60) return 'just now'
-  if (s < 3600) return `${Math.floor(s / 60)}m ago`
-  if (s < 86400) return `${Math.floor(s / 3600)}h ago`
-  return `${Math.floor(s / 86400)}d ago`
 }
