@@ -12,13 +12,12 @@ interface ChatMsg {
 
 export default function Agents() {
   const { state, setPlan, pushToast, user, capabilities, hydrated } = usePulse()
-  const [msgs, setMsgs] = useState<ChatMsg[]>([
-    {
-      role: 'assistant',
-      content:
-        'Career Copilot online. Ask about opportunities, mentorship, or the next step in your plan — answers are grounded in your real-catalog profile data. 100% free to use; when no live model key is configured, the deterministic engine answers.',
-      engine: 'system',
-    },
+  const [msgs, setMsgs] = useState<ChatMsg[]>([        {
+          role: 'assistant',
+          content:
+            'Career Copilot online. Ask about opportunities, mentorship, or the next step in your plan — answers are grounded in your real-catalog profile data. 100% free to use; when no live model key is configured, the deterministic engine answers.',
+          engine: 'system',
+        },
   ])
   const [chatInput, setChatInput] = useState('')
   const [chatBusy, setChatBusy] = useState(false)
@@ -150,12 +149,12 @@ export default function Agents() {
         {!capabilities?.liveAgents && (
           <div className="mt-3 rounded-xl bg-pulse-500/5 p-3 text-xs leading-relaxed text-zinc-500 dark:text-zinc-300">
             <strong className="text-pulse-600 dark:text-pulse-300">Free live-AI setup (2 minutes, ₹0):</strong>{' '}
-            agents default to OpenRouter's free tier (Llama-3.3-70B). Create a free key at{' '}
+            agents default to OpenRouter’s free tier (Llama-3.3-70B). Create a free key at{' '}
             <a className="font-semibold text-pulse-500 hover:underline" href="https://openrouter.ai/keys" target="_blank" rel="noreferrer">
               openrouter.ai/keys
             </a>{' '}
             (no credit card needed), tell this assistant the key value, and it will be stored as a Worker secret —
-            the backend then uses 'https://openrouter.ai/api/v1' automatically. Without the key every agent still
+            the backend then uses ‘https://openrouter.ai/api/v1’ automatically. Without the key every agent still
             works using the deterministic engine.
           </div>
         )}
