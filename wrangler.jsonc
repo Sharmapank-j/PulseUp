@@ -1,24 +1,5 @@
 {
-  "$schema": "node_modules/wrangler/config-schema.json",
-  "name": "pulseup-local",
-  "main": "dist-worker/worker.js",
-  "compatibility_date": "2026-10-01",
-  "assets": {
-    "directory": "./public",
-    "binding": "ASSETS",
-    "run_worker_first": ["/api/*", "/auth/*"],
-  },
-  "vars": {
-    "APP_ORIGIN": "http://localhost:8787",
-    "FREEBUFF_CLIENT_ID": "2e68e7bb-3ec6-4106-ba94-6b483dbab728",
-    "FREEBUFF_ISSUER": "https://freebuff.com/oidc",
-    "AI_MODEL": "meta-llama/llama-3.3-70b-instruct:free",
-  },
-  "d1_databases": [
-    {
-      "binding": "DB",
-      "database_name": "pulseup-local",
-      "database_id": "local-00000000-0000-0000-0000-000000000000",
-    },
-  ],
+  "hooks": {
+    "pre-push": "npm run build"
+  }
 }
