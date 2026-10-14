@@ -1,11 +1,37 @@
 {
-  "name": "pulseup-root",
-  "version": "1.0.0",
+  "name": "pulseup-cloud",
   "private": true,
-  "description": "PulseUp - Career Operating System for Indian Healthcare Professionals",
+  "version": "0.0.0",
+  "type": "module",
   "scripts": {
-    "build": "npm --prefix webapp install && npm --prefix webapp run build && node -e \"const fs=require('fs'); fs.cpSync('webapp/dist', 'dist', {recursive: true});\"",
-    "dev": "npm --prefix webapp run dev",
-    "test": "node tests/test_runner.js"
+    "dev": "vite",
+    "build": "npm run build:web && npm run build:worker",
+    "lint": "oxlint src worker",
+    "preview": "vite preview",
+    "build:web": "vite build --outDir public --emptyOutDir",
+    "build:worker": "vite build --config vite.worker.config.ts",
+    "typecheck": "tsc -b && tsc -p tsconfig.worker.json"
+  },
+  "dependencies": {
+    "@freebuff/auth": "^0.1.0",
+    "hono": "^4.13.13",
+    "lucide-react": "^1.57.0",
+    "react": "^19.2.8",
+    "react-dom": "^19.2.8",
+    "react-router-dom": "^7.18.4"
+  },
+  "devDependencies": {
+    "@cloudflare/workers-types": "^5.20261014.1",
+    "@types/node": "^24.13.3",
+    "@types/react": "^19.2.18",
+    "@types/react-dom": "^19.2.7",
+    "@vitejs/plugin-react": "^6.1.1",
+    "autoprefixer": "^10.6.1",
+    "oxlint": "^1.81.0",
+    "postcss": "^8.5.30",
+    "tailwindcss": "^3.4.19",
+    "typescript": "~6.0.2",
+    "vite": "^8.3.0",
+    "wrangler": "^4.151.0"
   }
 }
