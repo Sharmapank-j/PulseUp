@@ -28,12 +28,12 @@ export function ThemeSwitch({ compact = false }: { compact?: boolean }) {
             title={`${label} theme`}
             className={`flex flex-1 items-center justify-center gap-1.5 rounded-[10px] px-2 ${
               compact ? 'py-1' : 'py-1.5 text-xs'
-            } font-semibold transition ${
+            } font-semibold transition-all duration-200 ${
               active
                 ? key === 'night'
                   ? 'bg-rose-900/80 text-rose-200 shadow-sm'
-                  : 'bg-white text-zinc-900 shadow-sm dark:bg-white/15 dark:text-ice'
-                : 'text-zinc-500 hover:text-zinc-800 dark:text-zinc-400 dark:hover:text-ice'
+                  : 'bg-white text-zinc-900 shadow-sm dark:bg-white/15 dark:text-ice shadow-3d-sm'
+                : 'text-zinc-500 hover:text-zinc-800 dark:text-zinc-400 dark:hover:text-ice hover:shadow-sm'
             }`}
           >
             <Icon size={14} className={active && key === 'night' ? 'text-rose-400' : active ? 'text-pulse-500' : ''} />
