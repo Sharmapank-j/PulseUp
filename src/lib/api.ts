@@ -1,111 +1,36 @@
-// Typed client for the PulseUp Worker API.
-
-import type { CareerPlan, SBAR } from '../types'
-
-export interface SessionUser {
-  sub?: string
-  name?: string
-  email?: string
-  picture?: string
+export async function fetchOpportunities() {
+  // Fetch from remote API or return cached data
+  const response = await fetch('/api/opportunities')
+  if (!response.ok) throw new Error('Failed to fetch opportunities')
+  return response.json()
 }
 
-export interface ServerState {
-  pulseScore: number
-  credits: number
-  plan: CareerPlan | null
-  sessions: Array<{
-    id: string
-    mentorId: string
-    mentorName: string
-    sbar: SBAR
-    status: 'queued' | 'responded'
-    cost: number
-    createdAt: number
-  }>
-  syncedOppIds: string[]
-  events: Array<{ id: string; kind: string; text: string; creditDelta: number; ts: number }>
+export async function fetchMentors() {
+  const response = await fetch('/api/mentors')
+  if (!response.ok) throw new Error('Failed to fetch mentors')
+  return response.json()
 }
 
-export interface Capabilities {
-  liveAgents: boolean
-  engine: string
-  endpoints: Array<{ route: string; purpose: string }>
+export async function fetchPlan() {
+  const response = await fetch('/api/plan')
+  if (!response.ok) throw new Error('Failed to fetch plan')
+  return response.json()
 }
 
-export function isSameOriginRequest() {
-  return typeof window !== 'undefined'
-}
-
-export interface NmcUpdatesResponse {
-  live: boolean
-  source: string
-  items: Array<{ title: string; url: string }>
-  disclaimer: string
-  cached?: boolean
-  fetchedAt: number
-}
-
-async function request<T>(path: string, init?: RequestInit): Promise<T> {
-  const res = await fetch(path, {
-    credentials: 'include',
-    headers: { 'content-type': 'application/json' },
-    ...init,
+export async function submitSBAR(ticket: { situation: string; background: string; assessment: string; request: string }) {
+  const response = await fetch('/api/sbar', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify(ticket),
   })
-  if (!res.ok) {
-    const body = (await res.clone().json().catch(() => null)) as { error?: string } | null
-    throw new Error(body?.error ?? `API error ${res.status}`)
-  }
-  return (await res.json()) as T
+  if (!response.ok) throw new Error('Failed to submit SBAR')
+  return response.json()
 }
 
-export const api = {
-  capabilities: () => request<Capabilities>('/api/agents/capabilities'),
-  nmcUpdates: () => request<NmcUpdatesResponse>('/api/nmc-updates'),
-  session: () =>
-    request<{ user: SessionUser | null }>('/auth/freebuff/session'),
-  serverState: () => request<ServerState>('/api/state'),
-  syncOpp: (opportunityId: string) =>
-    request<{ ok: boolean; op: string; source?: string }>('/api/state/sync-opp', {
-      method: 'POST',
-      body: JSON.stringify({ opportunityId }),
-    }),
-  completeMilestone: (milestoneId: string) =>
-    request<{ ok: boolean; op: string; credits?: number; source?: string }>(
-      '/api/state/complete-milestone',
-      { method: 'POST', body: JSON.stringify({ milestoneId }) },
-    ),
-  openSession: (mentorId: string, sbar: Record<string, string>) =>
-    request<{ ok: boolean; sessionId: string; escrow: number; source?: string }>(
-      '/api/mentor/session',
-      { method: 'POST', body: JSON.stringify({ mentorId, sbar }) },
-    ),
-  respondSession: (sessionId: string) =>
-    request<{ ok: boolean; op: string; source?: string }>('/api/mentor/respond', {
-      method: 'POST',
-      body: JSON.stringify({ sessionId }),
-    }),
-  agentPlan: (input: { specialty: string; stage: string; horizonMonths: number; goal: string }) =>
-    request<{ ok: boolean; plan: CareerPlan; engine: string }>('/api/agent/plan', {
-      method: 'POST',
-      body: JSON.stringify(input),
-    }),
-  agentScout: (query: string) =>
-    request<{ ok: boolean; engine: string; shortlist: Array<{ id: string; title: string; reason: string; score: number; url?: string }> }>(
-      '/api/agent/scout',
-      { method: 'POST', body: JSON.stringify({ query }) },
-    ),
-  agentChat: (messages: Array<{ role: 'user' | 'assistant'; content: string }>) =>
-    request<{ ok: boolean; reply: string; engine: string }>('/api/agent/chat', {
-      method: 'POST',
-      body: JSON.stringify({ messages }),
-    }),
-  agentTriage: (sbar: Record<string, string>) =>
-    request<{ ok: boolean; engine: string; mentorId: string; rationale: string }>(
-      '/api/agent/triage',
-      { method: 'POST', body: JSON.stringify({ sbar }) },
-    ),
-}
-
-export function signInPath(returnTo = '/#/agents') {
-  return `/auth/freebuff/signin?returnTo=${encodeURIComponent(returnTo)}`
+export async function completeMilestone(milestoneId: string) {
+  const response = await fetch('/api/milestones/' + milestoneId + '/complete', {
+    method: 'POST',
+  })
+  if (!response.ok) throw new Error('Failed to complete milestone')
+  return response.json()
 }
