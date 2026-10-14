@@ -1,109 +1,139 @@
-import { Zap, Gift, ShieldCheck, HandHeart } from 'lucide-react'
 import { usePulse } from '../store/PulseStore'
-import { Card, SectionTitle, Stat, timeAgo } from '../components/ui'
-
-const EARN_RULES = [
-  ['Generate a career plan', '8-point score boost + ledger entry', '+0 cr (engagement)'],
-  ['Sync an opportunity into the plan', 'tracked in Medical Passport', '+5 cr'],
-  ['Complete a plan milestone', 'verified by the deterministic engine', '+10…35 cr'],
-  ['Advance a manuscript pipeline stage', 'checkpoint-locked', '+10 cr'],
-  ['Mentor responds to your SBAR ticket', 'quality-gated', '+10 cr'],
-]
-
-const SPEND_RULES = [
-  ['Open an SBAR ticket', 'structured mentorship handover', '20–50 cr'],
-  ['Priority mentor routing (skip queue)', 'next-available slot', '+15 cr'],
-  ['Verified portfolio audit', 'senior mentor sign-off', '25 cr'],
-]
+import { CreditCard, TrendingUp, ArrowUpRight, ExternalLink, Receipt, Trash2 } from 'lucide-react'
+import { useState } from 'react'
 
 export default function Credits() {
-  const { state } = usePulse()
+  const { credits, ledger, deductCredit } = usePulse()
+  const [amount, setAmount] = useState('10')
 
-  const earned = state.events
-    .filter((e) => (e.creditDelta ?? 0) > 0)
-    .reduce((a, e) => a + (e.creditDelta ?? 0), 0)
-  const spent = state.events
-    .filter((e) => (e.creditDelta ?? 0) < 0)
-    .reduce((a, e) => a - (e.creditDelta ?? 0), 0)
+  const totalEarned = ledger
+    .filter((e) => e.amount > 0)
+    .reduce((s, e) => s + e.amount, 0)
+  const totalSpent = ledger
+    .filter((e) => e.amount < 0)
+    .reduce((s, e) => s + Math.abs(e.amount), 0)
 
   return (
     <div className="space-y-6">
-      <div className="grid grid-cols-2 gap-4 lg:grid-cols-4">
-        <Stat label="Credit balance" value={state.credits} sub="auditable ledger balance" />
-        <Stat label="Total earned" value={earned} sub="excluding starting grant" accent="purple" />
-        <Stat label="Total spent" value={spent} sub="mentorship + verified audits" accent="amber" />
-        <Stat label="Ledger entries" value={state.events.length} sub="every movement recorded" accent="blue" />
+      <div className="flex items-center justify-between">
+        <h1 className="text-2xl font-bold tracking-tight text-zinc-800 dark:text-ice">
+          Pulse Credits
+        </h1>
+        <div className="flex items-center gap-2 rounded-xl bg-pulse-500/10 px-3 py-1.5 text-sm font-semibold text-pulse-600 dark:text-pulse-300">
+          <CreditCard size={14} />
+          <span>{crCreditsDisplay}</span>
+        </div>
       </div>
 
-      <div className="grid gap-6 lg:grid-cols-2">
-        <Card>
-          <SectionTitle title="How you earn" subtitle="contribution-first credit economy — never pay-to-ask" right={<Gift size={16} className="text-pulse-500" />} />
-          <ul className="space-y-2 text-sm">
-            {EARN_RULES.map(([rule, why, delta]) => (
-              <li key={rule} className="flex items-center justify-between gap-3 rounded-xl px-3 py-2 hover:bg-zinc-100 dark:hover:bg-white/5">
-                <div className="min-w-0">
-                  <div className="truncate font-semibold">{rule}</div>
-                  <div className="truncate text-xs text-zinc-500 dark:text-zinc-400">{why}</div>
-                </div>
-                <span className="chip shrink-0 bg-pulse-500/10 font-mono text-pulse-600 dark:text-pulse-300">{delta}</span>
-              </li>
-            ))}
-          </ul>
-        </Card>
-
-        <Card>
-          <SectionTitle title="How you spend" subtitle="mentorship is escrowed and quality-rated" right={<HandHeart size={16} className="text-accent-purple" />} />
-          <ul className="space-y-2 text-sm">
-            {SPEND_RULES.map(([rule, why, cost]) => (
-              <li key={rule} className="flex items-center justify-between gap-3 rounded-xl px-3 py-2 hover:bg-zinc-100 dark:hover:bg-white/5">
-                <div className="min-w-0">
-                  <div className="truncate font-semibold">{rule}</div>
-                  <div className="truncate text-xs text-zinc-500 dark:text-zinc-400">{why}</div>
-                </div>
-                <span className="chip shrink-0 bg-accent-purple/10 font-mono text-accent-purple">{cost}</span>
-              </li>
-            ))}
-          </ul>
-          <div className="mt-3 rounded-xl bg-pulse-500/5 p-3 text-[11px] leading-relaxed text-zinc-500 dark:text-zinc-400">
-            <ShieldCheck size={12} className="mr-1 inline text-pulse-500" />
-            Baseline protection: every new account starts with a 120-credit grant, so free entry-level
-            mentorship is always possible. No balance mutation happens client-side — the ledger records
-            source, amount, status, and the linked activity for every entry.
+      <div className="grid gap-4 md:grid-cols-3">
+        <div className="card p-4">
+          <div className="text-xs font-semibold uppercase tracking-widest text-zinc-500 dark:text-zinc-400">
+            Balance
           </div>
-        </Card>
+          <div className="mt-1 font-mono text-3xl font-bold text-pulse-600 dark:text-pulse-300">
+            {crCreditsDisplay}
+          </div>
+          <div className="mt-1 text-xs text-zinc-400">
+            {crCreditsDisplay === '0'
+              ? 'All spent'
+              : crCreditsDisplay === '1'
+                ? '1 credit remaining'
+                : `${crCreditsDisplay} credits remaining`}
+          </div>
+        </div>
+        <div className="card p-4">
+          <div className="text-xs font-semibold uppercase tracking-widest text-zinc-500 dark:text-zinc-400">
+            Total Earned
+          </div>
+          <div className="mt-1 font-mono text-3xl font-bold text-zinc-800 dark:text-ice">
+            +{totalEarned}
+          </div>
+          <div className="mt-1 text-xs text-zinc-400">Across all activities</div>
+        </div>
+        <div className="card p-4">
+          <div className="text-xs font-semibold uppercase tracking-widest text-zinc-500 dark:text-zinc-400">
+            Total Spent
+          </div>
+          <div className="mt-1 font-mono text-3xl font-bold text-zinc-800 dark:text-ice">
+            -{totalSpent}
+          </div>
+          <div className="mt-1 text-xs text-zinc-400">Across all activities</div>
+        </div>
       </div>
 
-      <Card>
-        <SectionTitle title="Full ledger" subtitle="newest first · every entry carries a credit delta and timestamp" right={<Zap size={16} className="text-pulse-500" />} />
-        {state.events.length === 0 ? (
-          <p className="text-sm text-zinc-500 dark:text-zinc-400">No entries yet.</p>
+      {/* Earning rules */}
+      <div className="card-clay p-4">
+        <h2 className="mb-3 text-sm font-semibold text-clay-700 dark:text-white/80">Earning rules</h2>
+        <ul className="space-y-2">
+          {[
+            { rule: 'Complete a skill baseline', credits: 15 },
+            { rule: 'Finish a milestone', credits: 25 },
+            { rule: 'Open an SBAR ticket', credits: 10 },
+            { rule: 'Mentor responds to your SBAR', credits: 5 },
+            { rule: 'Complete a mentor session', credits: 10 },
+            { rule: 'Submit a research abstract', credits: 30 },
+            { rule: 'Earn a quality review from mentor', credits: 10 },
+          ].map(({ rule, credits: cr }) => (
+            <li key={rule} className="flex items-center justify-between text-sm text-zinc-600 dark:text-zinc-300">
+              <span>{rule}</span>
+              <span className="font-mono font-semibold text-pulse-600 dark:text-pulse-300">+{cr} cr</span>
+            </li>
+          ))}
+        </ul>
+      </div>
+
+      {/* Spending rules */}
+      <div className="card-clay p-4">
+        <h2 className="mb-3 text-sm font-semibold text-clay-700 dark:text-white/80">Spending rules</h2>
+        <ul className="space-y-2">
+          {[
+            { rule: 'Open a mentor session', credits: 20 },
+            { rule: 'Submit an SBAR ticket (escrow)', credits: 15 },
+            { rule: 'Unlock research database premium', credits: 25 },
+            { rule: 'Priority opportunity alert', credits: 5 },
+          ].map(({ rule, credits: cr }) => (
+            <li key={rule} className="flex items-center justify-between text-sm text-zinc-600 dark:text-zinc-300">
+              <span>{rule}</span>
+              <span className="font-mono font-semibold text-rose-500">-{cr} cr</span>
+            </li>
+          ))}
+        </ul>
+      </div>
+
+      {/* Ledger */}
+      <div className="card-clay p-4">
+        <h2 className="mb-3 text-sm font-semibold text-clay-700 dark:text-white/80">
+          Transaction ledger
+        </h2>
+        {ledger.length === 0 ? (
+          <p className="text-sm text-zinc-400">No transactions yet. Complete activities to earn credits.</p>
         ) : (
-          <div className="overflow-x-auto">
-            <table className="w-full text-left text-xs">
-              <thead>
-                <tr className="border-b border-zinc-200 text-[10px] uppercase tracking-wider text-zinc-400 dark:border-white/10">
-                  <th className="py-2 pr-3">Entry</th>
-                  <th className="py-2 pr-3">Kind</th>
-                  <th className="py-2 pr-3">Delta</th>
-                  <th className="py-2">When</th>
-                </tr>
-              </thead>
-              <tbody className="font-mono">
-                {state.events.map((e) => (
-                  <tr key={e.id} className="border-b border-zinc-100 dark:border-white/5">
-                    <td className="py-2 pr-3 font-sans">{e.text}</td>
-                    <td className="py-2 pr-3 text-zinc-400">{e.kind}</td>
-                    <td className={`py-2 pr-3 font-bold ${(e.creditDelta ?? 0) >= 0 ? 'text-pulse-500' : 'text-rose-500'}`}>
-                      {e.creditDelta ? (e.creditDelta > 0 ? `+${e.creditDelta}` : e.creditDelta) : '—'}
-                    </td>
-                    <td className="py-2 text-zinc-400">{timeAgo(e.ts)}</td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
-          </div>
+          <ul className="divide-y divide-zinc-200/50 dark:divide-white/5">
+            {ledger.slice().reverse().map((entry) => (
+              <li
+                key={entry.id}
+                className="py-2.5 text-sm dark:text-zinc-300"
+              >
+                <div className="flex items-center justify-between">
+                  <span className="text-zinc-500 dark:text-zinc-400">
+                    {new Date(entry.date).toLocaleDateString('en-IN', {
+                      day: 'numeric',
+                      month: 'short',
+                      year: 'numeric',
+                    })}
+                  </span>
+                  <span className={`font-mono font-semibold ${entry.amount > 0 ? 'text-pulse-600 dark:text-pulse-300' : 'text-rose-500'}`}>
+                    {entry.amount > 0 ? '+' : ''}{entry.amount}
+                  </span>
+                </div>
+                <div className="mt-0.5 text-xs text-zinc-400">
+                  {entry.source} — {entry.note}
+                </div>
+              </li>
+            ))}
+          </ul>
         )}
-      </Card>
+      </div>
     </div>
   )
 }
