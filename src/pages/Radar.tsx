@@ -1,144 +1,174 @@
-import { useState, useMemo } from 'react'
-import { useNavigate } from 'react-router-dom'
-import { Search, Filter, Radio, Clock, MapPin, Tag, Zap, X, Eye, ArrowRight, ExternalLink } from 'lucide-react'
+import { useMemo, useState, type ReactNode } from 'react'
+import { BookmarkPlus, BookmarkCheck, ExternalLink, Calendar, Search } from 'lucide-react'
 import { usePulse } from '../store/PulseStore'
-import { OPPORTUNITIES, searchOpportunities, filterByKind, filterZeroFee, sortByScore } from '../data/opportunities'
-import { Card, CardHeader, CardTitle, CardDescription, CardContent } from '../components/ui'
+import { Card, SectionTitle, KindChip, ScorePill, EmptyState, VerifiedBadge } from '../components/ui'
+import { OPPORTUNITIES, OPPORTUNITY_KINDS } from '../data/opportunities'
+import { scoreOpportunity } from '../lib/agent'
+import type { Opportunity, OpportunityKind } from '../types'
 
 export default function Radar() {
-  const navigate = useNavigate()
-  const { plan, syncedOpportunities } = usePulse()
+  const { state, toggleSyncOpp, isSynced } = usePulse()
+  const [kind, setKind] = useState<(typeof OPPORTUNITY_KINDS)[number]>('all')
   const [query, setQuery] = useState('')
-  const [kind, setKind] = useState('all')
   const [onlyZeroFee, setOnlyZeroFee] = useState(false)
+  const [sort, setSort] = useState<'pulse' | 'alpha'>('pulse')
 
-  const q = query.trim()
-  const filtered = useMemo(() => {
-    let list = q ? searchOpportunities(q) : OPPORTUNITIES
-    list = filterByKind(list, kind)
-    list = filterZeroFee(list, onlyZeroFee)
-    return sortByScore(list)
-  }, [q, kind, onlyZeroFee])
+  const results = useMemo(() => {
+    let opps = OPPORTUNITIES
+    if (kind !== 'all') opps = opps.filter((o) => o.kind === (kind as OpportunityKind))
+    if (onlyZeroFee) opps = opps.filter((o) => o.cost.toLowerCase().includes('free'))
+    if (query.trim()) {
+      const q = query.toLowerCase()
+      opps = opps.filter((o) =>
+        `${o.title} ${o.org} ${o.tags.join(' ')} ${o.region}`.toLowerCase().includes(q),
+      )
+    }
+    const scored = opps
+      .map((o) => ({ ...o, liveScore: scoreOpportunity(o, state.plan) }))
+      .sort((a, b) => (sort === 'pulse' ? b.liveScore - a.liveScore : a.title.localeCompare(b.title)))
+    return scored
+  }, [kind, onlyZeroFee, query, sort, state.plan])
 
   return (
-    <div className="space-y-5">
-      <div className="flex items-center justify-between">
-        <h1 className="text-2xl font-bold tracking-tight text-zinc-800 dark:text-ice">
-          Opportunity Radar
-        </h1>
-        <button
-          onClick={() => navigate('/plan')}
-          className="rounded-xl bg-pulse-500 px-3 py-1.5 text-sm font-semibold text-[#0B101B] shadow-3d-sm hover:shadow-3d-hover transition-shadow"
-        >
-          Sync to plan
-        </button>
-      </div>
-
-      {/* Search and filters */}
-      <div className="flex flex-col gap-3 md:flex-row md:items-center">
-        <div className="relative flex-1">
-          <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-zinc-400" />
-          <input
-            type="text"
-            placeholder="Search opportunities..."
-            value={query}
-            onChange={(e) => setQuery(e.target.value)}
-            className="input pl-9"
-          />
+    <div className="space-y-6">
+      <Card glass className="relative overflow-hidden">
+        <div className="absolute -right-10 -top-10 h-32 w-32 rounded-full bg-pulse-500/15 blur-2xl" />
+        <div className="absolute -left-10 -bottom-10 h-24 w-24 rounded-full bg-accent-purple/10 blur-2xl" />
+        <SectionTitle
+          title="Bharat Opportunity Radar"
+          subtitle='one catalog of the Indian medical oppo ecosystem, re-ranked by PulseAI against your active plan'
+          accent
+        />
+        <div className="flex flex-col gap-3 md:flex-row md:items-center">
+          <div className="relative flex-1">
+            <Search size={15} className="absolute left-3 top-1/2 -translate-y-1/2 text-zinc-400" />
+            <input
+              className="input pl-9 input-dark"
+              placeholder="Search title, org, tag, city…"
+              value={query}
+              onChange={(e) => setQuery(e.target.value)}
+            />
+          </div>
+          <div className="flex items-center gap-3">
+            <label className="chip cursor-pointer select-none chip-glass chip-glass-dark border border-pulse-500/40 bg-pulse-500/5 px-3 py-1.5 text-pulse-600 dark:text-pulse-300">
+              <input
+                type="checkbox"
+                className="mr-1.5 accent-pulse-500"
+                checked={onlyZeroFee}
+                onChange={(e) => setOnlyZeroFee(e.target.checked)}
+              />
+              zero-fee only
+            </label>
+            <select className="input w-32 py-1.5 input-dark" value={sort} onChange={(e) => setSort(e.target.value as 'pulse' | 'alpha')}>
+              <option value="pulse">Pulse score</option>
+              <option value="alpha">A → Z</option>
+            </select>
+          </div>
         </div>
-        <div className="flex flex-wrap items-center gap-2">
-          {['all', 'research', 'observership', 'conference', 'workshop', 'grant'].map((k) => (
+        <div className="mt-3 flex flex-wrap gap-2">
+          {OPPORTUNITY_KINDS.map((k) => (
             <button
               key={k}
               onClick={() => setKind(k)}
-              className={`rounded-full px-3 py-1 text-xs font-semibold transition-colors ${
+              className={`chip uppercase transition-all duration-200 ${
                 kind === k
-                  ? 'bg-pulse-500 text-[#0B101B] shadow-3d-sm'
-                  : 'bg-zinc-100 text-zinc-500 hover:bg-zinc-200 dark:bg-white/5 dark:text-zinc-400 dark:hover:bg-white/10'
+                  ? 'chip-glass chip-glass-dark bg-pulse-500 text-[#0B101B] shadow-sm'
+                  : 'chip-glass chip-glass-dark bg-zinc-200/60 text-zinc-600 hover:bg-zinc-300/70 dark:bg-white/5 dark:text-zinc-300 dark:hover:bg-white/10'
               }`}
             >
-              {k.charAt(0).toUpperCase() + k.slice(1)}
+              {k}
             </button>
           ))}
         </div>
+      </Card>
+
+      {results.length === 0 ? (
+        <EmptyState title="No opportunities match" hint="Loosen a filter or clear the search." />
+      ) : (          <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-3">
+          {results.map((o) => (
+            <div key={o.id} className="opacity-0 animate-[glass-in_0.4s_ease-out_forwards]" style={{ animationDelay: `${results.indexOf(o) * 50}ms` }}>
+              <OppCard key={o.id} opp={o} synced={isSynced(o.id)} onSync={() => toggleSyncOpp(o)} />
+            </div>
+          ))}
+        </div>
+      )}
+    </div>
+  )
+}
+
+function OppCard({
+  opp,
+  synced,
+  onSync,
+}: {
+  opp: Opportunity & { liveScore: number }
+  synced: boolean
+  onSync: () => void
+}) {
+  return (
+    <Card glass hover className="flex flex-col">
+      <div className="flex flex-wrap items-start justify-between gap-2">
+        <KindChip kind={opp.kind} />
+        <div className="flex items-center gap-1.5">
+          <VerifiedBadge verified={opp.verified} />
+          <ScorePill score={opp.liveScore} />
+        </div>
       </div>
+      <h3 className="mt-2 font-display font-bold leading-snug">{opp.title}</h3>
+      <div className="mt-0.5 text-xs text-zinc-500 dark:text-zinc-400">{opp.org}</div>
 
-      {/* Zero fee toggle */}
-      <label className="flex cursor-pointer items-center gap-2">
-        <input
-          type="checkbox"
-          checked={onlyZeroFee}
-          onChange={(e) => setOnlyZeroFee(e.target.checked)}
-          className="accent-pulse-500"
-        />
-        <span className="text-sm font-medium text-zinc-600 dark:text-zinc-300">
-          Zero-fee only
-        </span>
-      </label>
+      <dl className="mt-3 space-y-1.5 text-xs">
+        <Row icon={<Calendar size={12} />} k="Window" v={opp.dates} />
+        <Row k="Cost" v={opp.cost} />
+        <Row k="Eligibility" v={opp.eligibility} />
+      </dl>
 
-      {/* Opportunity cards */}
-      <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
-        {filtered.length === 0 ? (
-          <div className="col-span-full text-center py-12 text-zinc-400">
-            No opportunities match your filters.
-          </div>
-        ) : (
-          filtered.map((opp) => (
-            <Card key={opp.id} hover className="group">
-              <CardHeader>
-                <div className="flex items-center justify-between">
-                  <CardDescription className="!mb-0">{opp.kind}</CardDescription>
-                  <span
-                    className={`rounded-full px-2 py-0.5 text-[11px] font-semibold ${
-                      opp.cost.toLowerCase().includes('free')
-                        ? 'bg-emerald-50 text-emerald-600 dark:bg-emerald-500/10 dark:text-emerald-300'
-                        : 'bg-amber-50 text-amber-600 dark:bg-amber-500/10 dark:text-amber-300'
-                    }`}
-                  >
-                    {opp.cost}
-                  </span>
-                </div>
-              </CardHeader>
-              <CardTitle className="text-base">{opp.title}</CardTitle>
-              <CardDescription className="mt-0.5">{opp.org}</CardDescription>
-              <CardContent>
-                <div className="mt-3 flex items-center gap-1.5 text-xs text-zinc-400">
-                  <MapPin size={12} />
-                  <span>{opp.location}</span>
-                  <span className="mx-1.5">·</span>
-                  <Clock size={12} />
-                  <span>{opp.dates}</span>
-                </div>
-                <div className="mt-2 flex flex-wrap gap-1">
-                  {opp.tags.slice(0, 4).map((tag) => (
-                    <span
-                      key={tag}
-                      className="rounded-full bg-zinc-100 px-2 py-0.5 text-[11px] font-medium text-zinc-500 dark:bg-white/5 dark:text-zinc-400"
-                    >
-                      {tag}
-                    </span>
-                  ))}
-                </div>
-                <div className="mt-3 flex items-center justify-between border-t border-zinc-200/50 dark:border-white/5 pt-3">
-                  <div className="flex items-center gap-1 text-xs font-medium text-zinc-400">
-                    <Radio size={12} className="text-pulse-500" />
-                    <span>Score: {opp.pulseScore}</span>
-                  </div>
-                  <a
-                    href={opp.url}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="flex items-center gap-1 rounded-full bg-zinc-100 px-2.5 py-1 text-xs font-semibold text-zinc-600 transition-colors hover:bg-pulse-500 hover:text-[#0B101B] dark:bg-white/5 dark:text-zinc-300 dark:hover:bg-pulse-500 dark:hover:text-[#0B101B]"
-                  >
-                    View details
-                    <ExternalLink size={10} />
-                  </a>
-                </div>
-              </CardContent>
-            </Card>
-          ))
+      <div className="mt-3 flex flex-wrap gap-1.5">
+        {opp.perks.slice(0, 2).map((p) => (
+          <span key={p} className="chip bg-zinc-200/60 dark:bg-white/5 dark:text-zinc-300">
+            {p}
+          </span>
+        ))}
+      </div>
+      {opp.statusNote && (
+        <p className="mt-2 text-[11px] italic leading-relaxed text-zinc-400">{opp.statusNote}</p>
+      )}
+
+      <div className="mt-auto flex items-center justify-between gap-2 pt-3">
+        <button
+          onClick={onSync}
+          className={`btn text-xs ${
+            synced
+              ? 'bg-pulse-500/15 text-pulse-600 dark:text-pulse-300'
+              : 'btn-primary'
+          }`}
+        >
+          {synced ? <BookmarkCheck size={14} /> : <BookmarkPlus size={14} />}
+          {synced ? 'In plan' : 'Sync to plan'}
+        </button>
+        {opp.url && (
+          <a
+            href={opp.url}
+            target="_blank"
+            rel="noreferrer"
+            className="inline-flex items-center gap-1 text-xs font-semibold text-zinc-500 transition hover:text-pulse-500 dark:text-zinc-400"
+          >
+            source <ExternalLink size={12} />
+          </a>
         )}
       </div>
+    </Card>
+  )
+}
+
+function Row({ icon, k, v }: { icon?: ReactNode; k: string; v: string }) {
+  return (
+    <div className="flex items-baseline justify-between gap-3">
+      <dt className="flex shrink-0 items-center gap-1.5 font-semibold uppercase tracking-wide text-zinc-400" style={{ fontSize: 10 }}>
+        {icon}
+        {k}
+      </dt>
+      <dd className="truncate text-right text-zinc-600 dark:text-zinc-300">{v}</dd>
     </div>
   )
 }
