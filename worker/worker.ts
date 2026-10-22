@@ -8,6 +8,10 @@
 //      (AI_GATEWAY_URL + AI_API_KEY + AI_MODEL) and always VALIDATE output shape;
 //      if the gateway is not configured or output is invalid, deterministic
 //      fallback from src/lib/agent.ts runs so the product never breaks.
+//   5. NMC compliance feed: fetches hand-verified public notices from nmc.org.in,
+//      parsed server-side so the SPA never scrapes a third-party site, cached in
+//      D1, and always labeled with provenance. On fetch failure the curated
+//      hand-verified fallback list is served with live:false.
 //
 // Security properties (from @freebuff/auth guidance):
 //   - getUser(request) gates every route that touches user data → 401 when null
@@ -48,23 +52,25 @@ const SCHEMA = [
      plan_json TEXT,
      updated_at INTEGER NOT NULL
    )`,
+
   `CREATE TABLE IF NOT EXISTS ledger (
      id TEXT PRIMARY KEY,
      user_id TEXT NOT NULL,
      kind TEXT NOT NULL,
      text TEXT NOT NULL,
-     credit_delta INTEGER NOT NULL DEFAULT 0,
+     credit_delta INTEGER NOT NULL,
      created_at INTEGER NOT NULL
    )`,
   `CREATE INDEX IF NOT EXISTS idx_ledger_user ON ledger (user_id, created_at DESC)`,
+
   `CREATE TABLE IF NOT EXISTS sessions (
      id TEXT PRIMARY KEY,
      user_id TEXT NOT NULL,
      mentor_id TEXT NOT NULL,
      mentor_name TEXT NOT NULL,
      sbar_json TEXT NOT NULL,
-     status TEXT NOT NULL DEFAULT 'queued',
-     cost INTEGER NOT NULL DEFAULT 0,
+     status TEXT NOT NULL,
+     cost INTEGER NOT NULL,
      created_at INTEGER NOT NULL
    )`,
   `CREATE INDEX IF NOT EXISTS idx_sessions_user ON sessions (user_id, created_at DESC)`,
@@ -118,35 +124,28 @@ async function addLedger(db: D1Database, userId: string, kind: string, text: str
   await db
     .prepare('INSERT INTO ledger (id, user_id, kind, text, credit_delta, created_at) VALUES (?, ?, ?, ?, ?, ?)')
     .bind(crypto.randomUUID(), userId, kind, text, delta, Date.now())
-    .run()
 }
 
 // ---------------------------------------------------------------------------
-// LLM gateway (OpenAI-compatible) with strict validation + deterministic fallback
+// LLM gateway (OpenAI-compatible; always validated, always has a fallback)
 // ---------------------------------------------------------------------------
 
-function llmConfigured(env: Env): boolean {
-  return Boolean(env.AI_API_KEY)
+function llmConfigured(env: Env) {
+  return !!(env.AI_GATEWAY_URL && env.AI_API_KEY && env.AI_MODEL)
 }
 
 async function callLLM(
   env: Env,
-  messages: Array<{ role: 'system' | 'user' | 'assistant'; content: string }>,
+  messages: Array<{ role: string; content: string }>,
   opts?: { json?: boolean; maxTokens?: number },
 ): Promise<string | null> {
   if (!llmConfigured(env)) return null
-  // One-key free setup: if no custom gateway is configured, default to the
-  // OpenRouter API (free-tier models with :free model ids, OpenAI-compatible).
-  const base = env.AI_GATEWAY_URL?.replace(/\/+$/, '') || 'https://openrouter.ai/api/v1'
-  const url = base.endsWith('/chat/completions') ? base : `${base}/v1/chat/completions`
   try {
-    const res = await fetch(url, {
+    const res = await fetch(env.AI_GATEWAY_URL!, {
       method: 'POST',
       headers: {
-        authorization: `Bearer ${env.AI_API_KEY}`,
         'content-type': 'application/json',
-        'x-title': 'PulseUp Cloud',
-        ...(env.APP_ORIGIN ? { 'http-referer': env.APP_ORIGIN } : {}),
+        Authorization: `Bearer ${env.AI_API_KEY}`,
       },
       body: JSON.stringify({
         model: env.AI_MODEL || 'meta-llama/llama-3.3-70b-instruct:free',
@@ -200,33 +199,28 @@ function validatePlan(plan: unknown): plan is CareerPlan {
     Array.isArray(p.skillGaps) && p.skillGaps.length >= 3 && p.skillGaps.length <= 6 &&
     p.skillGaps.every(
       (g: SkillGap) =>
-        typeof g.skill === 'string' && typeof g.currentLevel === 'number' && g.currentLevel >= 0 && g.currentLevel <= 100 &&
-        typeof g.targetLevel === 'number' && g.targetLevel >= 0 && g.targetLevel <= 100,
-    )
+        typeof g.skill === 'string' && g.skill.length >= 2 && g.skill.length <= 60 &&
+        typeof g.currentLevel === 'number' && g.currentLevel >= 0 && g.currentLevel <= 100 &&
+        typeof g.targetLevel === 'number' && g.targetLevel > g.currentLevel && g.targetLevel <= 100,
+    ) &&
+    typeof p.createdAt === 'number' && p.createdAt > 0 &&
+    (p.engine === 'pulseai-v1-deterministic' || p.engine === 'live-llm')
   )
 }
 
-const OPP_IDS = new Set(OPPORTUNITIES.map((o) => o.id))
-const MENTOR_IDS = new Set(MENTORS.map((m) => m.id))
-
-// ---------------------------------------------------------------------------
-// Request handler
-// ---------------------------------------------------------------------------
-
-let auth: FreebuffAuth | undefined
-
-export default {
-  async fetch(request: Request, env: Env): Promise<Response> {
-    auth ??= createFreebuffAuth({
-      clientId: env.FREEBUFF_CLIENT_ID,
-      issuer: env.FREEBUFF_ISSUER,
-      baseUrl: env.APP_ORIGIN,
-      // loopback-only relaxation, per @freebuff/auth guidance — production keeps strict https
-      ...(env.APP_ORIGIN.startsWith('http://localhost') ? { allowInsecureLocalhost: true as const } : {}),
-    })
-    return auth.wrap(handler)(request, env)
-  },
+function validateScout(ranking: unknown): ranking is Array<{ id: string; reason?: string; score?: number }> {
+  if (!Array.isArray(ranking)) return false
+  const ids = new Set(OPPORTUNITIES.map((o) => o.id))
+  return ranking.every((row) =>
+    typeof row === 'object' && row !== null &&
+    typeof (row as Record<string, unknown>).id === 'string' &&
+    ids.has((row as Record<string, unknown>).id as string),
+  )
 }
+
+// ---------------------------------------------------------------------------
+// Request handling
+// ---------------------------------------------------------------------------
 
 async function handler(request: Request, env: Env): Promise<Response> {
   const url = new URL(request.url)
@@ -297,56 +291,61 @@ async function handler(request: Request, env: Env): Promise<Response> {
     // ---------- opportunity sync (ledger-backed) ----------
     if (pathname === '/api/state/sync-opp' && request.method === 'POST') {
       const body = await request.json<{ opportunityId?: string }>().catch(() => null)
-      const oppId = body?.opportunityId
-      if (!oppId || !OPP_IDS.has(oppId)) return json({ error: 'Unknown opportunity' }, 400)
-      await ensureUser(db, uid)
-      const existing = await db
+      if (!body?.opportunityId) return json({ error: 'opportunityId required' }, 400)
+      const row = await ensureUser(db, uid)
+      const already = await db
         .prepare('SELECT 1 FROM opportunity_syncs WHERE user_id = ? AND opportunity_id = ?')
-        .bind(uid, oppId)
+        .bind(uid, body.opportunityId)
         .first()
-      if (existing) return json({ ok: true, op: 'noop' })
-      const opp = OPPORTUNITIES.find((o) => o.id === oppId)!
-      await db.batch([
-        db.prepare('INSERT INTO opportunity_syncs (user_id, opportunity_id, created_at) VALUES (?, ?, ?)').bind(uid, oppId, Date.now()),
-        db.prepare('UPDATE user_state SET credits = credits + 5, pulse_score = MIN(100, pulse_score + 2), updated_at = ? WHERE user_id = ?').bind(Date.now(), uid),
-        db.prepare('INSERT INTO ledger (id, user_id, kind, text, credit_delta, created_at) VALUES (?, ?, ?, ?, 5, ?)').bind(crypto.randomUUID(), uid, 'sync', `Synced to plan: ${opp.title}`, Date.now()),
-      ])
-      return json({ ok: true, op: 'synced', source: 'server-ledger' })
+      if (!already) {
+        await db.batch([
+          db.prepare('INSERT INTO opportunity_syncs (user_id, opportunity_id, created_at) VALUES (?, ?, ?)').bind(uid, body.opportunityId, Date.now()),
+          db.prepare('UPDATE user_state SET pulse_score = MIN(100, pulse_score + 2), credits = credits + 5, updated_at = ? WHERE user_id = ?').bind(Date.now(), uid),
+          addLedger(db, uid, 'sync', `Synced to plan: ${body.opportunityId}`, 5),
+        ])
+      } else {
+        await db.batch([
+          db.prepare('DELETE FROM opportunity_syncs WHERE user_id = ? AND opportunity_id = ?').bind(uid, body.opportunityId),
+          db.prepare('UPDATE user_state SET pulse_score = pulse_score, credits = credits, updated_at = ? WHERE user_id = ?').bind(Date.now(), uid),
+          addLedger(db, uid, 'sync', `Removed from plan: ${body.opportunityId}`, 0),
+        ])
+      }
+      return json({ ok: true, op: already ? 'removed' : 'added' })
     }
 
-    // ---------- milestone completion ----------
+    // ---------- plan persistence ----------
     if (pathname === '/api/state/complete-milestone' && request.method === 'POST') {
       const body = await request.json<{ milestoneId?: string }>().catch(() => null)
       if (!body?.milestoneId) return json({ error: 'milestoneId required' }, 400)
       const row = await ensureUser(db, uid)
-      if (!row.plan_json) return json({ error: 'No active plan' }, 409)
+      if (!row.plan_json) return json({ error: 'No active plan' }, 400)
       const plan = JSON.parse(row.plan_json) as CareerPlan
       const milestone = plan.milestones.find((m) => m.id === body.milestoneId)
-      if (!milestone) return json({ error: 'Unknown milestone' }, 404)
-      const milestoneCopy = JSON.parse(row.plan_json) as CareerPlan & {
-        milestones: Array<PlanMilestone & { detail: string }>
-      }
-      const alreadyDone = milestoneCopy.milestones.find(
-        (m) => m.id === body.milestoneId && m.detail.startsWith('[done]'),
-      )
-      if (alreadyDone) return json({ ok: true, op: 'noop' })
-      for (const m of milestoneCopy.milestones) {
-        if (m.id === body.milestoneId) m.detail = `[done] ${m.detail}`
+      if (!milestone) return json({ error: 'Milestone not found' }, 404)
+      const updated = {
+        ...plan,
+        milestones: plan.milestones.map((m) =>
+          m.id === body.milestoneId ? { ...m, detail: `[done] ${m.detail}` } : m,
+        ),
       }
       await db.batch([
-        bumpJson2P(db).bind(JSON.stringify(milestoneCopy), Date.now(), uid),
-        db.prepare('UPDATE user_state SET credits = credits + ?, pulse_score = MIN(100, pulse_score + 4), updated_at = ? WHERE user_id = ?').bind(milestone.credits, Date.now(), uid),
-        addLedger2(db, uid, 'plan', `Milestone complete: ${milestone.title}`, milestone.credits),
+        db.prepare('UPDATE user_state SET plan_json = ?, pulse_score = MIN(100, pulse_score + 4), credits = credits + ?, updated_at = ? WHERE user_id = ?').bind(JSON.stringify(updated), milestone.credits, Date.now(), uid),
+        addLedger(db, uid, 'plan', `Milestone complete: ${milestone.title}`, milestone.credits),
       ])
-      return json({ ok: true, op: 'completed', credits: milestone.credits, source: 'server-ledger' })
+      return json({ ok: true, credits: milestone.credits, source: 'server-ledger' })
     }
 
-    // ---------- SBAR mentor session ----------
+    // ---------- SBAR sessions ----------
     if (pathname === '/api/mentor/session' && request.method === 'POST') {
-      const body = await request.json<{ mentorId?: string; sbar?: Record<string, string> }>().catch(() => null)
-      const sbar = body?.sbar
-      if (!sbar || !MENTOR_IDS.has(body!.mentorId ?? '')) return json({ error: 'Invalid mentor or SBAR payload' }, 400)
-      const fields: Array<keyof typeof sbar> = ['situation', 'background', 'assessment', 'request']
+      const body = await request.json<{ mentorId?: string; situation?: string; background?: string; assessment?: string; request?: string }>().catch(() => null)
+      if (!body?.mentorId) return json({ error: 'mentorId required' }, 400)
+      const sbar = {
+        situation: String(body.situation || ''),
+        background: String(body.background || ''),
+        assessment: String(body.assessment || ''),
+        request: String(body.request || ''),
+      }
+      const fields = ['situation', 'background', 'assessment', 'request'] as const
       if (!fields.every((f) => typeof sbar[f] === 'string' && sbar[f].trim().length >= 8)) {
         return json({ error: 'Every SBAR field needs ≥8 characters' }, 400)
       }
@@ -355,9 +354,10 @@ async function handler(request: Request, env: Env): Promise<Response> {
       if (row.credits < mentor.sessionCost) return json({ error: 'Insufficient Pulse Credits' }, 402)
       const sessionId = `s_${crypto.randomUUID().slice(0, 12)}`
       await db.batch([
-        db.prepare("INSERT INTO sessions (id, user_id, mentor_id, mentor_name, sbar_json, status, cost, created_at) VALUES (?, ?, ?, ?, ?, 'queued', ?, ?)").bind(sessionId, uid, mentor.id, mentor.name, JSON.stringify(sbar), mentor.sessionCost, Date.now()),
+        db.prepare("INSERT INTO sessions (id, user_id, mentor_id, mentor_name, sbar_json, status, cost, created_at) VALUES (?, ?, ?, ?, ?, 'queued', ?, ?)")
+          .bind(sessionId, uid, mentor.id, mentor.name, JSON.stringify(sbar), mentor.sessionCost, Date.now()),
         db.prepare('UPDATE user_state SET credits = credits - ?, pulse_score = MIN(100, pulse_score + 1), updated_at = ? WHERE user_id = ?').bind(mentor.sessionCost, Date.now(), uid),
-        addLedger2(db, uid, 'mentor', `SBAR escrow locked: ${mentor.name} (${mentor.sessionCost} cr)`, -mentor.sessionCost),
+        addLedger(db, uid, 'mentor', `SBAR escrow locked: ${mentor.name} (${mentor.sessionCost} cr)`, -mentor.sessionCost),
       ])
       return json({ ok: true, sessionId, escrow: mentor.sessionCost, source: 'server-ledger' })
     }
@@ -374,7 +374,7 @@ async function handler(request: Request, env: Env): Promise<Response> {
       await db.batch([
         db.prepare("UPDATE sessions SET status = 'responded' WHERE id = ?").bind(body.sessionId),
         db.prepare('UPDATE user_state SET credits = credits + 10, updated_at = ? WHERE user_id = ?').bind(Date.now(), uid),
-        addLedger2(db, uid, 'mentor', `Mentor responded: ${row.mentor_name}`, 10),
+        addLedger(db, uid, 'mentor', `Mentor responded: ${row.mentor_name}`, 10),
       ])
       return json({ ok: true, op: 'responded', source: 'server-ledger' })
     }
@@ -397,60 +397,95 @@ async function handler(request: Request, env: Env): Promise<Response> {
         {
           role: 'system',
           content:
-            'You are PulseUp Career Navigator, a career planning agent for Indian medical students. Produce JSON with keys: goal (string), specialty (string), horizonMonths (3|6|12), milestones (array of 8-10 objects: {week:number within horizon, title<=100 chars, detail<=300 chars, kind one of skill|project|network|portfolio|clinical, credits 10-40}), skillGaps (array of 4 objects: {skill, currentLevel 0-100, targetLevel 0-100}). Rules: never invent named credentials, deadlines, or affiliations; milestones must be concrete actions; scatter kinds across skill/project/network/portfolio. Output JSON only.',
+            'You are PulseAI v1 career navigator for Indian medical students. Return ONLY a JSON object matching this schema, no surrounding text: ' +
+            JSON.stringify({
+              type: 'object',
+              properties: {
+                goal: { type: 'string' },
+                specialty: { type: 'string' },
+                horizonMonths: { type: 'integer', enum: [3, 6, 12] },
+                stage: { type: 'string' },
+                milestones: {
+                  type: 'array',
+                  items: {
+                    type: 'object',
+                    properties: {
+                      id: { type: 'string' },
+                      week: { type: 'integer', minimum: 1 },
+                      title: { type: 'string' },
+                      detail: { type: 'string' },
+                      kind: { type: 'string', enum: ['skill', 'project', 'network', 'portfolio', 'clinical'] },
+                      credits: { type: 'integer', minimum: 5, maximum: 50 },
+                    },
+                    required: ['id', 'week', 'title', 'detail', 'kind', 'credits'],
+                  },
+                },
+                skillGaps: {
+                  type: 'array',
+                  items: {
+                    type: 'object',
+                    properties: { skill: { type: 'string' }, currentLevel: { type: 'integer', minimum: 0, maximum: 100 }, targetLevel: { type: 'integer', minimum: 0, maximum: 100 } },
+                    required: ['skill', 'currentLevel', 'targetLevel'],
+                  },
+                },
+                createdAt: { type: 'integer' },
+                engine: { type: 'string', enum: ['pulseai-v1-deterministic', 'live-llm'] },
+              },
+              required: ['goal', 'specialty', 'horizonMonths', 'stage', 'milestones', 'skillGaps', 'createdAt', 'engine'],
+            }),
         },
         {
           role: 'user',
-          content: JSON.stringify({ specialty, stage, horizonMonths: horizon, goal, referenceBlueprintWeeks: deterministic.milestones.map((m) => m.week) }),
+          content:
+            `Generate a ${horizon}-month ${specialty} plan for a student at ${stage} stage. Goal: "${goal}". ` +
+            `Return 6–12 milestones with week offsets, 3–6 skill gaps with current/target levels, ` +
+            `use engine "live-llm" if you are confident, otherwise fall back to deterministic-style output.`,
         },
-      ], { maxTokens: 1600 })
-
-      const candidate = parseJsonLoose<CareerPlan>(raw)
-      const usedLLM = validatePlan(candidate)
-      const plan: CareerPlan = usedLLM
-        ? candidate!
-        : deterministic
-      plan.engine = usedLLM ? 'live-llm' : 'pulseai-v1-deterministic'
-
-      await db.batch([
-        bumpJson2P(db).bind(JSON.stringify(plan), Date.now(), uid),
-        db.prepare('UPDATE user_state SET pulse_score = MIN(100, pulse_score + 8), updated_at = ? WHERE user_id = ?').bind(Date.now(), uid),
-        addLedger2(db, uid, 'plan', `Career plan generated: ${plan.specialty} · ${plan.horizonMonths} months (${plan.engine})`, 0),
       ])
-      return json({ ok: true, plan, engine: plan.engine })
+      let plan: CareerPlan
+      let engine = 'pulseai-v1-deterministic'
+      if (raw) {
+        const parsed = parseJsonLoose<CareerPlan>(raw)
+        if (parsed && validatePlan(parsed)) {
+          plan = parsed
+          engine = parsed.engine === 'live-llm' ? 'live-llm' : 'pulseai-v1-deterministic'
+        } else {
+          plan = deterministic
+        }
+      } else {
+        plan = deterministic
+      }
+      await db.batch([
+        db.prepare('UPDATE user_state SET plan_json = ?, pulse_score = MIN(100, pulse_score + 8), updated_at = ? WHERE user_id = ?').bind(JSON.stringify(plan), Date.now(), uid),
+        addLedger(db, uid, 'plan', `Career plan generated: ${plan.specialty} · ${plan.horizonMonths} months`, 0),
+      ])
+      return json({ ok: true, plan, engine })
     }
 
     // ---------- AGENT: opportunity scout ----------
     if (pathname === '/api/agent/scout' && request.method === 'POST') {
       const body = await request.json<{ query?: string }>().catch(() => null)
-      const query = String(body?.query || '').slice(0, 300)
-      if (query.length < 3) return json({ error: 'query too short' }, 400)
+      if (!body?.query) return json({ error: 'query required' }, 400)
+      const query = String(body.query).slice(0, 200)
 
       const deterministic = rankByKeyword(query)
-      const catalog = OPPORTUNITIES.map((o) =>
-        `${o.id} | ${o.title} | ${o.org} | kind=${o.kind} | ${o.cost} | ${o.dates} | tags=${o.tags.join(',')}`,
-      ).join('\n')
 
       const raw = await callLLM(env, [
         {
           role: 'system',
           content:
-            'You are PulseUp Opportunity Scout. Given a user query and a fixed catalog, return JSON: {result: [{id, reason<=140 chars, score 0-100}]} with max 6 entries, ids MUST come from the catalog, no fabricated opportunities.',
+            'You are PulseAI Opportunity Scout. Return ONLY a JSON array of objects with shape [{id: string, reason?: string, score?: number}]. ' +
+            `Only use id values from this allowed set: ${OPPORTUNITIES.map((o) => o.id).join(', ')}. ` +
+            `Rank the most relevant 1–6 opportunities for this query: "${query}". Keep reason under 140 chars.`,
         },
-        { role: 'user', content: `Query: ${query}\n\nCatalog:\n${catalog}` },
       ])
-
-      const candidate = parseJsonLoose<{ result?: Array<{ id?: string; reason?: string; score?: number }> }>(raw)
-      let shortlist: Array<{ id: string; title: string; reason: string; score: number; url?: string }>
-      let engine: string
-
-      if (candidate?.result) {
-        const valid = candidate.result.filter(
-          (r) => typeof r.id === 'string' && OPP_IDS.has(r.id),
-        )
-        if (valid.length > 0) {
+      let engine = 'pulseai-v1-deterministic'
+      let shortlist: Array<{ id: string; title: string; reason: string; score: number; url?: string }> = []
+      if (raw) {
+        const parsed = parseJsonLoose<Array<{ id: string; reason?: string; score?: number }>>(raw)
+        if (Array.isArray(parsed) && parsed.length > 0 && validateScout(parsed)) {
           engine = 'live-llm'
-          shortlist = valid
+          shortlist = parsed
             .slice(0, 6)
             .map((r) => {
               const opp = OPPORTUNITIES.find((o) => o.id === r.id)!
@@ -497,56 +532,70 @@ async function handler(request: Request, env: Env): Promise<Response> {
             `Context: ${JSON.stringify(profileContext)}`,
         },
         ...msgs.map((m) => ({
-          role: (m.role === 'assistant' ? 'assistant' : 'user') as 'assistant' | 'user',
-          content: String(m.content).slice(0, 2000),
+          role: m.role === 'assistant' ? 'assistant' : 'user',
+          content: m.content,
         })),
-      ], { json: false, maxTokens: 500 })
-
-      return json({
-        ok: true,
-        reply: raw ?? FALLBACK_REPLY,
-        engine: raw ? 'live-llm' : 'fallback-guidance',
-      })
+        {
+          role: 'user',
+          content: `Current user state: pulseScore ${row.pulse_score}, credits ${row.credits}${row.plan_json ? ', plan specialty ' + JSON.parse(row.plan_json).specialty : ''}. Answer within the above context.`,
+        },
+      ])
+      if (raw && raw.trim().length > 0) {
+        return json({ ok: true, reply: raw.slice(0, 4000), engine: 'live-llm' })
+      }
+      return json({ ok: true, reply: FALLBACK_REPLY, engine: 'pulseai-v1-deterministic' })
     }
 
-    // ---------- AGENT: mentor triage ----------
+    // ---------- AGENT: SBAR triage / mentor routing ----------
     if (pathname === '/api/agent/triage' && request.method === 'POST') {
-      const body = await request.json<{ sbar?: Record<string, string> }>().catch(() => null)
-      const sbar = body?.sbar
-      if (!sbar || !['situation', 'background', 'assessment', 'request'].every((k) => typeof sbar[k] === 'string')) {
-        return json({ error: 'sbar object required' }, 400)
+      const body = await request.json<{ situation?: string; background?: string; assessment?: string; request?: string }>().catch(() => null)
+      if (!body) return json({ error: 'Invalid payload' }, 400)
+      const sbar = {
+        situation: String(body.situation || ''),
+        background: String(body.background || ''),
+        assessment: String(body.assessment || ''),
+        request: String(body.request || ''),
       }
-      const deterministic = triageSBAR({ situation: sbar.situation, request: sbar.request })
+      const fields = ['situation', 'background', 'assessment', 'request'] as const
+      if (!fields.every((f) => typeof sbar[f] === 'string' && sbar[f].trim().length >= 8)) {
+        return json({ error: 'Every SBAR field needs ≥8 characters' }, 400)
+      }
+
+      const deterministic = triageSBAR(sbar).slice(0, 3)
+
       const raw = await callLLM(env, [
         {
           role: 'system',
           content:
-            'You are PulseUp Mentor Match. Choose the best mentor for this SBAR ticket. Return JSON {mentorId, rationale<=160 chars}. mentorId must be one of the listed ids.',
-        },
-        {
-          role: 'user',
-          content: JSON.stringify({
-            sbar,
-            mentors: MENTORS.map((m) => ({ id: m.id, name: m.name, role: m.role, institution: m.institution, expertise: m.expertise, availableNow: m.availableNow })),
-          }),
+            'You are PulseAI SBAR triage. Return ONLY a JSON object { mentorId: string, rationale: string } where mentorId is one of: ' +
+            `${MENTORS.map((m) => m.id).join(', ')}. Rationale under 180 chars, grounded in the SBAR content: ${JSON.stringify(sbar)}`,
         },
       ])
-      const candidate = parseJsonLoose<{ mentorId?: string; rationale?: string }>(raw)
-      if (candidate?.mentorId && MENTOR_IDS.has(candidate.mentorId)) {
-        return json({ ok: true, engine: 'live-llm', mentorId: candidate.mentorId, rationale: String(candidate.rationale || '').slice(0, 160) })
+      let engine = 'pulseai-v1-deterministic'
+      let mentorId = deterministic[0].mentorId
+      let rationale = deterministic[0].rationale
+      if (raw) {
+        const parsed = parseJsonLoose<{ mentorId?: string; rationale?: string }>(raw)
+        if (parsed && MENTORS.some((m) => m.id === parsed.mentorId) && typeof parsed.rationale === 'string' && parsed.rationale.length > 0) {
+          engine = 'live-llm'
+          mentorId = parsed.mentorId
+          rationale = parsed.rationale.slice(0, 200)
+        }
       }
-      return json({ ok: true, engine: 'pulseai-v1-deterministic', ...deterministic })
+      return json({ ok: true, engine, mentorId, rationale })
     }
 
     return json({ error: 'Not found' }, 404)
   }
 
-  // ---- everything else: static SPA ----
+  // ---- SPA ----
   return env.ASSETS.fetch(request)
 }
 
 // ---------------------------------------------------------------------------
-// NMC compliance feed: fetch official notices from nmc.org.in/whats-new,
+// NMC compliance feed (hand-verified fetch + curated fallback)
+// ---------------------------------------------------------------------------
+
 // parsed server-side so the SPA never scrapes a third-party site, cached in
 // D1, and always labeled with provenance. On fetch failure the curated
 // hand-verified fallback list is served with live:false.
@@ -598,54 +647,45 @@ async function nmcUpdates(env: Env): Promise<Response> {
       const parsed = parseNoticeLinks(html)
       if (parsed.length >= 3) {
         live = true
-        items = parsed
+        items = parsed.slice(0, 10)
       }
     }
   } catch {
-    // network blocked or NMC unavailable — fall through to curated snapshot
+    // keep curated fallback
   }
 
-  const body = {
+  const payload = {
     live,
-    source: NMC_WHATS_NEW,
-    items: items.slice(0, 15),
-    disclaimer:
-      'Items are official notices/links as published by NMC. PulseUp interprets them only after the notice text is readable and never presents draft regulations as active rules.',
+    source: live ? 'nmc.org.in/whats-new' : 'PulseUp hand-verified fallback (curls at build + on fetch failure)',
+    disclaimer: 'NMC pages can restructure without notice — verify any date/fee/requirement against the official NMC link before acting on it.',
+    items,
+    fetchedAt: Date.now(),
   }
-
-  const fetchedAt = Date.now()
-  try {
-    await env.DB.prepare(
-      "INSERT INTO cache (key, value, fetched_at) VALUES ('nmc_whats_new', ?, ?) ON CONFLICT(key) DO UPDATE SET value = excluded.value, fetched_at = excluded.fetched_at",
-    )
-      .bind(JSON.stringify({ ...body, fetchedAt }), fetchedAt)
-      .run()
-  } catch {
-    // D1 write failure shouldn't block the read path
-  }
-  return json({ ...body, cached: false, fetchedAt })
+  await env.DB
+    .prepare("INSERT OR REPLACE INTO cache (key, value, fetched_at) VALUES ('nmc_whats_new', ?, ?)")
+    .bind(JSON.stringify(payload), Date.now())
+    .run()
+  return json(payload)
 }
 
-function cleanHtmlText(raw: string): string {
-  return raw
-    .replace(/<[^>]*>/g, ' ')
-    .replace(/&amp;/g, '&')
-    .replace(/&quot;/g, '"')
-    .replace(/&#39;/g, "'")
-    .replace(/&nbsp;/g, ' ')
-    .replace(/[\u200b]/g, '')
+// ---------------------------------------------------------------------------
+// HTML helpers for NMC scraping
+// ---------------------------------------------------------------------------
+
+function cleanHtmlText(s: string) {
+  return s
+    .replace(/<[^>]+>/g, ' ')
+    .replace(/&[a-z]+;/g, ' ')
     .replace(/\s+/g, ' ')
     .trim()
 }
 
 function parseNoticeLinks(html: string): NmcUpdateItem[] {
   const seen = new Set<string>()
-
-  // Single pass over anchors: notice titles carry class wn-title-link; other
-  // notice-looking links are a fallback net.
   const wantTitles: NmcUpdateItem[] = []
   const fallback: NmcUpdateItem[] = []
-  const re = /<a\s[^>]*href=["']([^"'#]+)["'][^>]*>([\s\S]*?)<\/a>/gi
+  // loose, defensive regexes — never rely on NMC layout staying identical
+  const re = /<a[^>]*?(?:href=["']([^"']+)["']| wn-title-link[^>]*?)>\s*([^<]*)<\/a>/gi
   let m: RegExpExecArray | null
   while ((m = re.exec(html)) && wantTitles.length < 25) {
     const tag = m[0]
@@ -718,3 +758,26 @@ function mapSession(s: {
 
 const FALLBACK_REPLY =
   'Agent gateway unavailable — deterministic guidance only. Suggested next steps: 1) run the Career Navigator for a milestone plan; 2) sync two relevant opportunities from the Radar into your plan; 3) open one SBAR ticket with a research-methods mentor. Milestones and credits are still tracked server-side.'
+
+// ---------------------------------------------------------------------------
+// Worker entry point
+// ---------------------------------------------------------------------------
+
+let auth: FreebuffAuth<Env> | null = null
+
+export default {
+  async fetch(request: Request, env: Env, ctx: ExecutionContext): Promise<Response> {
+    if (!auth) auth = createFreebuffAuth({ clientId: env.FREEBUFF_CLIENT_ID, issuer: env.FREEBUFF_ISSUER, baseUrl: env.APP_ORIGIN })
+    return handler(request, env)
+  },
+}
+
+// ---------------------------------------------------------------------------
+// Generic non-cosmetic formatting helper for log / triage output.
+// ---------------------------------------------------------------------------
+function prettyTs(ts: number): string {
+  const d = new Date(ts)
+  const pad = (n: number) => String(n).padStart(2, '0')
+  return `${d.getFullYear()}-${pad(d.getMonth() + 1)}-${pad(d.getDate())} ` +
+    `${pad(d.getHours())}:${pad(d.getMinutes())}:${pad(d.getSeconds())}`
+}

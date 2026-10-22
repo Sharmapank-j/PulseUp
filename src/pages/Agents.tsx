@@ -117,7 +117,8 @@ export default function Agents() {
   return (
     <div className="space-y-6">
       {/* status card */}
-      <Card>
+      <Card glass className="relative overflow-hidden">
+        <div className="absolute -right-16 -top-16 h-32 w-32 rounded-full bg-accent-purple/10 blur-2xl" />
         <SectionTitle
           title="Live agent services"
           subtitle={
@@ -170,10 +171,12 @@ export default function Agents() {
 
       <div className="grid gap-6 lg:grid-cols-2">
         {/* chat */}
-        <Card className="flex flex-col">
+        <Card glass className="relative overflow-hidden flex flex-col">
+        <div className="absolute -left-16 -top-16 h-32 w-32 rounded-full bg-pulse-500/10 blur-2xl" />
           <SectionTitle
             title="Career Copilot chat"
             subtitle="grounded in your plan, pulse score, and catalog — no hallucinated credentials by system prompt"
+            accent
           />
           <ul className="mb-3 max-h-[24rem] flex-1 space-y-2 overflow-y-auto pr-1">
             {msgs.map((m, i) => (
@@ -181,8 +184,8 @@ export default function Agents() {
                 key={i}
                 className={`rounded-xl p-3 text-sm leading-relaxed ${
                   m.role === 'user'
-                    ? 'ml-8 bg-pulse-500/10'
-                    : 'mr-8 bg-zinc-100 dark:bg-white/5'
+                    ? 'ml-8 bg-pulse-500/10 glass-inset'
+                    : 'mr-8 bg-white/5 dark:bg-white/[0.04] glass-inset-dark'
                 }`}
               >
                 <div className="mb-1 flex items-center justify-between">
@@ -198,7 +201,7 @@ export default function Agents() {
           </ul>
           <div className="flex gap-2">
             <input
-              className="input"
+              className="input input-dark"
               placeholder="e.g. What should I do first for cardiology research?"
               value={chatInput}
               onChange={(e) => setChatInput(e.target.value)}
@@ -211,14 +214,16 @@ export default function Agents() {
         </Card>
 
         {/* scout */}
-        <Card>
+        <Card glass className="relative overflow-hidden">
+        <div className="absolute -right-16 -bottom-16 h-32 w-32 rounded-full bg-accent-blue/10 blur-2xl" />
           <SectionTitle
             title="Opportunity Scout (natural language)"
             subtitle="the LLM ranks only real catalog ids — no fabricated listings, enforced by validation"
+            accent
           />
           <div className="flex gap-2">
             <input
-              className="input"
+              className="input input-dark"
               placeholder="e.g. zero-fee research grants for peds"
               value={scoutQuery}
               onChange={(e) => setScoutQuery(e.target.value)}
@@ -230,11 +235,11 @@ export default function Agents() {
           </div>
           {scoutResult && (
             <div className="mt-4 space-y-2">
-              <div className="chip bg-zinc-200/60 font-mono dark:bg-white/5 dark:text-zinc-300">
+              <div className="chip chip-glass chip-glass-dark bg-zinc-200/60 font-mono dark:bg-white/5 dark:text-zinc-300">
                 engine: {scoutResult.engine}
               </div>
               {scoutResult.shortlist.map((r) => (
-                <div key={r.id} className="card p-3">
+                <div key={r.id} className="card glass-inset p-3">
                   <div className="flex items-start justify-between gap-2">
                     <div className="text-sm font-bold">{r.title}</div>
                     <span className="font-mono text-xs text-pulse-500">{r.score}</span>
@@ -258,7 +263,8 @@ export default function Agents() {
       </div>
 
       {/* plan regeneration */}
-      <Card>
+      <Card glass className="relative overflow-hidden">
+        <div className="absolute -left-16 -bottom-16 h-32 w-32 rounded-full bg-pulse-500/10 blur-2xl" />
         <SectionTitle
           title="Plan regeneration"
           subtitle="send the active plan back through the live agent — same validation, fresh milestones"

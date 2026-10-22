@@ -56,39 +56,41 @@ export default function Nmr() {
 
   return (
     <div className="space-y-6">
-      <Card>
+      <Card glass className="relative overflow-hidden">
+        <div className="absolute -right-16 -top-16 h-40 w-40 rounded-full bg-pulse-500/15 blur-2xl" />
+        <div className="absolute -left-16 -bottom-16 h-32 w-32 rounded-full bg-accent-blue/10 blur-2xl" />
         <SectionTitle
           title="Unified medical registration — NMR readiness"
           subtitle="what is actually live, what is still a draft, and exactly which documents to keep ready — so the transition catches you prepared, not by surprise"
           right={
-            <span className="chip bg-pulse-500/10 font-mono text-pulse-600 dark:text-pulse-300">
+            <span className="chip chip-glass chip-glass-dark bg-pulse-500/10 font-mono text-pulse-600 dark:text-pulse-300">
               {doneAll}/{NMR_CHECKLIST.length} ready
             </span>
           }
+          accent
         />
         <div className="flex flex-wrap items-center gap-2">
-          <span className="chip bg-pulse-500/10 text-pulse-600 dark:text-pulse-300">
+          <span className="chip chip-glass chip-glass-dark bg-pulse-500/10 text-pulse-600 dark:text-pulse-300">
             <IdCard size={12} /> NMR portal live
           </span>
-          <span className="chip bg-amber-500/10 text-amber-600 dark:text-amber-300">
+          <span className="chip chip-glass chip-glass-dark bg-amber-500/10 text-amber-600 dark:text-amber-300">
             2026 unified framework = draft only
           </span>
-          <span className="chip bg-emerald-100 text-emerald-700 dark:bg-emerald-500/10 dark:text-emerald-300">
+          <span className="chip chip-glass chip-glass-dark bg-emerald-100 text-emerald-700 dark:bg-emerald-500/10 dark:text-emerald-300">
             ₹0 NMR registration fee
           </span>
         </div>
       </Card>
 
-      {/* Track explorer */}
-      <div className="grid gap-4 lg:grid-cols-2">
+      {/* Track explorer */}        <div className="grid gap-4 lg:grid-cols-2">
         {NMR_TRACKS.map((t) => (
-          <Card key={t.id} hover className="flex flex-col">
+          <Card key={t.id} glass hover className="flex flex-col">
             <div className="flex flex-wrap items-start justify-between gap-2">
               <h3 className="font-display text-base font-bold">{t.title}</h3>
               {t.status === 'live' ? (
-                <span className="chip bg-pulse-500/10 text-pulse-600 dark:text-pulse-300">live service</span>
+                <span className="chip chip-glass chip-glass-dark bg-pulse-500/10 text-pulse-600 dark:text-pulse-300">live service</span>
               ) : (
-                <span className="chip bg-amber-500/10 text-amber-600 dark:text-amber-300">draft — not in force</span>
+                <span className="chip chip-glass chip-glass-dark bg-amber-500/10 text-amber-600 dark:text-amber-300">draft — not in force</span>
               )}
             </div>
             <p className="mt-0.5 text-[11px] italic text-zinc-400">{t.statusNote}</p>
