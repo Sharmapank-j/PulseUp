@@ -1,40 +1,62 @@
+// PulseUp Cloud — domain types
+// Note: no runtime enums (erasableSyntaxOnly) — union types only.
+
+export type OpportunityKind =
+  | 'research'
+  | 'event'
+  | 'certification'
+  | 'observership'
+  | 'grant'
+  | 'quiz'
+  | 'exam'
+  | 'webinar'
+
 export interface Opportunity {
   id: string
-  kind: string
   title: string
   org: string
-  url: string
-  cost: string
+  kind: OpportunityKind
+  region: string
   dates: string
+  cost: string
+  eligibility: string
+  perks: string[]
   tags: string[]
-  location: string
-  pulseScore: number
+  pulseScore: number // 0–100 baseline relevance for a pre-clinical/clinical UG building a research+portfolio profile
+  url?: string
+  statusNote?: string
+  verified: 'official' | 'provisional'
 }
 
 export interface Mentor {
   id: string
   name: string
-  specialty: string
+  role: string
+  institution: string
   expertise: string[]
-  rating: number
   experienceYears: number
+  rating: number // 0–5
+  ratingCount: number
   availableNow: boolean
-  sessionCost: number
-  nextSlot: string
+  sessionCost: number // Pulse Credits per SBAR ticket
+  bio: string
 }
 
-export interface SbarTicket {
+export type MilestoneKind = 'skill' | 'project' | 'network' | 'portfolio' | 'clinical'
+
+export interface PlanMilestone {
   id: string
-  situation: string
-  background: string
-  assessment: string
-  request: string
-  status: 'queued' | 'in_progress' | 'resolved'
-  mentorId: string
-  authorId: string
-  createdAt: number
-  escrowCredits: number
-  resolvedAt?: number
+  week: number // week offset from plan start
+  title: string
+  detail: string
+  kind: MilestoneKind
+  credits: number // credits awarded when completed
+}
+
+export interface SkillGap {
+  skill: string
+  currentLevel: number // 0–100
+  targetLevel: number
 }
 
 export interface CareerPlan {
@@ -45,37 +67,42 @@ export interface CareerPlan {
   milestones: PlanMilestone[]
   skillGaps: SkillGap[]
   createdAt: number
-  engine: string
+  engine: string // provenance: 'pulseai-v1-deterministic'
 }
 
-export interface PlanMilestone {
+export interface SBAR {
+  situation: string
+  background: string
+  assessment: string
+  request: string
+}
+
+export interface MentorSession {
   id: string
-  week: number
-  title: string
-  detail: string
-  kind: string
+  mentorId: string
+  mentorName: string
+  sbar: SBAR
+  status: 'queued' | 'responded'
+  cost: number
+  createdAt: number
+}
+
+export interface PulseEvent {
+  id: string
+  ts: number
+  kind: 'credit' | 'plan' | 'sync' | 'profile' | 'mentor'
+  text: string
+  creditDelta?: number
+}
+
+export interface PulseState {
+  pulseScore: number
   credits: number
+  syncedOppIds: string[]
+  plan: CareerPlan | null
+  sessions: MentorSession[]
+  events: PulseEvent[]
+  nmrChecked: string[]
 }
 
-export interface SkillGap {
-  skill: string
-  currentLevel: number
-  targetLevel: number
-}
-
-export interface CreditLedgerEntry {
-  id: string
-  date: number
-  source: string
-  kind: string
-  amount: number
-  note: string
-  relatedActivity?: string
-}
-
-export interface NmcUpdateItem {
-  title: string
-  url: string
-  date?: string
-  verified: boolean
-}
+export const PULSE_SCORE_MAX = 100
