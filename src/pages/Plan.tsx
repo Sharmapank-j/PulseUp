@@ -71,11 +71,14 @@ export default function Plan() {
 
   return (
     <div className="space-y-6">
-      <Card>
+      <Card glass className="relative overflow-hidden">
+        <div className="absolute -right-16 -top-16 h-48 w-48 rounded-full bg-accent-purple/10 blur-3xl" />
+        <div className="absolute -left-16 -bottom-16 h-32 w-32 rounded-full bg-pulse-500/10 blur-3xl" />
         <SectionTitle
           title="Career Navigator"
           subtitle="PulseAI v1 · deterministic engine — same inputs always produce the same plan, every rule auditable"
-          right={<span className="chip bg-pulse-500/10 text-pulse-600 dark:text-pulse-300"><ShieldCheck size={12} /> no hallucinated credentials</span>}
+          right={<span className="chip chip-glass chip-glass-dark bg-pulse-500/10 text-pulse-600 dark:text-pulse-300"><ShieldCheck size={12} /> no hallucinated credentials</span>}
+          accent
         />
         {step === 1 ? (
           <div className="space-y-5">
@@ -86,10 +89,10 @@ export default function Plan() {
                   <button
                     key={s}
                     onClick={() => setSpecialty(s)}
-                    className={`chip cursor-pointer px-3 py-1.5 capitalize transition ${
+                    className={`chip cursor-pointer px-3 py-1.5 capitalize transition-all duration-200 ${
                       specialty === s
-                        ? 'bg-pulse-500 text-[#0B101B]'
-                        : 'bg-zinc-200/60 text-zinc-600 hover:bg-zinc-300/70 dark:bg-white/5 dark:text-zinc-300'
+                        ? 'chip-glass chip-glass-dark bg-pulse-500 text-[#0B101B] shadow-sm'
+                        : 'chip-glass chip-glass-dark bg-zinc-200/60 text-zinc-600 hover:bg-zinc-300/70 dark:bg-white/5 dark:text-zinc-300'
                     }`}
                   >
                     {s}
@@ -104,10 +107,10 @@ export default function Plan() {
                   <button
                     key={s}
                     onClick={() => setStage(s)}
-                    className={`chip cursor-pointer px-3 py-1.5 transition ${
+                    className={`chip cursor-pointer px-3 py-1.5 transition-all duration-200 ${
                       stage === s
-                        ? 'bg-accent-blue text-white'
-                        : 'bg-zinc-200/60 text-zinc-600 hover:bg-zinc-300/70 dark:bg-white/5 dark:text-zinc-300'
+                        ? 'chip-glass chip-glass-dark bg-accent-blue text-white shadow-sm'
+                        : 'chip-glass chip-glass-dark bg-zinc-200/60 text-zinc-600 hover:bg-zinc-300/70 dark:bg-white/5 dark:text-zinc-300'
                     }`}
                   >
                     {s}
@@ -122,10 +125,10 @@ export default function Plan() {
                   <button
                     key={h}
                     onClick={() => setHorizon(h)}
-                    className={`chip cursor-pointer px-3 py-1.5 transition ${
+                    className={`chip cursor-pointer px-3 py-1.5 transition-all duration-200 ${
                       horizon === h
-                        ? 'bg-accent-purple text-white'
-                        : 'bg-zinc-200/60 text-zinc-600 hover:bg-zinc-300/70 dark:bg-white/5 dark:text-zinc-300'
+                        ? 'chip-glass chip-glass-dark bg-accent-purple text-white shadow-sm'
+                        : 'chip-glass chip-glass-dark bg-zinc-200/60 text-zinc-600 hover:bg-zinc-300/70 dark:bg-white/5 dark:text-zinc-300'
                     }`}
                   >
                     {h} months
@@ -136,7 +139,7 @@ export default function Plan() {
             <div>
               <label className="label">4 · Goal (your own words)</label>
               <input
-                className="input"
+                className="input input-dark"
                 placeholder="e.g. Publish my first medical research paper in the next six months"
                 value={goal}
                 onChange={(e) => setGoal(e.target.value)}

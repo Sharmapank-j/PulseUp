@@ -96,19 +96,21 @@ export default function Mentors() {
 
   return (
     <div className="space-y-6">
-      <Card>
+      <Card glass className="relative overflow-hidden">
+        <div className="absolute -right-16 -top-16 h-40 w-40 rounded-full bg-accent-amber/10 blur-2xl" />
+        <div className="absolute -left-16 -bottom-16 h-32 w-32 rounded-full bg-accent-purple/5 blur-2xl" />
         <SectionTitle
           title="Mentor panel"
           subtitle="simulated mentor personas while real-mentor onboarding is in progress — every ticket is a structured SBAR handover; escrow releases only when the session completes"
           right={
-            <span className="chip bg-amber-500/10 text-amber-600 dark:text-amber-300">
+            <span className="chip chip-glass chip-glass-dark bg-amber-500/10 text-amber-600 dark:text-amber-300">
               simulated panel (beta)
             </span>
           }
         />
         <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-3">
           {matches.map(({ mentor, matchScore, reason }) => (
-            <div key={mentor.id} className="card card-hover flex flex-col p-5">
+            <div key={mentor.id} className="card glass-inset flex flex-col p-5 card-hover">
               <div className="flex items-start justify-between gap-2">
                 <div>
                   <div className="font-display font-bold">{mentor.name}</div>
@@ -137,10 +139,11 @@ export default function Mentors() {
                 <span className="font-mono text-pulse-500">{matchScore}% match</span>
               </div>
               <ProgressBar value={matchScore} />
+              <div className="mt-1 text-xs text-pulse-500 font-mono">{matchScore}% compatibility</div>
 
               <div className="mt-3 flex flex-wrap gap-1.5">
                 {mentor.expertise.slice(0, 3).map((e) => (
-                  <span key={e} className="chip bg-zinc-200/60 dark:bg-white/5 dark:text-zinc-300">
+                  <span key={e} className="chip chip-glass chip-glass-dark bg-zinc-200/60 dark:bg-white/5 dark:text-zinc-300">
                     {e}
                   </span>
                 ))}
@@ -168,14 +171,14 @@ export default function Mentors() {
       </Card>
 
       {/* My tickets */}
-      <Card>
+      <Card glass>
         <SectionTitle title="My SBAR tickets" subtitle="queued → responded · credits release to mentors on completion" />
         {state.sessions.length === 0 ? (
           <EmptyState title="No tickets yet" hint="Pick a mentor above and open your first structured handover." />
         ) : (
           <ul className="space-y-3">
             {state.sessions.map((s) => (
-              <li key={s.id} className="card p-4">
+              <li key={s.id} className="card glass-inset p-4 card-hover">
                 <div className="flex items-start justify-between gap-3">
                   <div>
                     <div className="text-sm font-bold">{s.mentorName}</div>
@@ -225,11 +228,11 @@ export default function Mentors() {
       {/* SBAR composer */}
       {ticketFor && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-4" onClick={() => !sending && setTicketFor(null)}>
-          <div className="card w-full max-w-xl p-6 shadow-glow" onClick={(e) => e.stopPropagation()}>
+          <div className="card-glass w-full max-w-xl p-6 shadow-glow" onClick={(e) => e.stopPropagation()}>
             <div className="mb-4 flex items-center justify-between">
               <h3 className="font-display font-bold">SBAR ticket · {ticketFor.name}</h3>
               {!sending && (
-                <button onClick={() => setTicketFor(null)} className="btn-ghost p-1.5">
+                <button onClick={() => setTicketFor(null)} className="btn-glass btn-glass-dark p-1.5">
                   <X size={16} />
                 </button>
               )}
@@ -246,7 +249,7 @@ export default function Mentors() {
                 <div key={key}>
                   <label className="label">{label}</label>
                   <textarea
-                    className="input h-16 resize-none"
+                    className="input h-16 resize-none input-dark"
                     value={sbar[key]}
                     onChange={(e) => setSbar((s) => ({ ...s, [key]: e.target.value }))}
                   />
@@ -255,10 +258,10 @@ export default function Mentors() {
             </div>
             <div className="mt-4 flex flex-wrap items-center justify-between gap-3">
               <div className="flex items-center gap-2">
-                <span className="chip bg-pulse-500/10 font-mono text-pulse-600 dark:text-pulse-300">
+                <span className="chip chip-glass chip-glass-dark bg-pulse-500/10 font-mono text-pulse-600 dark:text-pulse-300">
                   escrow: {ticketFor.sessionCost} cr
                 </span>
-                <button className="btn-ghost text-xs" onClick={askRouter} disabled={sending}>
+                <button className="btn-glass btn-glass-dark text-xs" onClick={askRouter} disabled={sending}>
                   <Bot size={13} /> Ask PulseAI router
                 </button>
               </div>

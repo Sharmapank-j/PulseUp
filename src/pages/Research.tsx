@@ -99,15 +99,18 @@ export default function Research() {
   return (
     <div className="space-y-6">
       {/* Pipeline */}
-      <Card>
+      <Card glass className="relative overflow-hidden">
+        <div className="absolute -right-16 -top-16 h-40 w-40 rounded-full bg-accent-blue/10 blur-2xl" />
+        <div className="absolute -left-16 -bottom-16 h-32 w-32 rounded-full bg-pulse-500/10 blur-2xl" />
         <SectionTitle
           title="Manuscript pipeline"
           subtitle="checkpoint-based kanban — every stage transition is logged and credit-bound"
-          right={<span className="chip bg-pulse-500/10 text-pulse-600 dark:text-pulse-300"><FlaskConical size={12} /> {items.length} active projects</span>}
+          right={<span className="chip chip-glass chip-glass-dark bg-pulse-500/10 text-pulse-600 dark:text-pulse-300"><FlaskConical size={12} /> {items.length} active projects</span>}
+          accent
         />
         <div className="grid gap-4 md:grid-cols-3 xl:grid-cols-5">
           {STAGES.map((stage) => (
-            <div key={stage} className="rounded-xl border border-zinc-200/80 p-3 dark:border-white/10">
+            <div key={stage} className="rounded-xl border border-white/5 bg-white/5 p-3 dark:border-white/10 dark:bg-white/[0.02]">
               <div className="mb-2 flex items-center justify-between text-[10px] font-bold uppercase tracking-widest text-zinc-400">
                 {stage}
                 <span className="font-mono">
@@ -156,16 +159,16 @@ export default function Research() {
       </Card>
 
       <div className="grid gap-6 lg:grid-cols-3">
-        {/* Evidence matrix */}
-        <Card className="lg:col-span-2">
+        {/* Evidence matrix */}          <Card glass className="lg:col-span-2">
           <SectionTitle
             title="Evidence matrix"
             subtitle="literal quoted evidence sourced from public, indexible authorities — never from model imagination alone"
+            accent
           />
           <div className="overflow-x-auto">
             <table className="w-full text-left text-xs">
               <thead>
-                <tr className="border-b border-zinc-200 text-[10px] uppercase tracking-wider text-zinc-400 dark:border-white/10">
+                <tr className="border-b border-white/5 text-[10px] uppercase tracking-wider text-zinc-400 dark:border-white/10">
                   <th className="py-2 pr-3">Claim</th>
                   <th className="py-2 pr-3">Source</th>
                   <th className="py-2 pr-3">Design</th>
@@ -201,11 +204,10 @@ export default function Research() {
           </p>
         </Card>
 
-        {/* Grant sprint */}
-        <Card>
+        {/* Grant sprint */}          <Card glass>
           <SectionTitle title="Grant sprint" subtitle="ICMR-STS / ANRF / SERB deadlines tracked against your plan" />
           <ul className="space-y-3">
-            <li className="card p-4">
+            <li className="card glass-inset p-4 card-hover">
               <div className="flex items-center justify-between text-sm font-bold">
                 ICMR-STS 2026
                 <ScorePill score={96} />
@@ -214,11 +216,11 @@ export default function Research() {
                 annual universal call · mentor + head of unit sign-off required · stipend tier
               </p>
               <div className="mt-2 flex flex-wrap gap-1.5">
-                <span className="chip bg-amber-500/10 text-amber-600 dark:text-amber-300">abstract due</span>
-                <span className="chip bg-zinc-200/60 dark:bg-white/5 dark:text-zinc-300">zero-PHI design ready</span>
+                <span className="chip chip-glass chip-glass-dark bg-amber-500/10 text-amber-600 dark:text-amber-300">abstract due</span>
+                <span className="chip chip-glass chip-glass-dark bg-zinc-200/60 dark:bg-white/5 dark:text-zinc-300">zero-PHI design ready</span>
               </div>
             </li>
-            <li className="card p-4">
+            <li className="card glass-inset p-4 card-hover">
               <div className="flex items-center justify-between text-sm font-bold">
                 ANRF / SERB sponsored
                 <ScorePill score={84} />
@@ -227,11 +229,11 @@ export default function Research() {
                 rolling · faculty-PI sponsorship · multi-institution allowed
               </p>
               <div className="mt-2 flex flex-wrap gap-1.5">
-                <span className="chip bg-blue-500/10 text-blue-600 dark:text-blue-300">rolling</span>
-                <span className="chip bg-zinc-200/60 dark:bg-white/5 dark:text-zinc-300">federal tier</span>
+                <span className="chip chip-glass chip-glass-dark bg-blue-500/10 text-blue-600 dark:text-blue-300">rolling</span>
+                <span className="chip chip-glass chip-glass-dark bg-zinc-200/60 dark:bg-white/5 dark:text-zinc-300">federal tier</span>
               </div>
             </li>
-            <li className="card p-4">
+            <li className="card glass-inset p-4 card-hover">
               <div className="flex items-center justify-between text-sm font-bold">
                 RGUHS UG grant
                 <ScorePill score={76} />
@@ -241,7 +243,7 @@ export default function Research() {
               </p>
             </li>
           </ul>
-          <div className="mt-4 card p-3 text-[11px] leading-relaxed text-zinc-400">
+          <div className="mt-4 card glass-inset p-3 text-[11px] leading-relaxed text-zinc-400">
             <Award size={12} className="mr-1.5 inline text-amber-500" />
             grant readiness gated on the active plan —{' '}
             {state.plan ? `current plan: ${state.plan.specialty} (${state.plan.horizonMonths} months).` : 'no plan generated yet.'}

@@ -1,4 +1,20 @@
-export const NMR_TRACKS = [
+// Researched data on India's medical-registration transition (Oct 2026).
+// Verified facts were read from official pages or their attributed reports;
+// everything provisional is labeled so users never over-trust a draft rule.
+
+export interface NmrTrack {
+  id: string
+  title: string
+  status: 'live' | 'draft'
+  statusNote: string
+  what: string
+  who: string
+  feeNote: string
+  links: Array<{ label: string; url: string; verified: boolean }>
+  timeline: Array<{ date: string; event: string; verified: boolean }>
+}
+
+export const NMR_TRACKS: NmrTrack[] = [
   {
     id: 'nmr-portal',
     title: 'National Medical Register (NMR)',
