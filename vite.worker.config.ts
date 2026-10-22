@@ -1,11 +1,22 @@
+// Vite build for the PulseUp Worker bundle (esm, workerd-compatible).
+// Runs alongside the web build; output goes to dist-worker/ for sites_deploy.
 import { defineConfig } from 'vite'
-import worker from '@vitejs/plugin-react-swc'
+import { fileURLToPath } from 'node:url'
 
 export default defineConfig({
-  plugins: [worker()],
+  // inline all dependencies: the Workers upload bundle cannot resolve bare imports
+  ssr: { noExternal: true },
   build: {
     outDir: 'dist-worker',
-    target: 'es2022',
-    minify: 'esbuild',
+    emptyOutDir: true,
+    ssr: fileURLToPath(new URL('./worker/worker.ts', import.meta.url)),
+    target: 'es2023',
+    minify: false,
+    rollupOptions: {
+      output: {
+        format: 'esm',
+        entryFileNames: 'worker.js',
+      },
+    },
   },
 })
