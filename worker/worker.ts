@@ -121,9 +121,7 @@ async function ensureUser(db: D1Database, userId: string): Promise<UserRow> {
 }
 
 async function addLedger(db: D1Database, userId: string, kind: string, text: string, delta: number) {
-  await db
-    .prepare('INSERT INTO ledger (id, user_id, kind, text, credit_delta, created_at) VALUES (?, ?, ?, ?, ?, ?)')
-    .bind(crypto.randomUUID(), userId, kind, text, delta, Date.now())
+  await ledgerStmt(db, userId, kind, text, delta).run()
 }
 
 // ---------------------------------------------------------------------------
@@ -292,7 +290,7 @@ async function handler(request: Request, env: Env): Promise<Response> {
     if (pathname === '/api/state/sync-opp' && request.method === 'POST') {
       const body = await request.json<{ opportunityId?: string }>().catch(() => null)
       if (!body?.opportunityId) return json({ error: 'opportunityId required' }, 400)
-      const row = await ensureUser(db, uid)
+      await ensureUser(db, uid)
       const already = await db
         .prepare('SELECT 1 FROM opportunity_syncs WHERE user_id = ? AND opportunity_id = ?')
         .bind(uid, body.opportunityId)
@@ -301,13 +299,13 @@ async function handler(request: Request, env: Env): Promise<Response> {
         await db.batch([
           db.prepare('INSERT INTO opportunity_syncs (user_id, opportunity_id, created_at) VALUES (?, ?, ?)').bind(uid, body.opportunityId, Date.now()),
           db.prepare('UPDATE user_state SET pulse_score = MIN(100, pulse_score + 2), credits = credits + 5, updated_at = ? WHERE user_id = ?').bind(Date.now(), uid),
-          addLedger(db, uid, 'sync', `Synced to plan: ${body.opportunityId}`, 5),
+          ledgerStmt(db, uid, 'sync', `Synced to plan: ${body.opportunityId}`, 5),
         ])
       } else {
         await db.batch([
           db.prepare('DELETE FROM opportunity_syncs WHERE user_id = ? AND opportunity_id = ?').bind(uid, body.opportunityId),
           db.prepare('UPDATE user_state SET pulse_score = pulse_score, credits = credits, updated_at = ? WHERE user_id = ?').bind(Date.now(), uid),
-          addLedger(db, uid, 'sync', `Removed from plan: ${body.opportunityId}`, 0),
+          ledgerStmt(db, uid, 'sync', `Removed from plan: ${body.opportunityId}`, 0),
         ])
       }
       return json({ ok: true, op: already ? 'removed' : 'added' })
@@ -330,7 +328,7 @@ async function handler(request: Request, env: Env): Promise<Response> {
       }
       await db.batch([
         db.prepare('UPDATE user_state SET plan_json = ?, pulse_score = MIN(100, pulse_score + 4), credits = credits + ?, updated_at = ? WHERE user_id = ?').bind(JSON.stringify(updated), milestone.credits, Date.now(), uid),
-        addLedger(db, uid, 'plan', `Milestone complete: ${milestone.title}`, milestone.credits),
+        ledgerStmt(db, uid, 'plan', `Milestone complete: ${milestone.title}`, milestone.credits),
       ])
       return json({ ok: true, credits: milestone.credits, source: 'server-ledger' })
     }
@@ -357,7 +355,7 @@ async function handler(request: Request, env: Env): Promise<Response> {
         db.prepare("INSERT INTO sessions (id, user_id, mentor_id, mentor_name, sbar_json, status, cost, created_at) VALUES (?, ?, ?, ?, ?, 'queued', ?, ?)")
           .bind(sessionId, uid, mentor.id, mentor.name, JSON.stringify(sbar), mentor.sessionCost, Date.now()),
         db.prepare('UPDATE user_state SET credits = credits - ?, pulse_score = MIN(100, pulse_score + 1), updated_at = ? WHERE user_id = ?').bind(mentor.sessionCost, Date.now(), uid),
-        addLedger(db, uid, 'mentor', `SBAR escrow locked: ${mentor.name} (${mentor.sessionCost} cr)`, -mentor.sessionCost),
+        ledgerStmt(db, uid, 'mentor', `SBAR escrow locked: ${mentor.name} (${mentor.sessionCost} cr)`, -mentor.sessionCost),
       ])
       return json({ ok: true, sessionId, escrow: mentor.sessionCost, source: 'server-ledger' })
     }
@@ -374,7 +372,7 @@ async function handler(request: Request, env: Env): Promise<Response> {
       await db.batch([
         db.prepare("UPDATE sessions SET status = 'responded' WHERE id = ?").bind(body.sessionId),
         db.prepare('UPDATE user_state SET credits = credits + 10, updated_at = ? WHERE user_id = ?').bind(Date.now(), uid),
-        addLedger(db, uid, 'mentor', `Mentor responded: ${row.mentor_name}`, 10),
+        ledgerStmt(db, uid, 'mentor', `Mentor responded: ${row.mentor_name}`, 10),
       ])
       return json({ ok: true, op: 'responded', source: 'server-ledger' })
     }
@@ -457,7 +455,7 @@ async function handler(request: Request, env: Env): Promise<Response> {
       }
       await db.batch([
         db.prepare('UPDATE user_state SET plan_json = ?, pulse_score = MIN(100, pulse_score + 8), updated_at = ? WHERE user_id = ?').bind(JSON.stringify(plan), Date.now(), uid),
-        addLedger(db, uid, 'plan', `Career plan generated: ${plan.specialty} · ${plan.horizonMonths} months`, 0),
+        ledgerStmt(db, uid, 'plan', `Career plan generated: ${plan.specialty} · ${plan.horizonMonths} months`, 0),
       ])
       return json({ ok: true, plan, engine })
     }
@@ -561,7 +559,7 @@ async function handler(request: Request, env: Env): Promise<Response> {
         return json({ error: 'Every SBAR field needs ≥8 characters' }, 400)
       }
 
-      const deterministic = triageSBAR(sbar).slice(0, 3)
+      const deterministic = triageSBAR(sbar)
 
       const raw = await callLLM(env, [
         {
@@ -572,11 +570,11 @@ async function handler(request: Request, env: Env): Promise<Response> {
         },
       ])
       let engine = 'pulseai-v1-deterministic'
-      let mentorId = deterministic[0].mentorId
-      let rationale = deterministic[0].rationale
+      let mentorId = deterministic.mentorId
+      let rationale = deterministic.rationale
       if (raw) {
         const parsed = parseJsonLoose<{ mentorId?: string; rationale?: string }>(raw)
-        if (parsed && MENTORS.some((m) => m.id === parsed.mentorId) && typeof parsed.rationale === 'string' && parsed.rationale.length > 0) {
+        if (parsed && typeof parsed.mentorId === 'string' && MENTORS.some((m) => m.id === parsed.mentorId) && typeof parsed.rationale === 'string' && parsed.rationale.length > 0) {
           engine = 'live-llm'
           mentorId = parsed.mentorId
           rationale = parsed.rationale.slice(0, 200)
@@ -723,11 +721,8 @@ function rankByKeyword(query: string) {
     .sort((a, b) => b.score - a.score)
 }
 
-// D1 statement fragments reused by batch inserts
-function bumpJson2P(db: D1Database) {
-  return db.prepare('UPDATE user_state SET plan_json = ?, updated_at = ? WHERE user_id = ?')
-}
-function addLedger2(db: D1Database, userId: string, kind: string, text: string, delta: number) {
+// D1 statement fragment reused by batch inserts
+function ledgerStmt(db: D1Database, userId: string, kind: string, text: string, delta: number) {
   return db
     .prepare('INSERT INTO ledger (id, user_id, kind, text, credit_delta, created_at) VALUES (?, ?, ?, ?, ?, ?)')
     .bind(crypto.randomUUID(), userId, kind, text, delta, Date.now())
@@ -763,21 +758,12 @@ const FALLBACK_REPLY =
 // Worker entry point
 // ---------------------------------------------------------------------------
 
-let auth: FreebuffAuth<Env> | null = null
+let auth: FreebuffAuth | null = null
 
 export default {
-  async fetch(request: Request, env: Env, ctx: ExecutionContext): Promise<Response> {
+  async fetch(request: Request, env: Env, _ctx: ExecutionContext): Promise<Response> {
     if (!auth) auth = createFreebuffAuth({ clientId: env.FREEBUFF_CLIENT_ID, issuer: env.FREEBUFF_ISSUER, baseUrl: env.APP_ORIGIN })
     return handler(request, env)
   },
 }
 
-// ---------------------------------------------------------------------------
-// Generic non-cosmetic formatting helper for log / triage output.
-// ---------------------------------------------------------------------------
-function prettyTs(ts: number): string {
-  const d = new Date(ts)
-  const pad = (n: number) => String(n).padStart(2, '0')
-  return `${d.getFullYear()}-${pad(d.getMonth() + 1)}-${pad(d.getDate())} ` +
-    `${pad(d.getHours())}:${pad(d.getMinutes())}:${pad(d.getSeconds())}`
-}
