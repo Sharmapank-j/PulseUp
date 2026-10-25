@@ -1,0 +1,3925 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width,initial-scale=1.0"/>
+<title>PulseUp — AI-Powered Career Operating System for Indian Healthcare Professionals</title>
+<!-- Google Fonts CDN: Inter, Plus Jakarta Sans, JetBrains Mono -->
+<link rel="preconnect" href="https://fonts.googleapis.com"/>
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin/>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600;700&family=Plus+Jakarta+Sans:wght@500;600;700;800&display=swap" rel="stylesheet"/>
+<style>
+/* ── DESIGN TOKENS & CLINICAL ERGONOMIC PALETTE ───────── */
+:root {
+  /* Surfaces & Backgrounds */
+  --navy: #0B101B;
+  --surface: #111827;
+  --card: #1A2235;
+  --sidebar: #1C2541;
+  --card-hover: #222C44;
+  --surface-subtle: #151D2D;
+
+  /* Clinical Accent System */
+  --emerald: #10B981;
+  --em: #10B981;
+  --em-d: #059669;
+  --emerald-glow: rgba(16, 185, 129, 0.18);
+  --indigo-a: #3B82F6;
+  --ia: #3B82F6;
+  --indigo-glow: rgba(59, 130, 246, 0.18);
+  --amber: #F59E0B;
+  --am: #F59E0B;
+  --amber-glow: rgba(245, 158, 11, 0.18);
+  --crimson: #EF4444;
+  --cr: #EF4444;
+  --crimson-glow: rgba(239, 68, 68, 0.18);
+  --purple: #8B5CF6;
+  --pu: #8B5CF6;
+  --purple-glow: rgba(139, 92, 246, 0.18);
+
+  /* Typography Colors */
+  --text-primary: #F1F5F9;
+  --t1: #F1F5F9;
+  --text-secondary: #94A3B8;
+  --t2: #94A3B8;
+  --text-muted: #475569;
+  --t3: #475569;
+
+  /* Borders & Dividers */
+  --border: rgba(255, 255, 255, 0.07);
+  --border-subtle: rgba(255, 255, 255, 0.07);
+  --border-md: rgba(255, 255, 255, 0.11);
+  --border-hover: rgba(255, 255, 255, 0.16);
+  --border-focus: rgba(16, 185, 129, 0.4);
+
+  /* Typography Font Stacks with Fallbacks */
+  --sans: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+  --display: 'Plus Jakarta Sans', 'Inter', sans-serif;
+  --mono: 'JetBrains Mono', monospace;
+
+  /* Layout Geometry */
+  --sidebar-width: 220px;
+  --topbar-height: 52px;
+  --radius-sm: 6px;
+  --radius-md: 8px;
+  --radius-lg: 12px;
+  --radius-full: 9999px;
+}
+
+/* Night Call / Red-Shift Ward Mode */
+body.redshift-mode {
+  --navy: #120404;
+  --surface: #1c0808;
+  --card: #270d0d;
+  --sidebar: #1f0a0a;
+  --t1: #ffb4b4;
+  --t2: #d98888;
+  --t3: #8a4848;
+  --border: rgba(255, 100, 100, 0.12);
+  --em: #ff7575;
+  --ia: #ff9e9e;
+  --am: #ffb86c;
+}
+
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+html { scroll-behavior: smooth; }
+body {
+  font-family: var(--sans);
+  background: var(--navy);
+  color: var(--t1);
+  min-height: 100vh;
+  overflow-x: hidden;
+  line-height: 1.5;
+  -webkit-font-smoothing: antialiased;
+  transition: background 0.3s ease, color 0.3s ease;
+}
+
+/* ── UTILITY CLASSES ──────────────────────────────────── */
+.hidden { display: none !important; }
+.mono { font-family: var(--mono); }
+.font-display { font-family: var(--display); }
+.font-sans { font-family: var(--sans); }
+.font-mono { font-family: var(--mono); }
+
+.em { color: var(--em); }
+.am { color: var(--am); }
+.cr { color: var(--cr); }
+.ia { color: var(--ia); }
+.pu { color: var(--pu); }
+.t2 { color: var(--t2); }
+.t3 { color: var(--t3); }
+.bold { font-weight: 600; }
+
+.tag {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  padding: 2px 9px;
+  border-radius: var(--radius-full);
+  font-size: 11px;
+  font-weight: 600;
+  letter-spacing: .02em;
+  white-space: nowrap;
+}
+.tg, .badge-green, .badge-verified { background: rgba(16,185,129,.14); color: var(--em); border: 1px solid rgba(16,185,129,.24); }
+.tb, .badge-blue { background: rgba(59,130,246,.14); color: var(--ia); border: 1px solid rgba(59,130,246,.24); }
+.ta, .badge-amber { background: rgba(245,158,11,.14); color: var(--am); border: 1px solid rgba(245,158,11,.24); }
+.tr, .badge-red { background: rgba(239,68,68,.14); color: var(--cr); border: 1px solid rgba(239,68,68,.24); }
+.tp, .badge-purple { background: rgba(139,92,246,.14); color: var(--pu); border: 1px solid rgba(139,92,246,.24); }
+.td { background: rgba(255,255,255,.06); color: var(--t3); border: 1px solid rgba(255,255,255,.08); }
+
+.av {
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: 700;
+  font-size: 12px;
+  flex-shrink: 0;
+}
+.av-g { background: rgba(16,185,129,.18); color: var(--em); }
+.av-b { background: rgba(59,130,246,.18); color: var(--ia); }
+.av-a { background: rgba(245,158,11,.18); color: var(--am); }
+.av-p { background: rgba(139,92,246,.18); color: var(--pu); }
+.av-gr { background: linear-gradient(135deg, #3B82F6, #8B5CF6); color: #fff; }
+
+.pbar {
+  height: 6px;
+  border-radius: 99px;
+  background: rgba(255,255,255,.08);
+  overflow: hidden;
+  position: relative;
+}
+.pfill {
+  height: 100%;
+  border-radius: 99px;
+  background: linear-gradient(90deg, var(--em), #34D399);
+  transition: width .5s ease;
+}
+.pfill-a { background: linear-gradient(90deg, var(--am), #FCD34D); }
+.pfill-b { background: linear-gradient(90deg, var(--ia), #60A5FA); }
+.pfill-p { background: linear-gradient(90deg, var(--pu), #A78BFA); }
+
+.btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  padding: 7px 15px;
+  border-radius: var(--radius-md);
+  font-size: 12px;
+  font-weight: 600;
+  cursor: pointer;
+  border: none;
+  transition: all .18s ease;
+  white-space: nowrap;
+  font-family: var(--sans);
+  user-select: none;
+}
+.btn:active { transform: scale(0.97); }
+.btn-p, .btn-primary { background: var(--em); color: #0B101B; font-weight: 700; }
+.btn-p:hover, .btn-primary:hover { background: var(--em-d); color: #fff; transform: translateY(-1px); box-shadow: 0 4px 12px rgba(16,185,129,0.3); }
+.btn-g, .btn-ghost { background: rgba(255,255,255,.06); color: var(--t2); border: 1px solid var(--border); }
+.btn-g:hover, .btn-ghost:hover { background: rgba(255,255,255,.1); color: var(--t1); border-color: var(--border-hover); }
+.btn-o, .btn-outline-emerald { background: transparent; color: var(--em); border: 1px solid var(--em); }
+.btn-o:hover, .btn-outline-emerald:hover { background: rgba(16,185,129,.1); box-shadow: 0 0 10px rgba(16,185,129,0.2); }
+
+.card, .pulse-card {
+  background: var(--card);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-lg);
+  padding: 18px;
+  transition: border-color .2s ease, box-shadow .2s ease, transform .2s ease;
+}
+.card:hover, .pulse-card:hover {
+  border-color: var(--border-hover);
+}
+.sl {
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: .1em;
+  text-transform: uppercase;
+  color: var(--t3);
+  margin-bottom: 9px;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+.divider { height: 1px; background: var(--border); margin: 12px 0; }
+
+/* ── LAYOUT SHELL ─────────────────────────────────────── */
+.shell, .app-layout { display: flex; height: 100vh; overflow: hidden; }
+
+/* ── SIDEBAR (220px) ──────────────────────────────────── */
+.sidebar {
+  width: var(--sidebar-width);
+  flex-shrink: 0;
+  background: var(--sidebar);
+  border-right: 1px solid var(--border);
+  display: flex;
+  flex-direction: column;
+  overflow-y: auto;
+  z-index: 20;
+}
+.sb-logo {
+  padding: 16px 14px 12px;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  border-bottom: 1px solid var(--border);
+}
+.logo-icon {
+  width: 32px;
+  height: 32px;
+  border-radius: 9px;
+  background: linear-gradient(135deg, var(--em), #34D399);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: 800;
+  font-size: 16px;
+  color: #0B101B;
+  flex-shrink: 0;
+  box-shadow: 0 0 14px rgba(16, 185, 129, 0.35);
+}
+.logo-text { font-family: var(--display); font-size: 16px; font-weight: 800; letter-spacing: -0.02em; }
+.logo-sub { font-size: 9px; font-weight: 700; color: var(--em); background: rgba(16,185,129,0.12); padding: 1px 5px; border-radius: 4px; margin-left: 4px; }
+
+.sb-user {
+  padding: 10px 12px;
+  display: flex;
+  align-items: center;
+  gap: 9px;
+  border-bottom: 1px solid var(--border);
+  cursor: pointer;
+  transition: background .15s ease;
+}
+.sb-user:hover { background: rgba(255,255,255,.04); }
+.sb-uav {
+  width: 34px;
+  height: 34px;
+  border-radius: 50%;
+  background: linear-gradient(135deg, #3B82F6, #8B5CF6);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: 700;
+  font-size: 12px;
+  color: #fff;
+  flex-shrink: 0;
+  border: 1.5px solid rgba(16,185,129,0.4);
+}
+.sb-umeta { flex: 1; min-width: 0; }
+.sb-uname { font-size: 12px; font-weight: 600; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.sb-urole { font-size: 10px; color: var(--t2); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.sb-score {
+  display: flex;
+  align-items: center;
+  gap: 3px;
+  background: rgba(16,185,129,.12);
+  border: 1px solid rgba(16,185,129,.24);
+  padding: 2px 7px;
+  border-radius: var(--radius-full);
+  font-size: 10.5px;
+  font-weight: 700;
+  font-family: var(--mono);
+  color: var(--em);
+  flex-shrink: 0;
+}
+
+.sb-nav { padding: 8px 6px; flex: 1; }
+.sb-sec {
+  font-size: 9px;
+  font-weight: 700;
+  letter-spacing: .1em;
+  text-transform: uppercase;
+  color: var(--t3);
+  padding: 10px 8px 4px;
+}
+.ni, .nav-item, .nav-link {
+  display: flex;
+  align-items: center;
+  gap: 9px;
+  padding: 7.5px 10px;
+  border-radius: 7px;
+  cursor: pointer;
+  font-size: 12.5px;
+  color: var(--t2);
+  font-weight: 500;
+  transition: all .15s ease;
+  margin-bottom: 2px;
+  user-select: none;
+  text-decoration: none;
+}
+.ni:hover, .nav-item:hover, .nav-link:hover {
+  background: rgba(255,255,255,.05);
+  color: var(--t1);
+}
+.ni.on, .nav-item.active, .nav-link.active, .ni.active {
+  background: rgba(16,185,129,.14);
+  color: var(--em);
+  font-weight: 600;
+  border-left: 2.5px solid var(--em);
+}
+.ni-ic { font-size: 14px; width: 18px; text-align: center; flex-shrink: 0; }
+.nb { margin-left: auto; background: var(--cr); color: #fff; border-radius: var(--radius-full); font-size: 9px; font-weight: 700; padding: 1px 6px; }
+.nb-g { margin-left: auto; background: rgba(16,185,129,.18); color: var(--em); border-radius: var(--radius-full); font-size: 9px; font-weight: 700; padding: 1px 6px; }
+.nb-b { margin-left: auto; background: rgba(59,130,246,.18); color: var(--ia); border-radius: var(--radius-full); font-size: 9px; font-weight: 700; padding: 1px 6px; }
+
+.sb-foot { padding: 12px 14px; border-top: 1px solid var(--border); background: rgba(0,0,0,0.15); cursor: pointer; }
+.sb-foot:hover { background: rgba(255,255,255,.03); }
+.pc-row { display: flex; align-items: center; justify-content: space-between; margin-bottom: 6px; }
+.pc-lbl { font-size: 10px; color: var(--t3); text-transform: uppercase; font-weight: 600; }
+.pc-val { font-family: var(--mono); font-size: 12px; color: var(--am); font-weight: 700; }
+
+/* ── MAIN VIEWPORT ────────────────────────────────────── */
+.main, .main-viewport { flex: 1; overflow-y: auto; background: var(--navy); position: relative; }
+.pg, .screen-section { display: none; }
+.pg.on, .screen-section.active, .pg.active { display: block; animation: fadeIn .2s ease; }
+@keyframes fadeIn { from { opacity: 0; transform: translateY(3px); } to { opacity: 1; transform: translateY(0); } }
+
+/* ── TOPBAR (52px Sticky) ─────────────────────────────── */
+.topbar {
+  position: sticky;
+  top: 0;
+  z-index: 15;
+  background: rgba(11,16,27,.92);
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+  border-bottom: 1px solid var(--border);
+  padding: 0 24px;
+  height: var(--topbar-height);
+  display: flex;
+  align-items: center;
+  gap: 14px;
+}
+.tb-title { font-family: var(--display); font-size: 14px; font-weight: 700; flex: 1; letter-spacing: -0.01em; }
+.cmd-trig, .search-bar-trigger {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  background: rgba(255,255,255,.05);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-md);
+  padding: 6px 12px;
+  font-size: 12px;
+  color: var(--t3);
+  cursor: pointer;
+  transition: all .15s ease;
+}
+.cmd-trig:hover, .search-bar-trigger:hover { background: rgba(255,255,255,.08); color: var(--t2); border-color: var(--border-hover); }
+.kbd {
+  background: rgba(255,255,255,.09);
+  border: 1px solid rgba(255,255,255,.12);
+  border-radius: 4px;
+  padding: 1px 5px;
+  font-size: 10px;
+  font-family: var(--mono);
+  color: var(--t2);
+}
+.topbar-right { display: flex; align-items: center; gap: 9px; }
+.badge-node {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 4px 10px;
+  border-radius: var(--radius-full);
+  font-size: 11px;
+  font-weight: 600;
+  background: rgba(16,185,129,.1);
+  color: var(--em);
+  border: 1px solid rgba(16,185,129,.25);
+  cursor: pointer;
+}
+.pulse-dot { width: 7px; height: 7px; border-radius: 50%; background: var(--em); box-shadow: 0 0 8px var(--em); animation: pulseDot 1.8s infinite; }
+@keyframes pulseDot { 0%, 100% { opacity: 1; transform: scale(1); } 50% { opacity: 0.4; transform: scale(0.85); } }
+
+.redshift-btn {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  padding: 4px 9px;
+  border-radius: var(--radius-md);
+  font-size: 11px;
+  font-weight: 600;
+  background: rgba(255,255,255,0.05);
+  border: 1px solid var(--border);
+  color: var(--t2);
+  cursor: pointer;
+  transition: all 0.2s;
+}
+.redshift-btn:hover { background: rgba(255,100,100,0.15); color: #ff9e9e; }
+
+/* ── CMD BAR MODAL OVERLAY ────────────────────────────── */
+.cmd-ov, .modal-overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 999;
+  background: rgba(0,0,0,.75);
+  display: flex;
+  align-items: flex-start;
+  justify-content: center;
+  padding-top: 13vh;
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+  animation: modalFadeIn .18s ease;
+}
+@keyframes modalFadeIn { from { opacity: 0; } to { opacity: 1; } }
+.cmd-box, .modal-card {
+  width: 580px;
+  max-width: 92vw;
+  background: var(--card);
+  border: 1px solid rgba(255,255,255,.14);
+  border-radius: 14px;
+  overflow: hidden;
+  box-shadow: 0 24px 64px rgba(0,0,0,.75);
+}
+.cmd-ir, .modal-search-header {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 14px 16px;
+  border-bottom: 1px solid var(--border);
+  background: rgba(255,255,255,0.02);
+}
+.cmd-inp {
+  flex: 1;
+  background: none;
+  border: none;
+  outline: none;
+  font-size: 15px;
+  color: var(--t1);
+  font-family: var(--sans);
+}
+.cmd-inp::placeholder { color: var(--t3); }
+.cmd-res, .modal-results-list { padding: 8px; max-height: 380px; overflow-y: auto; }
+.cmd-gsec { font-size: 10px; font-weight: 700; letter-spacing: .1em; text-transform: uppercase; color: var(--t3); padding: 6px 10px 3px; }
+.cmd-it {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 9px 11px;
+  border-radius: var(--radius-md);
+  cursor: pointer;
+  transition: background .1s ease;
+}
+.cmd-it:hover, .cmd-it.hl { background: rgba(255,255,255,.07); }
+.cmd-it-ic { font-size: 16px; width: 22px; text-align: center; }
+.cmd-it-main { flex: 1; }
+.cmd-it-t { font-size: 13px; font-weight: 600; color: var(--t1); }
+.cmd-it-s { font-size: 11px; color: var(--t2); margin-top: 1px; }
+.cmd-it-k { font-size: 10px; color: var(--t3); font-family: var(--mono); background: rgba(255,255,255,.06); padding: 2px 5px; border-radius: 4px; }
+
+/* ── TOAST NOTIFICATIONS (Stacked Bottom-Right) ───────── */
+.toast-container {
+  position: fixed;
+  bottom: 22px;
+  right: 22px;
+  z-index: 1000;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  pointer-events: none;
+}
+.toast {
+  pointer-events: auto;
+  background: var(--card);
+  border: 1px solid rgba(16,185,129,.35);
+  border-radius: var(--radius-lg);
+  padding: 12px 18px;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  box-shadow: 0 12px 40px rgba(0,0,0,.6);
+  transform: translateY(20px);
+  opacity: 0;
+  transition: all .35s cubic-bezier(.34,1.56,.64,1);
+  min-width: 280px;
+  max-width: 420px;
+}
+.toast.show { transform: translateY(0); opacity: 1; }
+.toast.hide { transform: translateY(12px); opacity: 0; }
+.toast-icon { font-size: 17px; flex-shrink: 0; }
+.toast-text { font-size: 12.5px; font-weight: 500; color: var(--t1); line-height: 1.4; }
+
+/* ── INNER PAGE CONTAINER ─────────────────────────────── */
+.pi { padding: 22px; max-width: 1100px; margin: 0 auto; }
+
+/* ── SCREEN 1: DAILY CAREER BOARD ─────────────────────── */
+.welcome {
+  background: linear-gradient(135deg, rgba(16,185,129,.09), rgba(59,130,246,.06));
+  border: 1px solid rgba(16,185,129,.18);
+  border-radius: 16px;
+  padding: 22px 26px;
+  margin-bottom: 20px;
+  display: flex;
+  align-items: center;
+  gap: 20px;
+}
+.welcome-txt h2 { font-family: var(--display); font-size: 22px; font-weight: 800; margin-bottom: 4px; }
+.welcome-txt p { font-size: 12.5px; color: var(--t2); line-height: 1.5; }
+.career-score-box {
+  margin-left: auto;
+  text-align: center;
+  background: rgba(11,16,27,0.6);
+  padding: 12px 18px;
+  border-radius: 12px;
+  border: 1px solid rgba(16,185,129,0.25);
+  cursor: pointer;
+  transition: transform 0.2s;
+}
+.career-score-box:hover { transform: scale(1.03); }
+.score-val { font-family: var(--mono); font-size: 36px; font-weight: 800; color: var(--em); line-height: 1; }
+.score-lbl { font-size: 11px; color: var(--t2); font-weight: 600; margin-top: 4px; }
+.score-pct { font-size: 10px; color: var(--em); margin-top: 2px; font-weight: 700; }
+
+.stats-row { display: flex; gap: 12px; margin-bottom: 20px; }
+.sc { flex: 1; background: var(--card); border: 1px solid var(--border); border-radius: var(--radius-lg); padding: 14px 18px; }
+.sc-v { font-family: var(--mono); font-size: 24px; font-weight: 700; margin-bottom: 2px; }
+.sc-l { font-size: 11px; color: var(--t2); font-weight: 500; }
+
+.g2 { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; margin-bottom: 14px; }
+.g3 { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 12px; margin-bottom: 14px; }
+
+.mc {
+  background: var(--card);
+  border: 1px solid var(--border);
+  border-radius: 11px;
+  padding: 14px 15px;
+  cursor: pointer;
+  transition: all .2s ease;
+}
+.mc:hover { border-color: rgba(16,185,129,.35); transform: translateY(-2px); box-shadow: 0 6px 18px rgba(0,0,0,0.3); }
+.mc-ic { font-size: 20px; margin-bottom: 8px; }
+.mc-t { font-size: 13px; font-weight: 600; margin-bottom: 3px; }
+.mc-m { font-size: 11px; color: var(--t2); line-height: 1.4; }
+
+.oi {
+  display: flex;
+  align-items: flex-start;
+  gap: 11px;
+  padding: 11px 0;
+  border-bottom: 1px solid var(--border);
+  cursor: pointer;
+  transition: opacity .15s ease;
+}
+.oi:last-child { border-bottom: none; }
+.oi:hover { opacity: .85; }
+.oic {
+  width: 32px;
+  height: 32px;
+  border-radius: 8px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 15px;
+  flex-shrink: 0;
+}
+.oic-g { background: rgba(16,185,129,.12); color: var(--em); }
+.oic-b { background: rgba(59,130,246,.12); color: var(--ia); }
+.oic-a { background: rgba(245,158,11,.12); color: var(--am); }
+.oic-p { background: rgba(139,92,246,.12); color: var(--pu); }
+.ot { font-size: 12.5px; font-weight: 600; margin-bottom: 2px; }
+.os { font-size: 11px; color: var(--t2); }
+.or { margin-left: auto; display: flex; flex-direction: column; align-items: flex-end; gap: 4px; }
+.apb {
+  font-size: 10px;
+  font-weight: 700;
+  color: var(--em);
+  background: rgba(16,185,129,.12);
+  border: 1px solid rgba(16,185,129,.24);
+  padding: 3px 10px;
+  border-radius: var(--radius-full);
+  cursor: pointer;
+  font-family: var(--sans);
+  transition: all .15s ease;
+}
+.apb:hover { background: rgba(16,185,129,.22); border-color: var(--em); }
+
+/* ── SCREEN 2: RESEARCH & PUBLISHING HUB ─────────────── */
+.rh { display: flex; align-items: center; justify-content: space-between; margin-bottom: 14px; }
+.rh h2 { font-family: var(--display); font-size: 18px; font-weight: 700; }
+.ctbl, .pulse-table-wrap {
+  background: var(--card);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-lg);
+  overflow: hidden;
+  margin-bottom: 18px;
+}
+.ctbl-hd, .cr-row {
+  display: grid;
+  grid-template-columns: 2fr 2.2fr 2.2fr 85px 95px;
+  gap: 0;
+  padding: 11px 16px;
+  font-size: 11.5px;
+  align-items: center;
+}
+.ctbl-hd {
+  background: rgba(255,255,255,.03);
+  border-bottom: 1px solid var(--border);
+  font-weight: 700;
+  letter-spacing: .06em;
+  text-transform: uppercase;
+  color: var(--t3);
+  font-size: 10px;
+}
+.cr-row { border-bottom: 1px solid var(--border); transition: background .15s; }
+.cr-row:last-child { border-bottom: none; }
+.cr-row:hover { background: rgba(255,255,255,.025); }
+.cc { display: flex; align-items: center; gap: 9px; }
+.mb { display: flex; align-items: center; gap: 7px; }
+.mp { font-family: var(--mono); font-size: 10.5px; color: var(--t2); width: 34px; }
+
+.bcard {
+  background: rgba(59,130,246,.05);
+  border: 1px solid rgba(59,130,246,.15);
+  border-radius: 11px;
+  padding: 15px;
+  margin-bottom: 12px;
+}
+.bcard-h { display: flex; gap: 12px; align-items: flex-start; margin-bottom: 10px; }
+.bic {
+  width: 36px;
+  height: 36px;
+  border-radius: 9px;
+  background: rgba(59,130,246,.14);
+  color: var(--ia);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 17px;
+  flex-shrink: 0;
+}
+.bt { font-size: 13px; font-weight: 600; margin-bottom: 2px; }
+.bs { font-size: 11px; color: var(--t2); line-height: 1.4; }
+.bf { display: flex; align-items: center; justify-content: space-between; margin-top: 8px; }
+.br { font-family: var(--mono); font-size: 13px; color: var(--am); font-weight: 700; display: flex; align-items: center; gap: 4px; }
+
+.jshield { background: var(--card); border: 1px solid var(--border); border-radius: 11px; padding: 16px; margin-bottom: 14px; }
+.jsh { display: flex; align-items: center; gap: 10px; margin-bottom: 12px; }
+.js-ic {
+  width: 36px;
+  height: 36px;
+  border-radius: 9px;
+  background: rgba(16,185,129,.12);
+  color: var(--em);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 18px;
+}
+.jr { display: flex; align-items: center; justify-content: space-between; padding: 10px 0; border-bottom: 1px solid var(--border); font-size: 12px; }
+.jr:last-child { border-bottom: none; }
+.jn { font-weight: 600; }
+.jm { font-size: 10.5px; color: var(--t2); margin-top: 2px; }
+.if-badge {
+  font-family: var(--mono);
+  font-size: 11px;
+  font-weight: 700;
+  color: var(--em);
+  background: rgba(16,185,129,.12);
+  border: 1px solid rgba(16,185,129,.25);
+  padding: 2px 8px;
+  border-radius: var(--radius-full);
+}
+
+/* ── SCREEN 3: GOAL SPACES WORKBENCH ──────────────────── */
+.spg { display: grid; grid-template-columns: repeat(3, 1fr); gap: 13px; margin-bottom: 20px; }
+.spcard {
+  background: var(--card);
+  border: 1px solid var(--border);
+  border-radius: 13px;
+  padding: 16px;
+  cursor: pointer;
+  transition: all .2s ease;
+}
+.spcard:hover {
+  border-color: rgba(59,130,246,.35);
+  transform: translateY(-2px);
+  box-shadow: 0 8px 24px rgba(0,0,0,.35);
+}
+.spcard.sp-em { border-color: rgba(16,185,129,.35); background: linear-gradient(135deg, rgba(16,185,129,0.04), var(--card)); }
+.sp-ic { font-size: 22px; margin-bottom: 9px; }
+.sp-t { font-size: 13.5px; font-weight: 700; margin-bottom: 3px; }
+.sp-s { font-size: 11px; color: var(--t2); margin-bottom: 12px; line-height: 1.4; }
+.sp-f { display: flex; align-items: center; justify-content: space-between; }
+.mavs { display: flex; }
+.mav {
+  width: 20px;
+  height: 20px;
+  border-radius: 50%;
+  border: 2px solid var(--card);
+  margin-left: -6px;
+  font-size: 8px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: 700;
+}
+.mav:first-child { margin-left: 0; }
+
+.wb { background: var(--card); border: 1px solid var(--border); border-radius: 13px; overflow: hidden; margin-bottom: 18px; }
+.wbt { display: flex; border-bottom: 1px solid var(--border); background: rgba(255,255,255,.02); }
+.wbtab {
+  padding: 11px 18px;
+  font-size: 12.5px;
+  font-weight: 600;
+  color: var(--t3);
+  cursor: pointer;
+  border-bottom: 2px solid transparent;
+  transition: all .15s ease;
+  user-select: none;
+}
+.wbtab:hover { color: var(--t2); }
+.wbtab.on { color: var(--em); border-bottom-color: var(--em); background: rgba(16,185,129,.04); }
+.wbc { padding: 16px; display: none; }
+.wbc.on { display: block; animation: fadeIn .15s ease; }
+
+.kanban { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 12px; }
+.kcol { background: rgba(255,255,255,.02); border: 1px solid var(--border); border-radius: 10px; padding: 12px; min-height: 240px; }
+.kch { font-size: 10.5px; font-weight: 700; letter-spacing: .06em; text-transform: uppercase; color: var(--t3); margin-bottom: 10px; display: flex; align-items: center; gap: 6px; }
+.kcnt { background: rgba(255,255,255,.08); color: var(--t2); border-radius: var(--radius-full); font-size: 9px; padding: 1px 6px; font-family: var(--mono); }
+.kcard {
+  background: var(--card);
+  border: 1px solid var(--border);
+  border-radius: 9px;
+  padding: 10px 12px;
+  margin-bottom: 8px;
+  cursor: pointer;
+  transition: all .18s ease;
+}
+.kcard:hover { border-color: rgba(59,130,246,.4); transform: translateY(-1px); box-shadow: 0 4px 12px rgba(0,0,0,0.25); }
+.kcard-t { font-size: 12px; font-weight: 500; margin-bottom: 7px; line-height: 1.4; color: var(--t1); }
+.kcard-m { display: flex; align-items: center; justify-content: space-between; }
+.kas { font-size: 10px; color: var(--t3); font-family: var(--mono); }
+.kmove-bar { display: flex; gap: 4px; margin-top: 6px; padding-top: 6px; border-top: 1px dashed var(--border); }
+.kmove-btn { background: rgba(255,255,255,0.05); border: 1px solid var(--border); font-size: 9.5px; padding: 2px 6px; border-radius: 4px; color: var(--t2); cursor: pointer; }
+.kmove-btn:hover { background: rgba(16,185,129,0.15); color: var(--em); border-color: var(--em); }
+
+.chat-area { display: flex; flex-direction: column; gap: 11px; max-height: 380px; overflow-y: auto; padding-right: 4px; }
+.cmsg { display: flex; gap: 10px; align-items: flex-start; }
+.cbub { background: rgba(255,255,255,.04); border: 1px solid var(--border); border-radius: 11px; padding: 11px 14px; flex: 1; max-width: 580px; }
+.cbub.ai { background: rgba(16,185,129,.05); border-color: rgba(16,185,129,.18); }
+.cn { font-size: 11.5px; font-weight: 700; margin-bottom: 3px; }
+.ct { font-size: 12px; color: var(--t2); line-height: 1.5; }
+.ctm { font-size: 10px; color: var(--t3); margin-top: 4px; font-family: var(--mono); }
+
+.fi-item {
+  background: rgba(255,255,255,.03);
+  border: 1px solid var(--border);
+  border-radius: 9px;
+  padding: 12px 14px;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  cursor: pointer;
+  margin-bottom: 8px;
+  transition: all .15s ease;
+}
+.fi-item:hover { background: rgba(255,255,255,.06); border-color: var(--border-hover); }
+
+/* ── SCREEN 4: AETCOM BIOETHICS HUB ──────────────────── */
+.mod-item {
+  display: flex;
+  align-items: center;
+  gap: 13px;
+  padding: 13px 15px;
+  background: var(--card);
+  border: 1px solid var(--border);
+  border-radius: 11px;
+  margin-bottom: 8px;
+  cursor: pointer;
+  transition: all .2s ease;
+}
+.mod-item:hover { border-color: rgba(59,130,246,.3); }
+.mod-item.mod-done { border-color: rgba(16,185,129,.22); }
+.mnum {
+  width: 32px;
+  height: 32px;
+  border-radius: 8px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-family: var(--mono);
+  font-size: 10.5px;
+  font-weight: 700;
+  flex-shrink: 0;
+}
+.mn-d { background: rgba(16,185,129,.12); color: var(--em); }
+.mn-a { background: rgba(245,158,11,.12); color: var(--am); }
+.mn-t { background: rgba(255,255,255,.06); color: var(--t3); }
+.mi { flex: 1; }
+.mt { font-size: 13px; font-weight: 600; margin-bottom: 2px; }
+.mph { font-size: 10.5px; color: var(--t2); }
+
+.sim-card {
+  background: linear-gradient(135deg, rgba(59,130,246,.08), rgba(139,92,246,.05));
+  border: 1px solid rgba(59,130,246,.18);
+  border-radius: 13px;
+  padding: 18px;
+  margin-bottom: 12px;
+  cursor: pointer;
+  transition: all .2s ease;
+}
+.sim-card:hover { border-color: rgba(59,130,246,.35); transform: translateY(-1px); }
+.sim-h { display: flex; gap: 14px; align-items: flex-start; margin-bottom: 13px; }
+.sim-ic {
+  width: 44px;
+  height: 44px;
+  border-radius: 11px;
+  background: rgba(59,130,246,.14);
+  color: var(--ia);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 22px;
+  flex-shrink: 0;
+}
+.sim-t { font-size: 14.5px; font-weight: 700; margin-bottom: 3px; }
+.sim-d { font-size: 12px; color: var(--t2); line-height: 1.5; }
+.sim-m { display: flex; gap: 16px; align-items: center; }
+.sm-v { font-family: var(--mono); font-size: 18px; font-weight: 700; margin-bottom: 1px; }
+.sm-l { font-size: 10px; color: var(--t2); }
+
+/* ── SCREEN 5: ASYNC MENTORSHIP TRIAGE ────────────────── */
+.tcard {
+  background: var(--card);
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  padding: 16px;
+  margin-bottom: 10px;
+  cursor: pointer;
+  transition: all .2s ease;
+}
+.tcard:hover { border-color: rgba(245,158,11,.3); }
+.tcard.unread { border-left: 3.5px solid var(--am); }
+.th { display: flex; align-items: flex-start; gap: 12px; margin-bottom: 11px; }
+.tmt { flex: 1; }
+.tsub { font-size: 13.5px; font-weight: 600; margin-bottom: 2px; }
+.tprev { font-size: 11.5px; color: var(--t2); }
+.tf { display: flex; align-items: center; justify-content: space-between; margin-top: 10px; }
+.sla { font-size: 10.5px; font-weight: 600; font-family: var(--mono); color: var(--am); display: flex; align-items: center; gap: 5px; }
+
+.vplay {
+  background: rgba(255,255,255,.04);
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  padding: 11px 16px;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-bottom: 11px;
+}
+.pbtn {
+  width: 34px;
+  height: 34px;
+  border-radius: 50%;
+  background: var(--em);
+  color: #0B101B;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  font-size: 13px;
+  border: none;
+  flex-shrink: 0;
+  transition: transform .15s ease;
+}
+.pbtn:hover { transform: scale(1.08); }
+.wviz { flex: 1; height: 24px; display: flex; align-items: center; gap: 2.5px; }
+.wb-bar {
+  width: 3.5px;
+  border-radius: 99px;
+  background: rgba(16,185,129,.45);
+  animation: wv 1s ease-in-out infinite;
+}
+.wviz.paused .wb-bar { animation-play-state: paused; opacity: 0.4; }
+@keyframes wv { 0%, 100% { transform: scaleY(1); } 50% { transform: scaleY(2.6); } }
+.vt { font-family: var(--mono); font-size: 11.5px; color: var(--t2); }
+
+.mdir { display: flex; flex-direction: column; gap: 8px; }
+.mcard {
+  background: var(--card);
+  border: 1px solid var(--border);
+  border-radius: 11px;
+  padding: 12px;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  cursor: pointer;
+  transition: all .15s ease;
+}
+.mcard:hover { border-color: rgba(59,130,246,.3); transform: translateX(2px); }
+
+/* ── SCREEN 6: CAMPUS PULSE & MED-Q ───────────────────── */
+.qa {
+  background: linear-gradient(135deg, rgba(245,158,11,.09), rgba(239,68,68,.06));
+  border: 1px solid rgba(245,158,11,.22);
+  border-radius: 14px;
+  padding: 20px 24px;
+  margin-bottom: 16px;
+}
+.qcd {
+  font-family: var(--display);
+  font-size: 32px;
+  font-weight: 800;
+  color: var(--am);
+  letter-spacing: -.02em;
+  margin-bottom: 3px;
+}
+.qq { background: var(--card); border: 1px solid var(--border); border-radius: 12px; padding: 18px; margin-bottom: 14px; }
+.qq-t { font-size: 14.5px; font-weight: 600; margin-bottom: 14px; line-height: 1.6; }
+.qopts { display: grid; grid-template-columns: 1fr 1fr; gap: 9px; }
+.qopt {
+  background: rgba(255,255,255,.04);
+  border: 1px solid var(--border);
+  border-radius: 9px;
+  padding: 11px 14px;
+  cursor: pointer;
+  font-size: 12.5px;
+  transition: all .15s ease;
+  line-height: 1.4;
+}
+.qopt:hover { border-color: rgba(59,130,246,.4); background: rgba(59,130,246,.06); }
+.qopt.correct, .qopt.quiz-correct { border-color: var(--em); background: rgba(16,185,129,.14); color: var(--em); font-weight: 600; }
+.qopt.wrong, .qopt.quiz-wrong { border-color: var(--cr); background: rgba(239,68,68,.14); color: var(--cr); font-weight: 600; }
+.qexp {
+  display: none;
+  margin-top: 13px;
+  background: rgba(16,185,129,.07);
+  border: 1px solid rgba(16,185,129,.18);
+  border-radius: 9px;
+  padding: 13px 15px;
+  font-size: 12.5px;
+  color: var(--t2);
+  line-height: 1.6;
+}
+
+.fest-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; }
+.fcard {
+  background: var(--card);
+  border: 1px solid var(--border);
+  border-radius: 14px;
+  overflow: hidden;
+  cursor: pointer;
+  transition: all .2s ease;
+}
+.fcard:hover { transform: translateY(-2px); box-shadow: 0 10px 28px rgba(0,0,0,.4); }
+.fban { height: 80px; display: flex; align-items: center; justify-content: center; font-size: 23px; font-weight: 800; font-family: var(--display); }
+.fbody { padding: 14px 16px; }
+.fn { font-size: 14px; font-weight: 700; margin-bottom: 3px; }
+.fi { font-size: 11.5px; color: var(--t2); margin-bottom: 11px; }
+.fbtns { display: flex; gap: 7px; flex-wrap: wrap; }
+
+/* ── SCREEN 7: BHARAT OPPORTUNITIES ENGINE ────────────── */
+.fprow { display: flex; gap: 8px; margin-bottom: 15px; flex-wrap: wrap; }
+.fp {
+  padding: 6px 14px;
+  border-radius: var(--radius-full);
+  font-size: 12px;
+  font-weight: 600;
+  cursor: pointer;
+  border: 1px solid var(--border);
+  color: var(--t2);
+  background: rgba(255,255,255,.04);
+  transition: all .15s ease;
+}
+.fp.on, .fp.active { background: rgba(16,185,129,.12); border-color: rgba(16,185,129,.35); color: var(--em); }
+.fp:hover { background: rgba(255,255,255,.08); color: var(--t1); }
+
+.ofc {
+  background: var(--card);
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  padding: 16px 18px;
+  margin-bottom: 11px;
+  cursor: pointer;
+  transition: all .2s ease;
+}
+.ofc:hover { border-color: rgba(16,185,129,.25); transform: translateX(3px); }
+.ofh { display: flex; align-items: flex-start; gap: 13px; margin-bottom: 11px; }
+.ofic {
+  width: 40px;
+  height: 40px;
+  border-radius: 10px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 19px;
+  flex-shrink: 0;
+}
+.oft { font-size: 14px; font-weight: 700; margin-bottom: 3px; }
+.ofi { font-size: 12px; color: var(--t2); }
+.odets { display: flex; flex-wrap: wrap; gap: 6px 16px; margin-bottom: 12px; }
+.odet { display: flex; align-items: center; gap: 5px; font-size: 11.5px; color: var(--t2); }
+.off { display: flex; align-items: center; justify-content: space-between; }
+
+.rbt {
+  background: rgba(245,158,11,.05);
+  border: 1px solid rgba(245,158,11,.18);
+  border-radius: 12px;
+  padding: 18px;
+  margin-top: 14px;
+}
+
+/* ── SCREEN 8: VERIFIED MEDICAL PASSPORT ───────────────── */
+.prof-hero {
+  background: linear-gradient(135deg, rgba(59,130,246,.09), rgba(16,185,129,.06));
+  border: 1px solid rgba(59,130,246,.18);
+  border-radius: 16px;
+  padding: 24px 26px;
+  margin-bottom: 18px;
+  display: flex;
+  gap: 22px;
+  align-items: flex-start;
+}
+.pav {
+  width: 72px;
+  height: 72px;
+  border-radius: 50%;
+  background: linear-gradient(135deg, #3B82F6, #8B5CF6);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: 800;
+  font-size: 28px;
+  color: #fff;
+  flex-shrink: 0;
+  border: 2px solid var(--em);
+  box-shadow: 0 0 16px rgba(16,185,129,0.3);
+}
+.pname { font-family: var(--display); font-size: 23px; font-weight: 800; margin-bottom: 3px; }
+.ptitle { font-size: 12.5px; color: var(--t2); margin-bottom: 10px; }
+.pchips { display: flex; flex-wrap: wrap; gap: 6px; }
+.pstats { display: flex; gap: 24px; margin-left: auto; text-align: center; }
+.psv { font-family: var(--mono); font-size: 22px; font-weight: 800; margin-bottom: 2px; }
+.psl { font-size: 10.5px; color: var(--t2); font-weight: 500; }
+
+.tl-item { display: flex; gap: 14px; padding: 13px 0; border-bottom: 1px solid var(--border); }
+.tl-item:last-child { border-bottom: none; }
+.tldot {
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  background: var(--em);
+  margin-top: 4px;
+  flex-shrink: 0;
+  box-shadow: 0 0 0 4px rgba(16,185,129,.18);
+}
+.tldot-g { background: var(--t3); box-shadow: 0 0 0 4px rgba(148,163,184,.08); }
+.tlt { font-size: 13px; font-weight: 600; margin-bottom: 2px; }
+.tls { font-size: 11.5px; color: var(--t2); line-height: 1.4; }
+.tld { font-size: 10.5px; color: var(--t3); font-family: var(--mono); margin-top: 4px; }
+
+.badges { display: flex; flex-wrap: wrap; gap: 10px; margin-bottom: 16px; }
+.badge {
+  border-radius: 11px;
+  padding: 11px 14px;
+  text-align: center;
+  min-width: 96px;
+  cursor: pointer;
+  transition: all .15s ease;
+}
+.badge:hover { transform: translateY(-2px); }
+
+.proc-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  font-size: 12.5px;
+  padding: 8px 0;
+  border-bottom: 1px solid var(--border);
+}
+.proc-row:last-child { border-bottom: none; }
+
+/* ── MODALS (Interactive Simulation, SBAR, Opportunity, Task) ── */
+.app-modal {
+  position: fixed;
+  inset: 0;
+  z-index: 998;
+  background: rgba(0,0,0,0.8);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 20px;
+  backdrop-filter: blur(6px);
+}
+.app-modal-card {
+  width: 640px;
+  max-width: 95vw;
+  max-height: 90vh;
+  background: var(--card);
+  border: 1px solid var(--border-hover);
+  border-radius: 16px;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  box-shadow: 0 20px 50px rgba(0,0,0,0.8);
+  animation: modalFadeIn 0.2s ease;
+}
+.app-modal-header {
+  padding: 16px 20px;
+  border-bottom: 1px solid var(--border);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  background: rgba(255,255,255,0.02);
+}
+.app-modal-body {
+  padding: 20px;
+  overflow-y: auto;
+}
+.app-modal-footer {
+  padding: 14px 20px;
+  border-top: 1px solid var(--border);
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 10px;
+  background: rgba(255,255,255,0.02);
+}
+
+/* ── SCROLLBARS ───────────────────────────────────────── */
+::-webkit-scrollbar { width: 5px; height: 5px; }
+::-webkit-scrollbar-track { background: transparent; }
+::-webkit-scrollbar-thumb { background: rgba(255,255,255,.1); border-radius: 99px; }
+::-webkit-scrollbar-thumb:hover { background: rgba(255,255,255,.18); }
+</style>
+</head>
+<body>
+
+<!-- GLOBAL TOAST NOTIFICATION CONTAINER -->
+<div class="toast-container" id="toast-container" aria-live="polite">
+  <div class="toast" id="toast">
+    <span class="toast-icon" id="toast-ic">✅</span>
+    <span class="toast-text" id="toast-tx">PulseUp Clinical OS Online</span>
+  </div>
+</div>
+
+<!-- CMD+K / CTRL+K COMMAND BAR MODAL OVERLAY -->
+<div class="cmd-ov hidden" id="cmd-ov" onclick="cmdClose(event)" role="dialog" aria-modal="true" aria-label="Command Palette">
+  <div class="cmd-box" id="search-modal">
+    <div class="cmd-ir modal-search-header">
+      <span style="font-size:16px;color:var(--t3)">🔍</span>
+      <input class="cmd-inp" id="cmd-inp" placeholder="Search 8 clinical screens, spaces, opportunities…" autocomplete="off"/>
+      <kbd class="kbd">ESC</kbd>
+    </div>
+    <div class="cmd-res modal-results-list" id="commandResults">
+      <div class="cmd-gsec">Clinical Workstations (8 Screens)</div>
+      <div class="cmd-it hl" onclick="go('dashboard')" data-nav-target="dashboard">
+        <span class="cmd-it-ic">🏠</span>
+        <div class="cmd-it-main"><div class="cmd-it-t">Daily Career Board</div><div class="cmd-it-s">Welcome cockpit, Career Score, sprint progress, Bharat radar</div></div>
+        <span class="cmd-it-k">⌘1</span>
+      </div>
+      <div class="cmd-it" onclick="go('research')" data-nav-target="research">
+        <span class="cmd-it-ic">🔬</span>
+        <div class="cmd-it-main"><div class="cmd-it-t">Research & Publishing Hub</div><div class="cmd-it-s">CRediT matrix, research bounties, anti-predatory journal shield</div></div>
+        <span class="cmd-it-k">⌘2</span>
+      </div>
+      <div class="cmd-it" onclick="go('goalspaces')" data-nav-target="goalspaces">
+        <span class="cmd-it-ic">🎯</span>
+        <div class="cmd-it-main"><div class="cmd-it-t">Goal Spaces Workbench</div><div class="cmd-it-s">6 spaces grid, 3-column Kanban, AI Copilot chat, File Vault</div></div>
+        <span class="cmd-it-k">⌘3</span>
+      </div>
+      <div class="cmd-it" onclick="go('aetcom')" data-nav-target="aetcom">
+        <span class="cmd-it-ic">🩺</span>
+        <div class="cmd-it-main"><div class="cmd-it-t">AETCOM Bioethics Hub</div><div class="cmd-it-s">NMC CBME 22/27 modules, SPIKES simulation, reflective journal</div></div>
+        <span class="cmd-it-k">⌘4</span>
+      </div>
+      <div class="cmd-it" onclick="go('mentorship')" data-nav-target="mentorship">
+        <span class="cmd-it-ic">💬</span>
+        <div class="cmd-it-main"><div class="cmd-it-t">Async Mentorship Triage</div><div class="cmd-it-s">Ticket list, animated waveform voice player, mentor directory</div></div>
+        <span class="cmd-it-k">⌘5</span>
+      </div>
+      <div class="cmd-it" onclick="go('campus')" data-nav-target="campus">
+        <span class="cmd-it-ic">🎉</span>
+        <div class="cmd-it-main"><div class="cmd-it-t">Campus Pulse & Med-Q</div><div class="cmd-it-s">Live countdown timer, interactive clinical quiz, 4 medical fests</div></div>
+        <span class="cmd-it-k">⌘6</span>
+      </div>
+      <div class="cmd-it" onclick="go('opportunities')" data-nav-target="opportunities">
+        <span class="cmd-it-ic">🇮🇳</span>
+        <div class="cmd-it-main"><div class="cmd-it-t">Bharat Opportunities Engine</div><div class="cmd-it-s">Central JR posts, ICMR grants, TMC observership, rural bond tracker</div></div>
+        <span class="cmd-it-k">⌘7</span>
+      </div>
+      <div class="cmd-it" onclick="go('identity')" data-nav-target="identity">
+        <span class="cmd-it-ic">🪪</span>
+        <div class="cmd-it-main"><div class="cmd-it-t">Verified Medical Passport</div><div class="cmd-it-s">Profile hero, NMC/ABDM chips, timeline, procedure logbook</div></div>
+        <span class="cmd-it-k">⌘8</span>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- APP SHELL -->
+<div class="shell app-layout">
+
+<!-- 220px DARK INDIGO SIDEBAR -->
+<nav class="sidebar" aria-label="Main Navigation">
+  <div class="sb-logo">
+    <div class="logo-icon">P</div>
+    <div style="display:flex;align-items:center">
+      <span class="logo-text">PulseUp</span>
+      <span class="logo-sub">BHARAT OS</span>
+    </div>
+  </div>
+  
+  <div class="sb-user" onclick="go('identity')" title="View Verified Medical Passport">
+    <div class="sb-uav">AS</div>
+    <div class="sb-umeta">
+      <div class="sb-uname">Dr. Aarav Sharma</div>
+      <div class="sb-urole">JR-2 Resident · MAMC Delhi</div>
+    </div>
+    <div class="sb-score" title="Career Score (0-1000)">785</div>
+  </div>
+  
+  <div class="sb-nav">
+    <div class="sb-sec">Clinical Workstation</div>
+    <div class="ni nav-item nav-link on" id="ni-dashboard" data-screen="screen-daily-board" data-page="dashboard" onclick="go('dashboard')">
+      <span class="ni-ic">🏠</span><span>Career Board</span>
+    </div>
+    <div class="ni nav-item nav-link" id="ni-research" data-screen="screen-research-hub" data-page="research" onclick="go('research')">
+      <span class="ni-ic">🔬</span><span>Research Hub</span><span class="nb">2</span>
+    </div>
+    <div class="ni nav-item nav-link" id="ni-goalspaces" data-screen="screen-goal-spaces" data-page="goalspaces" onclick="go('goalspaces')">
+      <span class="ni-ic">🎯</span><span>Goal Spaces</span>
+    </div>
+    <div class="ni nav-item nav-link" id="ni-aetcom" data-screen="screen-aetcom-hub" data-page="aetcom" onclick="go('aetcom')">
+      <span class="ni-ic">🩺</span><span>AETCOM Ethics</span><span class="nb-b">22/27</span>
+    </div>
+    <div class="ni nav-item nav-link" id="ni-mentorship" data-screen="screen-mentorship-triage" data-page="mentorship" onclick="go('mentorship')">
+      <span class="ni-ic">💬</span><span>Async Mentorship</span><span class="nb">1</span>
+    </div>
+    
+    <div class="sb-sec">India & Opportunities</div>
+    <div class="ni nav-item nav-link" id="ni-campus" data-screen="screen-campus-pulse" data-page="campus" onclick="go('campus')">
+      <span class="ni-ic">🎉</span><span>Campus & Med-Q</span>
+    </div>
+    <div class="ni nav-item nav-link" id="ni-opportunities" data-screen="screen-bharat-opportunities" data-page="opportunities" onclick="go('opportunities')">
+      <span class="ni-ic">🇮🇳</span><span>Bharat Opps</span><span class="nb">5</span>
+    </div>
+    
+    <div class="sb-sec">Credential Ledger</div>
+    <div class="ni nav-item nav-link" id="ni-identity" data-screen="screen-medical-passport" data-page="identity" onclick="go('identity')">
+      <span class="ni-ic">🪪</span><span>Medical Passport</span><span class="nb-g">Tier 2</span>
+    </div>
+  </div>
+  
+  <div class="sb-foot" onclick="openCreditDrawer()" title="View Pulse Credits Ledger">
+    <div class="pc-row">
+      <span class="pc-lbl">Pulse Credits</span>
+      <span class="pc-val" id="sb-pc-val">340 PC</span>
+    </div>
+    <div class="pbar"><div class="pfill" id="sb-pc-fill" style="width:34%"></div></div>
+  </div>
+</nav>
+
+<!-- MAIN VIEWPORT CONTAINER -->
+<main class="main main-viewport">
+
+<!-- ═══ SCREEN 1: DAILY CAREER BOARD ═══ -->
+<section class="pg screen-section on" id="screen-daily-board" data-screen="screen-board">
+  <div id="pg-dashboard">
+    <!-- 52px Sticky Frosted Topbar -->
+    <header class="topbar">
+      <span class="tb-title" id="topbar-title-1">Daily Career Board</span>
+      <div class="cmd-trig search-bar-trigger" id="cmd-k-search" onclick="cmdOpen()">
+        <span style="font-size:13px">🔍</span>
+        <span>Search spaces, opportunities, journals...</span>
+        <kbd class="kbd">⌘K</kbd>
+      </div>
+      <div class="topbar-right">
+        <button class="redshift-btn" onclick="toggleRedShift()">
+          <span>🔴</span><span id="redshift-label">Night Call</span>
+        </button>
+        <div class="badge-node" onclick="toast('📡','Connected to NMC & ABDM Live National Node (Response: 24ms)')">
+          <span class="pulse-dot"></span>
+          <span>NMC Node Live</span>
+        </div>
+      </div>
+    </header>
+    
+    <div class="pi">
+      <!-- Welcome Hero Banner -->
+      <div class="welcome">
+        <div style="font-size:38px">👋</div>
+        <div class="welcome-txt">
+          <h2>Good evening, Dr. Aarav Sharma</h2>
+          <p>You have <span class="em bold">2 active research sprint milestones</span>, <span class="am bold">1 unread mentor voice ticket</span>, and <span class="ia bold">5 new Bharat opportunities</span> matching your resident profile.</p>
+        </div>
+        <div class="career-score-box" onclick="toast('📈','Career Score: 785/1000. Next level at 800 unlocks Consultant Peer Mentorship!')">
+          <div class="score-val" id="board-career-score">785</div>
+          <div class="score-lbl">Career Score / 1000</div>
+          <div class="score-pct">Top 4% Senior Resident Tier</div>
+        </div>
+      </div>
+      
+      <!-- Career Score Sub-Metrics -->
+      <div class="stats-row">
+        <div class="sc">
+          <div class="sc-v em">82 <span style="font-size:12px;color:var(--t3)">/ 100</span></div>
+          <div class="sc-l">Research Index</div>
+          <div class="pbar" style="margin-top:6px"><div class="pfill" style="width:82%"></div></div>
+        </div>
+        <div class="sc">
+          <div class="sc-v ia">88 <span style="font-size:12px;color:var(--t3)">/ 100</span></div>
+          <div class="sc-l">Clinical Competency</div>
+          <div class="pbar" style="margin-top:6px"><div class="pfill pfill-b" style="width:88%"></div></div>
+        </div>
+        <div class="sc">
+          <div class="sc-v am">72 <span style="font-size:12px;color:var(--t3)">/ 100</span></div>
+          <div class="sc-l">Mentorship Standing</div>
+          <div class="pbar" style="margin-top:6px"><div class="pfill pfill-a" style="width:72%"></div></div>
+        </div>
+        <div class="sc">
+          <div class="sc-v pu">91 <span style="font-size:12px;color:var(--t3)">/ 100</span></div>
+          <div class="sc-l">Bioethics & AETCOM</div>
+          <div class="pbar" style="margin-top:6px"><div class="pfill pfill-p" style="width:91%"></div></div>
+        </div>
+      </div>
+      
+      <!-- 2-Col Grid: Active Research Sprints & Opportunities Radar -->
+      <div class="g2">
+        <!-- Sprint 1 & 2 -->
+        <div class="card">
+          <div class="sl"><span>🔬</span> Active Research Sprints (2 Multi-Center Studies)</div>
+          
+          <div class="mc" onclick="go('research')">
+            <div class="mc-ic">🧪</div>
+            <div style="display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:6px">
+              <div>
+                <div class="mc-t">Multi-Center Stroke Thrombolysis Registry</div>
+                <div class="mc-m">CRediT: Data Curation & Investigation → Target: Lancet Reg Health</div>
+              </div>
+              <span class="tag ta">48 Days Left</span>
+            </div>
+            <div style="display:flex;justify-content:space-between;font-size:11px;color:var(--t2);margin-bottom:4px">
+              <span>Patient Cohort Extracted</span>
+              <span class="mono">214 / 250 (85.6%)</span>
+            </div>
+            <div class="pbar"><div class="pfill" style="width:85.6%"></div></div>
+          </div>
+          
+          <div style="height:10px"></div>
+          
+          <div class="mc" onclick="go('research')">
+            <div class="mc-ic">🫀</div>
+            <div style="display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:6px">
+              <div>
+                <div class="mc-t">AI ECG Arrhythmia Detection in Rural PHCs</div>
+                <div class="mc-m">CRediT: Writing – Original Draft → Target: JAMA Cardiology</div>
+              </div>
+              <span class="tag tg">On Track</span>
+            </div>
+            <div style="display:flex;justify-content:space-between;font-size:11px;color:var(--t2);margin-bottom:4px">
+              <span>Methodology & Validation</span>
+              <span class="mono">60.0% Complete</span>
+            </div>
+            <div class="pbar"><div class="pfill" style="width:60%"></div></div>
+          </div>
+        </div>
+        
+        <!-- Opportunity Radar (4 Curated Alerts) -->
+        <div class="card">
+          <div class="sl"><span>📡</span> Bharat Opportunity Radar (Live Scraper Feeds)</div>
+          
+          <div class="oi" onclick="openOppModal('aiims-jr')">
+            <div class="oic oic-g">⚡</div>
+            <div>
+              <div class="ot">AIIMS Delhi — 45 Non-Academic JR Posts</div>
+              <div class="os">Casualty & Trauma Surgery · 7th CPC Level 10 (₹89,420/mo)</div>
+            </div>
+            <div class="or">
+              <span class="tag ta">Deadline: Sep 14</span>
+              <button class="apb" onclick="event.stopPropagation();openOppModal('aiims-jr')">View & Apply</button>
+            </div>
+          </div>
+          
+          <div class="oi" onclick="openOppModal('icmr-sts')">
+            <div class="oic oic-b">🔬</div>
+            <div>
+              <div class="ot">ICMR-STS Research Grant 2026 Cycle</div>
+              <div class="os">₹10,000/mo Stipend (₹20k total) · Cardiology & Neuro tracks</div>
+            </div>
+            <div class="or">
+              <span class="tag tg">Open Now</span>
+              <button class="apb" onclick="event.stopPropagation();openOppModal('icmr-sts')">View & Apply</button>
+            </div>
+          </div>
+          
+          <div class="oi" onclick="go('campus')">
+            <div class="oic oic-a">🎉</div>
+            <div>
+              <div class="ot">AIIMS Pulse 2026 — Suture & Trauma Workshop</div>
+              <div class="os">Sep 15–22 · Delhi · Digital QR Delegate Pass Issued</div>
+            </div>
+            <div class="or">
+              <span class="tag tg">Registered ✓</span>
+            </div>
+          </div>
+          
+          <div class="oi" onclick="go('mentorship')">
+            <div class="oic oic-p">💬</div>
+            <div>
+              <div class="ot" style="color:var(--am)">Dr. Priya Ramaswamy sent audio reply</div>
+              <div class="os">Neurosurgery Fellowship SOP · 1:48 Voice Memo</div>
+            </div>
+            <div class="or">
+              <span class="tag ta">1 Unread</span>
+            </div>
+          </div>
+        </div>
+      </div>
+      
+      <!-- Goal Spaces Quick Dock -->
+      <div class="card" style="margin-bottom:14px">
+        <div class="sl"><span>🎯</span> Goal Spaces Dock (Sprint Acceleration)</div>
+        <div class="g3">
+          <div class="mc" onclick="go('goalspaces');wbOpen()">
+            <div class="mc-ic">🫀</div>
+            <div class="mc-t">AI ECG Multi-Center Study</div>
+            <div class="mc-m">Sprint Week 4 / 12 · 2 overdue tasks · 4 contributors</div>
+            <div style="margin-top:8px"><span class="tag tb">Active Sprint</span></div>
+          </div>
+          
+          <div class="mc" onclick="go('goalspaces')">
+            <div class="mc-ic">📚</div>
+            <div class="mc-t">NEET PG High-Yield 2027</div>
+            <div class="mc-m">42 peer residents · Weekly Case Saturday 6 PM</div>
+            <div style="margin-top:8px"><span class="tag tg">On Track</span></div>
+          </div>
+          
+          <div class="mc" style="border-style:dashed;opacity:.65" onclick="toast('🎯','Browse 240+ verified medical goal spaces across India')">
+            <div style="font-size:24px;margin-bottom:6px">＋</div>
+            <div class="mc-t">Discover Goal Spaces</div>
+            <div class="mc-m">USMLE, Clinical AI, Laparoscopic Skills, Journal Clubs</div>
+          </div>
+        </div>
+      </div>
+      
+      <!-- AETCOM Nudge Card -->
+      <div style="background:rgba(139,92,246,.08);border:1px solid rgba(139,92,246,.2);border-radius:12px;padding:16px;display:flex;align-items:center;gap:15px">
+        <div style="font-size:28px">🩺</div>
+        <div style="flex:1">
+          <div style="font-size:13.5px;font-weight:700;margin-bottom:2px">AETCOM Nudge: Module 4.1 Pending Faculty Sign-Off</div>
+          <div style="font-size:11.5px;color:var(--t2)">Reflective Journal draft on "End-of-Life DNR & Passive Euthanasia" saved (Similarity Index: 4.1% ✓). Awaiting Dr. B. Sharma's verification.</div>
+        </div>
+        <button class="btn btn-g" onclick="go('aetcom')">Review Reflection</button>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ═══ SCREEN 2: RESEARCH & PUBLISHING HUB ═══ -->
+<section class="pg screen-section" id="screen-research-hub" data-screen="screen-research">
+  <div id="pg-research">
+    <header class="topbar">
+      <span class="tb-title">Research & Publishing Command Centre</span>
+      <div style="display:flex;gap:8px">
+        <button class="btn btn-g" onclick="openPredatoryChecker()">🛡️ Check Journal Risk</button>
+        <button class="btn btn-p" onclick="openNewProjectModal()">+ New Project</button>
+      </div>
+    </header>
+    
+    <div class="pi">
+      <!-- Active Project Banner -->
+      <div class="card" style="margin-bottom:16px;background:linear-gradient(135deg,rgba(59,130,246,.08),rgba(16,185,129,.05))">
+        <div style="display:flex;align-items:flex-start;gap:16px;margin-bottom:14px">
+          <div>
+            <div style="font-family:var(--display);font-size:18px;font-weight:800;margin-bottom:3px">Multi-Center Stroke Thrombolysis Registry</div>
+            <div style="font-size:12px;color:var(--t2)">PI: Dr. Vikram Nair (NIMHANS) · Target: <span class="ia bold">Lancet Regional Health (IF 8.5, Scopus Q1)</span></div>
+          </div>
+          <div style="margin-left:auto;display:flex;gap:7px;flex-wrap:wrap">
+            <span class="tag tg">✓ CTRI/2026/08/001234</span>
+            <span class="tag tb">IEC Cleared (KEM & MAMC)</span>
+            <span class="tag ta">48 Days to Submission</span>
+          </div>
+        </div>
+        <div style="display:flex;gap:18px;align-items:center">
+          <div style="flex:1">
+            <div style="font-size:10px;color:var(--t3);margin-bottom:4px;text-transform:uppercase;letter-spacing:.06em;font-weight:700">Sprint Delivery Completion</div>
+            <div class="pbar" style="height:7px"><div class="pfill" id="research-pfill" style="width:68%"></div></div>
+          </div>
+          <div style="font-family:var(--mono);font-size:12.5px;color:var(--t2);font-weight:600" id="research-milestone-txt">3 / 5 Milestones Achieved</div>
+        </div>
+      </div>
+      
+      <!-- CRediT Authorship Matrix Table -->
+      <div class="rh">
+        <h2>CRediT Authorship Matrix (Cryptographically Bound)</h2>
+        <div style="display:flex;gap:8px">
+          <button class="btn btn-g" onclick="addAuthorModal()">+ Add Contributor</button>
+          <button class="btn btn-g" onclick="toast('🔒','Authorship locked with SHA-256 Multi-Sig. Unanimous PI + co-author sign-off required to modify.')">🔒 Locked Order</button>
+        </div>
+      </div>
+      
+      <div class="ctbl pulse-table-wrap">
+        <div class="ctbl-hd">
+          <span>Contributor</span>
+          <span>CRediT Taxonomy Role</span>
+          <span>Milestone Progress</span>
+          <span>Author #</span>
+          <span>Status</span>
+        </div>
+        
+        <!-- Contributor 1 -->
+        <div class="cr-row">
+          <div class="cc">
+            <div class="av av-b">VN</div>
+            <div>
+              <div style="font-size:12px;font-weight:600">Dr. Vikram Nair</div>
+              <div style="font-size:10px;color:var(--t3)">NIMHANS Bengaluru</div>
+            </div>
+          </div>
+          <div><span class="tag tp">Conceptualization · Supervision</span></div>
+          <div class="mb">
+            <div class="pbar" style="flex:1;height:5px"><div class="pfill" style="width:100%"></div></div>
+            <span class="mp">100%</span>
+          </div>
+          <div><span class="mono" style="font-size:13px;font-weight:700;color:var(--em)">1st</span></div>
+          <div><span class="tag tg">✓ Signed</span></div>
+        </div>
+        
+        <!-- Contributor 2 -->
+        <div class="cr-row">
+          <div class="cc">
+            <div class="av av-g">AS</div>
+            <div>
+              <div style="font-size:12px;font-weight:600">Dr. Aarav Sharma</div>
+              <div style="font-size:10px;color:var(--t3)">MAMC New Delhi</div>
+            </div>
+          </div>
+          <div><span class="tag tb">Data Curation · Investigation</span></div>
+          <div class="mb">
+            <div class="pbar" style="flex:1;height:5px"><div class="pfill" style="width:85.6%"></div></div>
+            <span class="mp">85.6%</span>
+          </div>
+          <div><span class="mono" style="font-size:13px;font-weight:700;color:var(--ia)">2nd</span></div>
+          <div><span class="tag ta">In Progress</span></div>
+        </div>
+        
+        <!-- Contributor 3 -->
+        <div class="cr-row">
+          <div class="cc">
+            <div class="av av-a">PV</div>
+            <div>
+              <div style="font-size:12px;font-weight:600">Dr. Priya Verma</div>
+              <div style="font-size:10px;color:var(--t3)">KEM Hospital Mumbai</div>
+            </div>
+          </div>
+          <div><span class="tag ta">Formal Analysis · Software</span></div>
+          <div class="mb">
+            <div class="pbar" style="flex:1;height:5px"><div class="pfill" style="width:45%"></div></div>
+            <span class="mp">45%</span>
+          </div>
+          <div><span class="mono" style="font-size:13px;font-weight:700;color:var(--am)">3rd</span></div>
+          <div><span class="tag ta">Queued</span></div>
+        </div>
+        
+        <!-- Contributor 4 -->
+        <div class="cr-row">
+          <div class="cc">
+            <div class="av av-p">MV</div>
+            <div>
+              <div style="font-size:12px;font-weight:600">Dr. Marcus Vance</div>
+              <div style="font-size:10px;color:var(--t3)">CMC Vellore</div>
+            </div>
+          </div>
+          <div><span class="tag tp">Writing – Review & Editing</span></div>
+          <div class="mb">
+            <div class="pbar" style="flex:1;height:5px"><div class="pfill" style="width:10%"></div></div>
+            <span class="mp">10%</span>
+          </div>
+          <div><span class="mono" style="font-size:13px;font-weight:700;color:var(--t3)">4th</span></div>
+          <div><span class="tag tr">Pending</span></div>
+        </div>
+      </div>
+      
+      <!-- Bounties & Journal Shield Grid -->
+      <div class="g2">
+        <!-- 2 Research Bounty Cards -->
+        <div>
+          <div class="sl"><span>⚡</span> Biostatistical & Editing Research Bounties</div>
+          
+          <div class="bcard">
+            <div class="bcard-h">
+              <div class="bic">📊</div>
+              <div>
+                <div class="bt">Kaplan-Meier Survival Analysis in R</div>
+                <div class="bs">Evaluate 90-day modified Rankin Scale (mRS) outcomes in thrombolyzed patients. Deliverable: reproducible R script + high-res forest plot.</div>
+              </div>
+            </div>
+            <div class="bf">
+              <div class="br">⚡ 250 Pulse Credits</div>
+              <button class="btn btn-o" onclick="claimBounty(this, 'Kaplan-Meier Survival Analysis', 250)">Claim Bounty</button>
+            </div>
+          </div>
+          
+          <div class="bcard" style="background:rgba(16,185,129,.04);border-color:rgba(16,185,129,.18)">
+            <div class="bcard-h">
+              <div class="bic" style="background:rgba(16,185,129,.14);color:var(--em)">✍️</div>
+              <div>
+                <div class="bt">Medical Line-Editing & Vancouver Citation Scrub</div>
+                <div class="bs">Introduction & Discussion sections (3,200 words) requiring native English academic proofing and verification against Lancet guidelines.</div>
+              </div>
+            </div>
+            <div class="bf">
+              <div class="br">⚡ 120 Pulse Credits</div>
+              <button class="btn btn-o" onclick="claimBounty(this, 'Medical Line-Editing', 120)">Claim Bounty</button>
+            </div>
+          </div>
+        </div>
+        
+        <!-- Anti-Predatory Journal Shield -->
+        <div>
+          <div class="jshield">
+            <div class="jsh">
+              <div class="js-ic">🛡️</div>
+              <div>
+                <div style="font-size:13.5px;font-weight:700">Anti-Predatory Journal Shield</div>
+                <div style="font-size:11px;color:var(--t2)">UGC-CARE & NMC Gazette Compliant Targets for Stroke & Neuro</div>
+              </div>
+            </div>
+            
+            <div style="margin-bottom:10px">
+              <input id="journalSearchInput" oninput="filterJournals(this.value)" placeholder="Search any journal (e.g. Lancet, Cureus, IJMS)..." style="width:100%;background:rgba(255,255,255,0.05);border:1px solid var(--border);border-radius:8px;padding:7px 10px;font-size:12px;color:var(--t1);outline:none;font-family:var(--sans)"/>
+            </div>
+            
+            <div id="journalListContainer">
+              <div class="jr" data-jname="lancet regional health">
+                <div>
+                  <div class="jn">Lancet Regional Health — Southeast Asia</div>
+                  <div class="jm">Scopus Q1 · Gold Open Access · 28-day first decision</div>
+                </div>
+                <div style="display:flex;flex-direction:column;align-items:flex-end;gap:3px">
+                  <span class="if-badge">IF 8.5</span>
+                  <span class="tag tg" style="font-size:9.5px">NMC Approved ✓</span>
+                </div>
+              </div>
+              
+              <div class="jr" data-jname="stroke aha journal">
+                <div>
+                  <div class="jn">Stroke — American Heart Association</div>
+                  <div class="jm">PubMed MEDLINE Indexed · Q1 · Hybrid OA</div>
+                </div>
+                <div style="display:flex;flex-direction:column;align-items:flex-end;gap:3px">
+                  <span class="if-badge">IF 7.7</span>
+                  <span class="tag tg" style="font-size:9.5px">NMC Approved ✓</span>
+                </div>
+              </div>
+              
+              <div class="jr" data-jname="international journal of stroke">
+                <div>
+                  <div class="jn">International Journal of Stroke</div>
+                  <div class="jm">World Stroke Organization · Scopus Q1 · 21-day review</div>
+                </div>
+                <div style="display:flex;flex-direction:column;align-items:flex-end;gap:3px">
+                  <span class="if-badge">IF 6.0</span>
+                  <span class="tag tg" style="font-size:9.5px">NMC Approved ✓</span>
+                </div>
+              </div>
+            </div>
+            
+            <div style="padding-top:10px;border-top:1px solid var(--border);margin-top:4px;font-size:11px;color:var(--cr);display:flex;align-items:center;gap:6px">
+              <span>⚠️</span>
+              <span><strong>Shield Alert:</strong> 4 predatory mock journals targeting Indian postgraduates automatically blocked this week.</span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ═══ SCREEN 3: GOAL SPACES WORKBENCH ═══ -->
+<section class="pg screen-section" id="screen-goal-spaces" data-screen="screen-workbench">
+  <div id="pg-goalspaces">
+    <header class="topbar">
+      <span class="tb-title">Goal Spaces Workbench (Collaborative Sprints)</span>
+      <button class="btn btn-p" onclick="openNewSpaceModal()">+ Create Goal Space</button>
+    </header>
+    
+    <div class="pi">
+      <div class="sl"><span>🎯</span> 6 Active Goal Spaces (Clinical & Academic Sprints)</div>
+      
+      <!-- 6 Space Cards Grid -->
+      <div class="spg">
+        <!-- Space 1 -->
+        <div class="spcard sp-em" onclick="wbOpen('AI ECG Multi-Center Study', 'Clinical AI Research')">
+          <div class="sp-ic">🫀</div>
+          <div class="sp-t">AI ECG Multi-Center Study</div>
+          <div class="sp-s">12-week sprint · Target: JAMA Cardiology · 2 tasks pending review</div>
+          <div class="sp-f">
+            <div style="display:flex;align-items:center;gap:6px">
+              <div class="mavs">
+                <div class="mav av-b">VN</div>
+                <div class="mav av-g">AS</div>
+                <div class="mav av-a">PV</div>
+                <div class="mav av-p">MV</div>
+              </div>
+              <span style="font-size:11px;color:var(--t2)">4 researchers</span>
+            </div>
+            <span class="tag ta">Week 4 / 12</span>
+          </div>
+        </div>
+        
+        <!-- Space 2 -->
+        <div class="spcard" onclick="wbOpen('NEET PG High-Yield 2027', 'PG Exam Preparation')">
+          <div class="sp-ic">📚</div>
+          <div class="sp-t">NEET PG High-Yield 2027</div>
+          <div class="sp-s">42 members · Daily 20 spotters · Saturday Grand Viva Review</div>
+          <div class="sp-f">
+            <div style="display:flex;align-items:center;gap:6px">
+              <div class="mavs">
+                <div class="mav av-g">RK</div>
+                <div class="mav av-b">SA</div>
+                <div class="mav av-a">PM</div>
+              </div>
+              <span style="font-size:11px;color:var(--t2)">+39 peers</span>
+            </div>
+            <span class="tag tg">On Track</span>
+          </div>
+        </div>
+        
+        <!-- Space 3 -->
+        <div class="spcard" onclick="wbOpen('USMLE Step 2 CK Match 2027', 'US Residency Pathway')">
+          <div class="sp-ic">🧬</div>
+          <div class="sp-t">USMLE Step 2 CK Match 2027</div>
+          <div class="sp-s">86 members · Gated space (Verified Step 1 pass required) · UWorld review</div>
+          <div class="sp-f">
+            <span class="tag tb">86 Members</span>
+            <span class="tag tg">Active</span>
+          </div>
+        </div>
+        
+        <!-- Space 4 -->
+        <div class="spcard" onclick="wbOpen('Surgical Residency Skills Lab', 'Operative Competency')">
+          <div class="sp-ic">🏥</div>
+          <div class="sp-t">Surgical Residency Skills Lab</div>
+          <div class="sp-s">31 surgical residents · Laparoscopic peg transfer, knot tying & ATLS triage</div>
+          <div class="sp-f">
+            <span class="tag tg">Open</span>
+            <span style="font-size:11px;color:var(--t2)">31 residents</span>
+          </div>
+        </div>
+        
+        <!-- Space 5 -->
+        <div class="spcard" onclick="wbOpen('Medical AI & Clinical NLP', 'Translational Health')">
+          <div class="sp-ic">🤖</div>
+          <div class="sp-t">Medical AI & Clinical NLP</div>
+          <div class="sp-s">24 researchers · Fine-tuning LLMs on Indian discharge summaries</div>
+          <div class="sp-f">
+            <span class="tag tp">Research</span>
+            <span style="font-size:11px;color:var(--t2)">24 members</span>
+          </div>
+        </div>
+        
+        <!-- Space 6 -->
+        <div class="spcard" onclick="wbOpen('Pediatric Advanced Life Support (PALS)', 'Clinical Resuscitation')">
+          <div class="sp-ic">👶</div>
+          <div class="sp-t">PALS Resuscitation Circle</div>
+          <div class="sp-s">18 NICU/PICU residents · Weekly simulation cases & NRP updates</div>
+          <div class="sp-f">
+            <span class="tag ta">New Sprint</span>
+            <span style="font-size:11px;color:var(--t2)">18 residents</span>
+          </div>
+        </div>
+      </div>
+      
+      <!-- Interactive Workbench Panel (Kanban / Chat / Files) -->
+      <div id="wb-panel" class="hidden">
+        <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:12px">
+          <div>
+            <div style="font-family:var(--display);font-size:17px;font-weight:800" id="wb-title-txt">🫀 AI ECG Multi-Center Study</div>
+            <div style="font-size:11.5px;color:var(--t2)" id="wb-subtitle-txt">Dr. Vikram Nair (Lead PI) · Target: JAMA Cardiology · Week 4 / 12</div>
+          </div>
+          <div style="display:flex;gap:8px;align-items:center">
+            <button class="btn btn-g" onclick="openNewTaskModal()">+ Add Sprint Task</button>
+            <button class="btn btn-g" onclick="wbClose()">✕ Close Workbench</button>
+          </div>
+        </div>
+        
+        <div class="wb">
+          <!-- Workbench Sub-Tabs -->
+          <div class="wbt">
+            <div class="wbtab on" onclick="wbTab(this, 'tb-kanban')">📋 Sprint Kanban Board</div>
+            <div class="wbtab" onclick="wbTab(this, 'tb-chat')">💬 Threaded Discussion & Copilot</div>
+            <div class="wbtab" onclick="wbTab(this, 'tb-files')">📂 Research File Vault</div>
+          </div>
+          
+          <!-- TAB 1: 3-COLUMN KANBAN BOARD -->
+          <div class="wbc on" id="tb-kanban">
+            <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:10px">
+              <span style="font-size:11px;color:var(--t2)">Click arrows on any card to transition tasks across sprint stages.</span>
+              <span class="tag tg" id="kanban-progress-tag">Sprint Progress: 57.1%</span>
+            </div>
+            <div class="kanban">
+              <!-- Column 1: To Do -->
+              <div class="kcol" id="kcol-todo">
+                <div class="kch">To Do <span class="kcnt" id="cnt-todo">2</span></div>
+                <div class="kcard" id="card-task-1">
+                  <div class="kcard-t">IEC Ethics Clearance for Site 3 (CMC Vellore)</div>
+                  <div class="kcard-m">
+                    <span class="kas">→ Dr. Marcus</span>
+                    <span class="tag tr" style="font-size:9.5px">Overdue</span>
+                  </div>
+                  <div class="kmove-bar">
+                    <button class="kmove-btn" onclick="moveTask('card-task-1','review')">Move to Review →</button>
+                  </div>
+                </div>
+                <div class="kcard" id="card-task-2">
+                  <div class="kcard-t">Upload De-identified Echo Reports Batch B (80 patients)</div>
+                  <div class="kcard-m">
+                    <span class="kas">→ Dr. Aarav</span>
+                    <span class="tag ta" style="font-size:9.5px">Due Friday</span>
+                  </div>
+                  <div class="kmove-bar">
+                    <button class="kmove-btn" onclick="moveTask('card-task-2','review')">Move to Review →</button>
+                  </div>
+                </div>
+              </div>
+              
+              <!-- Column 2: In Review -->
+              <div class="kcol" id="kcol-review">
+                <div class="kch">In Review <span class="kcnt" id="cnt-review">1</span></div>
+                <div class="kcard" id="card-task-3" style="border-color:rgba(245,158,11,.35)">
+                  <div class="kcard-t">ECG Waveform Annotation for Cohort A (134 tracings)</div>
+                  <div class="kcard-m">
+                    <span class="kas">→ Dr. Priya</span>
+                    <span class="tag ta" style="font-size:9.5px">Reviewing</span>
+                  </div>
+                  <div class="kmove-bar">
+                    <button class="kmove-btn" onclick="moveTask('card-task-3','todo')">← Return</button>
+                    <button class="kmove-btn" onclick="moveTask('card-task-3','done')">Mark Done ✓</button>
+                  </div>
+                </div>
+              </div>
+              
+              <!-- Column 3: Completed -->
+              <div class="kcol" id="kcol-done">
+                <div class="kch">Completed <span class="kcnt" id="cnt-done">4</span></div>
+                <div class="kcard" id="card-task-4" style="opacity:.75">
+                  <div class="kcard-t">PRISMA-P Protocol Registration on PROSPERO</div>
+                  <div class="kcard-m"><span class="kas">→ Dr. Vikram</span><span class="tag tg" style="font-size:9.5px">✓ Done</span></div>
+                </div>
+                <div class="kcard" id="card-task-5" style="opacity:.75">
+                  <div class="kcard-t">Systematic Literature Search (PubMed, EMBASE & Cochrane)</div>
+                  <div class="kcard-m"><span class="kas">→ Dr. Aarav</span><span class="tag tg" style="font-size:9.5px">✓ Done</span></div>
+                </div>
+                <div class="kcard" id="card-task-6" style="opacity:.75">
+                  <div class="kcard-t">CRF Data Extraction Form Design & Pilot</div>
+                  <div class="kcard-m"><span class="kas">→ Dr. Priya</span><span class="tag tg" style="font-size:9.5px">✓ Done</span></div>
+                </div>
+                <div class="kcard" id="card-task-7" style="opacity:.75">
+                  <div class="kcard-t">Institutional Ethics Clearance — KEM Hospital (Site 1)</div>
+                  <div class="kcard-m"><span class="kas">→ Dr. Priya</span><span class="tag tg" style="font-size:9.5px">✓ Done</span></div>
+                </div>
+              </div>
+            </div>
+          </div>
+          
+          <!-- TAB 2: THREADED CHAT & COPILOT -->
+          <div class="wbc" id="tb-chat">
+            <div class="chat-area" id="chatContainer">
+              <div class="cmsg">
+                <div class="av av-b">VN</div>
+                <div class="cbub">
+                  <div class="cn ia">Dr. Vikram Nair (PI) <span class="tag tb" style="font-size:9px">Lead</span></div>
+                  <div class="ct">Data curation for Cohort A is verified. @Aarav please confirm Batch B de-identification through the DICOM PHI scrubber before Thursday.</div>
+                  <div class="ctm">Today, 3:42 PM</div>
+                </div>
+              </div>
+              <div class="cmsg">
+                <div class="av av-g">AS</div>
+                <div class="cbub">
+                  <div class="cn em">Dr. Aarav Sharma (Resident)</div>
+                  <div class="ct">Ran DICOM tag de-identifier on 80 scans. Zero hospital MRNs or patient identifiers remain. Uploading to Vault now.</div>
+                  <div class="ctm">Today, 4:10 PM</div>
+                </div>
+              </div>
+              <div class="cmsg">
+                <div class="av av-g" style="background:rgba(16,185,129,.2)">AI</div>
+                <div class="cbub ai">
+                  <div class="cn em">PulseUp Research Copilot</div>
+                  <div class="ct">✅ <strong>Automated Protocol Check:</strong> Batch B sample size (N=80) achieves 88.4% statistical power for detecting sensitivity delta &ge; 5% at &alpha;=0.05. Reminder: Vancouver reference citation rules require minimum 6 authors listed before <em>et al.</em> for Lancet journals.</div>
+                  <div class="ctm">Today, 4:12 PM · AI Verification Engine</div>
+                </div>
+              </div>
+            </div>
+            
+            <div style="margin-top:14px;display:flex;gap:10px">
+              <input class="cmd-inp" id="chat-inp" placeholder="Ask AI Copilot or message the research team (e.g. 'What sample size is needed?')..." style="flex:1;background:rgba(255,255,255,.05);border:1px solid var(--border);border-radius:8px;padding:9px 13px;font-size:12.5px;color:var(--t1)"/>
+              <button class="btn btn-p" onclick="sendChat()">Send Message</button>
+            </div>
+          </div>
+          
+          <!-- TAB 3: FILE VAULT -->
+          <div class="wbc" id="tb-files">
+            <div class="fi-item" onclick="toast('📊','Opening DeIdentified_Stroke_Cohort_A.csv (250 Rows · Zero PHI Verified)')">
+              <span style="font-size:20px">📊</span>
+              <div style="flex:1">
+                <div style="font-size:12.5px;font-weight:600">DeIdentified_Stroke_Cohort_A.csv</div>
+                <div style="font-size:10.5px;color:var(--t2)">250 patient records · Cryptographically scrubbed · Updated 3 hours ago</div>
+              </div>
+              <span class="tag tg">✓ Zero PHI</span>
+            </div>
+            
+            <div class="fi-item" onclick="toast('📄','Opening Protocol_Draft_v5.docx (Collaborative Editor)')">
+              <span style="font-size:20px">📄</span>
+              <div style="flex:1">
+                <div style="font-size:12.5px;font-weight:600">Protocol_Draft_v5.docx</div>
+                <div style="font-size:10.5px;color:var(--t2)">Includes STROBE checklist & PRISMA flow chart · 4 active reviewers</div>
+              </div>
+              <span class="tag tb">v5.2 Active</span>
+            </div>
+            
+            <div class="fi-item" onclick="toast('🛡️','Running pre-submission journal audit: Plagiarism 3.2% · 0 retracted citations flagged')">
+              <span style="font-size:20px">🛡️</span>
+              <div style="flex:1">
+                <div style="font-size:12.5px;font-weight:600">Pre_Submission_Compliance_Audit.pdf</div>
+                <div style="font-size:10.5px;color:var(--t2)">Similarity Index: 3.2% · Vancouver references verified · ICMJE criteria met</div>
+              </div>
+              <span class="tag tg">Audit Passed ✓</span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ═══ SCREEN 4: AETCOM BIOETHICS HUB ═══ -->
+<section class="pg screen-section" id="screen-aetcom-hub" data-screen="screen-aetcom">
+  <div id="pg-aetcom">
+    <header class="topbar">
+      <span class="tb-title">AETCOM — Bioethics, Attitude & Communication</span>
+      <span class="tag tg" style="font-size:12px">Phase IV · Senior Resident Competency</span>
+    </header>
+    
+    <div class="pi">
+      <!-- CBME Progress Banner -->
+      <div class="card" style="margin-bottom:18px;display:flex;gap:24px;align-items:center">
+        <div style="flex:1">
+          <div style="font-size:15px;font-weight:700;margin-bottom:3px">NMC Competency-Based Medical Education (CBME) Completion</div>
+          <div style="font-size:12px;color:var(--t2);margin-bottom:9px">Internal Medicine Residency 2024–2027 · Maulana Azad Medical College, Delhi</div>
+          <div class="pbar" style="height:7px"><div class="pfill" style="width:81.5%"></div></div>
+          <div style="font-size:10.5px;color:var(--t2);margin-top:4px"><strong>22 / 27</strong> mandatory NMC modules completed & e-signed by Medical Education Unit (MEU)</div>
+        </div>
+        <div style="text-align:center;padding:0 12px;border-left:1px solid var(--border)">
+          <div style="font-family:var(--mono);font-size:28px;font-weight:800;color:var(--em)">81.5%</div>
+          <div style="font-size:10px;color:var(--t2)">AETCOM Score</div>
+        </div>
+        <div style="text-align:center;padding:0 12px;border-left:1px solid var(--border)">
+          <div style="font-family:var(--mono);font-size:28px;font-weight:800;color:var(--am)">1</div>
+          <div style="font-size:10px;color:var(--t2)">Pending Faculty</div>
+        </div>
+        <button class="btn btn-g" onclick="toast('📋','Exported official NMC CBME Dossier PDF with QR verification hash!')">⬇ Export Dossier</button>
+      </div>
+      
+      <div class="g2">
+        <!-- Module Logbook -->
+        <div>
+          <div class="sl"><span>📚</span> NMC CBME Module Logbook</div>
+          
+          <div class="mod-item mod-done" onclick="toast('🩺','Module 3.1: Breaking Bad News — Completed & Signed by MEU Convener')">
+            <div class="mnum mn-d">3.1</div>
+            <div class="mi">
+              <div class="mt">Breaking Bad News — SPIKES Protocol</div>
+              <div class="mph">Phase III Part 1 · 4 Teaching Hours · Dr. S. K. Rao (Signed)</div>
+            </div>
+            <span class="tag tg">✓ Signed</span>
+          </div>
+          
+          <div class="mod-item mod-done" onclick="toast('🩺','Module 3.3: Informed Consent — Completed & Verified')">
+            <div class="mnum mn-d">3.3</div>
+            <div class="mi">
+              <div class="mt">Informed Consent — CPA & MTP Regulations</div>
+              <div class="mph">Phase III Part 1 · 3 Teaching Hours · Dr. B. Sharma (Signed)</div>
+            </div>
+            <span class="tag tg">✓ Signed</span>
+          </div>
+          
+          <div class="mod-item" style="border-color:rgba(245,158,11,.35)" onclick="toast('⏳','Module 4.1: Awaiting Faculty E-Signature from Dr. B. Sharma')">
+            <div class="mnum mn-a">4.1</div>
+            <div class="mi">
+              <div class="mt">End-of-Life Care — DNR & Passive Euthanasia (Supreme Court Guidelines)</div>
+              <div class="mph">Phase IV Resident Level · 4 Teaching Hours</div>
+            </div>
+            <span class="tag ta">Awaiting MEU</span>
+          </div>
+          
+          <div class="mod-item" style="opacity:.6" onclick="toast('ℹ️','Module 4.2: Disaster Triage scheduled for next semester')">
+            <div class="mnum mn-t">4.2</div>
+            <div class="mi">
+              <div class="mt">Disaster Triage & Mass Casualty Crisis Communication</div>
+              <div class="mph">Phase IV Resident Level · 3 Teaching Hours</div>
+            </div>
+            <span class="tag td">Scheduled</span>
+          </div>
+          
+          <!-- Reflective Journal Card -->
+          <div style="margin-top:14px">
+            <div class="sl"><span>📓</span> Reflective Journal (Gibbs' Cycle)</div>
+            <div class="card">
+              <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:10px">
+                <div style="font-size:13px;font-weight:600">Module 4.1 End-of-Life Reflection</div>
+                <span class="tag ta">Pending Sign-off</span>
+              </div>
+              <div style="font-size:11.5px;color:var(--t2);line-height:1.5;margin-bottom:10px;background:rgba(255,255,255,0.03);padding:10px;border-radius:8px">
+                "During my Medical ICU night posting, I was part of the team counselling relatives of a 68-year-old with end-stage cirrhosis and refractory septic shock. Navigating the family's grief while upholding patient autonomy and avoiding futile interventions taught me the profound difference between prolonging life and prolonging dying..."
+              </div>
+              <div style="display:flex;align-items:center;justify-content:space-between">
+                <div style="font-size:11px;color:var(--em);display:flex;align-items:center;gap:6px">
+                  <span class="bold">Plagiarism Similarity: 4.1%</span>
+                  <span>(&lt;15% NMC Standard ✓)</span>
+                </div>
+                <button class="btn btn-p" onclick="toast('✅','Reflective Journal re-submitted for MEU approval!')">Submit Review</button>
+              </div>
+            </div>
+          </div>
+        </div>
+        
+        <!-- Interactive AI Bedside Simulators -->
+        <div>
+          <div class="sl"><span>🤖</span> Interactive AI Bedside Clinical Simulators</div>
+          
+          <!-- Simulator 1: SPIKES -->
+          <div class="sim-card" onclick="runAetcomSim('spikes')">
+            <div class="sim-h">
+              <div class="sim-ic">💔</div>
+              <div>
+                <div class="sim-t">Breaking Bad News (SPIKES Protocol)</div>
+                <div class="sim-d">Family waiting in Room 4: 35-year-old son's MRI reveals inoperable Glioblastoma Multiforme. Navigate Setting, Perception, Knowledge, and Empathy without jargon.</div>
+              </div>
+            </div>
+            <div class="sim-m">
+              <div>
+                <div class="sm-v em">88%</div>
+                <div class="sm-l">High Score</div>
+              </div>
+              <div>
+                <div class="sm-v ia">3</div>
+                <div class="sm-l">Attempts</div>
+              </div>
+              <div>
+                <div class="sm-v am">+50 PC</div>
+                <div class="sm-l">Reward</div>
+              </div>
+              <button class="btn btn-p" style="margin-left:auto" onclick="event.stopPropagation();runAetcomSim('spikes')">▶ Run Simulator</button>
+            </div>
+          </div>
+          
+          <!-- Simulator 2: Casualty Mob De-escalation -->
+          <div class="sim-card" onclick="runAetcomSim('casualty')">
+            <div class="sim-h">
+              <div class="sim-ic" style="background:rgba(239,68,68,.14);color:var(--cr)">🚨</div>
+              <div>
+                <div class="sim-t">Casualty Mob De-escalation</div>
+                <div class="sim-d">Young road accident victim brought dead to Emergency. 15 agitated relatives surround the triage desk with mobile cameras recording. Defuse without violence.</div>
+              </div>
+            </div>
+            <div class="sim-m">
+              <div>
+                <div class="sm-v cr">62%</div>
+                <div class="sm-l">Last Score</div>
+              </div>
+              <div>
+                <div class="sm-v ia">1</div>
+                <div class="sm-l">Attempt</div>
+              </div>
+              <div>
+                <div class="sm-v am">+75 PC</div>
+                <div class="sm-l">Reward</div>
+              </div>
+              <button class="btn btn-p" style="margin-left:auto" onclick="event.stopPropagation();runAetcomSim('casualty')">▶ Retry Simulator</button>
+            </div>
+          </div>
+          
+          <!-- Simulator 3: Medico-Legal Consent -->
+          <div class="sim-card" onclick="runAetcomSim('consent')">
+            <div class="sim-h">
+              <div class="sim-ic" style="background:rgba(245,158,11,.12);color:var(--am)">📋</div>
+              <div>
+                <div class="sim-t">Medico-Legal Informed Consent (CPA Compliant)</div>
+                <div class="sim-d">High-risk emergency laparotomy for perforated peritonitis in an unaccompanied patient. Navigate Consumer Protection Act (CPA) mandates and proxy consent.</div>
+              </div>
+            </div>
+            <div class="sim-m">
+              <div>
+                <div class="sm-v" style="color:var(--t3)">—</div>
+                <div class="sm-l">Not Attempted</div>
+              </div>
+              <div>
+                <div class="sm-v am">+60 PC</div>
+                <div class="sm-l">Reward</div>
+              </div>
+              <button class="btn btn-p" style="margin-left:auto" onclick="event.stopPropagation();runAetcomSim('consent')">▶ Start Simulator</button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ═══ SCREEN 5: ASYNC MENTORSHIP TRIAGE ═══ -->
+<section class="pg screen-section" id="screen-mentorship-triage" data-screen="screen-mentorship">
+  <div id="pg-mentorship">
+    <header class="topbar">
+      <span class="tb-title">Async Mentorship Triage (SBAR Structured Queries)</span>
+      <button class="btn btn-p" onclick="openSbarModal()">+ Open SBAR Ticket</button>
+    </header>
+    
+    <div class="pi">
+      <div class="g2">
+        <!-- Active Tickets -->
+        <div>
+          <div class="sl"><span>📨</span> My Active Mentorship Tickets</div>
+          
+          <!-- Ticket 1: Voice Response Received -->
+          <div class="tcard unread" id="ticket-unread-1">
+            <div class="th">
+              <div class="av av-p" style="width:38px;height:38px;font-size:14px">PR</div>
+              <div class="tmt">
+                <div class="tsub">Oxford Neurosurgery Fellowship SOP Review</div>
+                <div class="tprev">Prof. Dr. Priya Ramaswamy (Chief of Neuro, Manipal) · 150 PC Escrowed</div>
+              </div>
+              <span class="tag ta">Responded!</span>
+            </div>
+            
+            <!-- Animated SVG/CSS Voice Waveform Player -->
+            <div class="vplay">
+              <button class="pbtn" id="voice-play-btn" onclick="toggleWaveform(this)">▶</button>
+              <div class="wviz paused" id="wviz">
+                <div class="wb-bar" style="height:12px;animation-delay:0.02s"></div>
+                <div class="wb-bar" style="height:18px;animation-delay:0.08s"></div>
+                <div class="wb-bar" style="height:8px;animation-delay:0.14s"></div>
+                <div class="wb-bar" style="height:22px;animation-delay:0.20s"></div>
+                <div class="wb-bar" style="height:14px;animation-delay:0.26s"></div>
+                <div class="wb-bar" style="height:20px;animation-delay:0.32s"></div>
+                <div class="wb-bar" style="height:10px;animation-delay:0.38s"></div>
+                <div class="wb-bar" style="height:16px;animation-delay:0.44s"></div>
+                <div class="wb-bar" style="height:22px;animation-delay:0.50s"></div>
+                <div class="wb-bar" style="height:12px;animation-delay:0.56s"></div>
+                <div class="wb-bar" style="height:18px;animation-delay:0.62s"></div>
+                <div class="wb-bar" style="height:6px;animation-delay:0.68s"></div>
+                <div class="wb-bar" style="height:14px;animation-delay:0.74s"></div>
+                <div class="wb-bar" style="height:20px;animation-delay:0.80s"></div>
+                <div class="wb-bar" style="height:10px;animation-delay:0.86s"></div>
+                <div class="wb-bar" style="height:16px;animation-delay:0.92s"></div>
+              </div>
+              <span class="vt" id="voice-time-txt">0:15 / 1:48</span>
+            </div>
+            
+            <div class="tf">
+              <div class="sla">⏱ SLA Fulfilled — Responded in 31 Hours</div>
+              <button class="btn btn-p" onclick="rateAndCloseTicket('ticket-unread-1')">Rate & Release Escrow</button>
+            </div>
+          </div>
+          
+          <!-- Ticket 2: Pending Response -->
+          <div class="tcard">
+            <div class="th">
+              <div class="av av-b" style="width:38px;height:38px;font-size:14px">FK</div>
+              <div class="tmt">
+                <div class="tsub">USMLE Step 2 CK Study Timeline & Resource Strategy</div>
+                <div class="tprev">Dr. Farhan Khan (USMLE 268, PGY-3 IM Cleveland Clinic) · 75 PC Escrowed</div>
+              </div>
+              <span class="tag tb">Accepted</span>
+            </div>
+            <div class="tf">
+              <div class="sla">⏱ 38h Remaining of 72h SLA Window</div>
+              <span class="tag tg">Awaiting Feedback</span>
+            </div>
+          </div>
+          
+          <div id="additional-tickets-container"></div>
+        </div>
+        
+        <!-- Mentor Directory & Standing -->
+        <div>
+          <div class="sl"><span>⭐</span> Top Verified Mentors (Indian & Global Pathways)</div>
+          <div class="mdir">
+            <div class="mcard" onclick="openSbarModalWithMentor('Dr. Priya Ramaswamy')">
+              <div class="av av-p" style="width:38px;height:38px;font-size:14px">PR</div>
+              <div style="flex:1">
+                <div style="font-size:13px;font-weight:600">Prof. Dr. Priya Ramaswamy</div>
+                <div style="font-size:10.5px;color:var(--t2)">Chief of Neurosurgery · Manipal Hospitals · UK/US Fellowship Guidance</div>
+                <div style="display:flex;gap:6px;margin-top:4px">
+                  <span class="tag tg" style="font-size:9px">✓ Master Mentor</span>
+                  <span style="font-size:10px;color:var(--t3)">48h SLA · 150 PC</span>
+                </div>
+              </div>
+              <div style="text-align:right">
+                <div style="font-size:12.5px;font-weight:700;color:var(--em)">4.9 ⭐</div>
+                <div style="font-size:10px;color:var(--t3)">127 reviews</div>
+              </div>
+            </div>
+            
+            <div class="mcard" onclick="openSbarModalWithMentor('Dr. Anand Mehta')">
+              <div class="av av-a" style="width:38px;height:38px;font-size:14px">AM</div>
+              <div style="flex:1">
+                <div style="font-size:13px;font-weight:600">Dr. Anand Mehta, DM</div>
+                <div style="font-size:10.5px;color:var(--t2)">Cardiologist · AIIMS Delhi · Cath Lab Skills & ICMR Protocol Guidance</div>
+                <div style="display:flex;gap:6px;margin-top:4px">
+                  <span class="tag tb" style="font-size:9px">1 slot left</span>
+                  <span style="font-size:10px;color:var(--t3)">72h SLA · 100 PC</span>
+                </div>
+              </div>
+              <div style="text-align:right">
+                <div style="font-size:12.5px;font-weight:700;color:var(--em)">4.8 ⭐</div>
+                <div style="font-size:10px;color:var(--t3)">84 reviews</div>
+              </div>
+            </div>
+            
+            <div class="mcard" onclick="openSbarModalWithMentor('Dr. Sunita Krishnan')">
+              <div class="av av-g" style="width:38px;height:38px;font-size:14px">SK</div>
+              <div style="flex:1">
+                <div style="font-size:13px;font-weight:600">Dr. Sunita Krishnan, MD</div>
+                <div style="font-size:10.5px;color:var(--t2)">Pediatric Intensivist · KMC Manipal · NEET SS & IAP Quiz Mentoring</div>
+                <div style="display:flex;gap:6px;margin-top:4px">
+                  <span class="tag tg" style="font-size:9px">Available</span>
+                  <span style="font-size:10px;color:var(--t3)">48h SLA · 75 PC</span>
+                </div>
+              </div>
+              <div style="text-align:right">
+                <div style="font-size:12.5px;font-weight:700;color:var(--em)">4.9 ⭐</div>
+                <div style="font-size:10px;color:var(--t3)">62 reviews</div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ═══ SCREEN 6: CAMPUS PULSE & MED-Q ═══ -->
+<section class="pg screen-section" id="screen-campus-pulse" data-screen="screen-campus">
+  <div id="pg-campus">
+    <header class="topbar">
+      <span class="tb-title">Campus Pulse & National Med-Q Arena</span>
+      <span class="tag ta" style="font-size:12px">National Medical Quiz Circuit</span>
+    </header>
+    
+    <div class="pi">
+      <!-- Live Arena Banner with Countdown -->
+      <div class="qa">
+        <div style="display:flex;align-items:flex-start;justify-content:space-between;margin-bottom:14px">
+          <div>
+            <div style="font-size:10.5px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:var(--am);margin-bottom:3px">🏆 LIVE NATIONAL CLINICAL SPRINT</div>
+            <div style="font-family:var(--display);font-size:20px;font-weight:800;margin-bottom:3px">IAP National Pediatrics & Neonatology Clinical Grand Prix 2026</div>
+            <div style="font-size:12px;color:var(--t2)">Timed Clinical Spotters · High-Yield Diagnostic Vignettes · Reward: 250 PC + National Laureate Badge</div>
+          </div>
+          <div style="text-align:right">
+            <div style="font-size:10.5px;color:var(--t3);margin-bottom:2px">Next National Round Starts In:</div>
+            <div class="qcd" id="qcd">08:14:27:43</div>
+            <div style="font-size:10.5px;color:var(--t3);font-family:var(--mono)">
+              <span id="timerDays">08</span>d : <span id="timerHours">14</span>h : <span id="timerMins">27</span>m : <span id="timerSecs">43</span>s
+            </div>
+          </div>
+        </div>
+        <button class="btn btn-p" onclick="startQuiz()">▶ Enter Live Quiz Arena</button>
+      </div>
+      
+      <!-- Interactive Clinical Quiz Container (Multi-Question Engine) -->
+      <div class="qq" id="quiz-q" style="display:none">
+        <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:12px">
+          <div>
+            <span style="font-size:11.5px;color:var(--t2)" id="quiz-round-txt">Question 1 of 5 · High-Yield National Round</span>
+            <div style="display:flex;gap:4px;margin-top:4px" id="quiz-pills">
+              <span class="tag tg" style="font-size:9px">Q1 ●</span>
+              <span class="tag td" style="font-size:9px">Q2</span>
+              <span class="tag td" style="font-size:9px">Q3</span>
+              <span class="tag td" style="font-size:9px">Q4</span>
+              <span class="tag td" style="font-size:9px">Q5</span>
+            </div>
+          </div>
+          <div style="display:flex;gap:10px;align-items:center">
+            <span class="tag tb" id="quiz-score-tag">Score: 0 PC</span>
+            <span class="tag ta" id="qtimer">⏱ 15s</span>
+          </div>
+        </div>
+        
+        <div class="qq-t" id="quiz-question-txt">A 2-day-old term neonate presents with bilious vomiting, progressive upper abdominal distension, and absence of distal bowel gas on plain radiography. The classic 'double bubble' sign is visible. What is the most definitive diagnosis?</div>
+        
+        <div class="qopts" id="quiz-options-container">
+          <div class="qopt" onclick="handleQuizAnswer(this, false, 'A')">A. Infantile Hypertrophic Pyloric Stenosis</div>
+          <div class="qopt" id="opt-a" data-option="A" onclick="handleQuizAnswer(this, true, 'B')">B. Congenital Duodenal Atresia (Trisomy 21 Association)</div>
+          <div class="qopt" onclick="handleQuizAnswer(this, false, 'C')">C. Aganglionic Megacolon (Hirschsprung's Disease)</div>
+          <div class="qopt" onclick="handleQuizAnswer(this, false, 'D')">D. Midgut Malrotation with Volvulus</div>
+        </div>
+        
+        <div class="qexp" id="qexp">
+          <strong>✅ Clinical Rationale:</strong> Duodenal Atresia results from failure of recanalization of the embryonic duodenum at weeks 8–10. The radiographic 'double bubble' sign represents gas in the distended stomach and proximal duodenal bulb. Over 30% of cases are associated with Trisomy 21. Contrast with Pyloric Stenosis which presents at 3–6 weeks with <em>non-bilious</em> projectile vomiting. — <em>Nelson Textbook of Pediatrics, 21st Ed.</em>
+        </div>
+        
+        <div style="display:flex;justify-content:flex-end;margin-top:12px;gap:8px">
+          <button class="btn btn-g" id="quiz-next-btn" style="display:none" onclick="nextQuizQuestion()">Next Question →</button>
+        </div>
+      </div>
+      
+      <!-- 4 Medical College Fest Cards with Gradient Banners -->
+      <div class="sl"><span>🎉</span> Premier Indian Medical College Fests (Verified Circuit)</div>
+      <div class="fest-grid">
+        <!-- Fest 1: AIIMS Pulse -->
+        <div class="fcard" onclick="toast('🎉','AIIMS Pulse 2026: Suture & Airway Workshop booked! Delegate QR ready.')">
+          <div class="fban" style="background:linear-gradient(135deg,#0f0c29,#302b63,#24243e);color:#e94560">
+            <span>PULSE 2026</span>
+          </div>
+          <div class="fbody">
+            <div class="fn">AIIMS Pulse 2026 — South Asia's Largest Med Fest</div>
+            <div class="fi">All India Institute of Medical Sciences, New Delhi · Sep 15–22 · ₹1,200</div>
+            <div class="fbtns">
+              <span class="tag tg">🎟 Workshop Booked ✓</span>
+              <button class="btn btn-g" style="font-size:11px;padding:4px 9px" onclick="event.stopPropagation();toast('🎫','Digital Delegate Pass: QR #PULSE-2026-DELHI')">View Pass</button>
+            </div>
+          </div>
+        </div>
+        
+        <!-- Fest 2: AFMC Silhouettes -->
+        <div class="fcard" onclick="toast('🎉','AFMC Silhouettes 2026: Registration portal open for national delegates')">
+          <div class="fban" style="background:linear-gradient(135deg,#0a1628,#1e3a5f,#2874a6);color:#7fb3d3">
+            <span>SILHOUETTES</span>
+          </div>
+          <div class="fbody">
+            <div class="fn">AFMC Silhouettes 2026 — Armed Forces Medical College</div>
+            <div class="fi">AFMC Pune, Maharashtra · Oct 4–8 · ₹900</div>
+            <div class="fbtns">
+              <button class="btn btn-p" style="font-size:11px;padding:4px 10px" onclick="event.stopPropagation();toast('✅','AFMC Silhouettes registration submitted!')">Register</button>
+              <button class="btn btn-g" style="font-size:11px;padding:4px 9px" onclick="event.stopPropagation();toast('📝','Abstract portal open for Military Medicine track')">Submit Paper</button>
+            </div>
+          </div>
+        </div>
+        
+        <!-- Fest 3: CMC Pegasus -->
+        <div class="fcard" onclick="toast('🎉','CMC Pegasus 2026: National clinical quiz registrations opening soon')">
+          <div class="fban" style="background:linear-gradient(135deg,#1a0505,#4a1010,#7b2020);color:#e8b4b8">
+            <span>PEGASUS</span>
+          </div>
+          <div class="fbody">
+            <div class="fn">CMC Vellore Pegasus 2026</div>
+            <div class="fi">Christian Medical College, Vellore, Tamil Nadu · Nov 12–15 · ₹1,500</div>
+            <div class="fbtns">
+              <span class="tag tb">Nov 2026</span>
+              <button class="btn btn-g" style="font-size:11px;padding:4px 9px" onclick="event.stopPropagation();toast('🔔','Alert set for CMC Pegasus!')">Set Alert</button>
+            </div>
+          </div>
+        </div>
+        
+        <!-- Fest 4: JIPMER Spandan -->
+        <div class="fcard" onclick="toast('🎉','JIPMER Spandan 2026: Puducherry clinical workshop dates announced')">
+          <div class="fban" style="background:linear-gradient(135deg,#0a180a,#1a3a1a,#265c26);color:#90ee90">
+            <span>SPANDAN</span>
+          </div>
+          <div class="fbody">
+            <div class="fn">JIPMER Spandan 2026</div>
+            <div class="fi">JIPMER, Puducherry · Dec 5–8 · ₹800</div>
+            <div class="fbtns">
+              <span class="tag tg">Dec 2026</span>
+              <button class="btn btn-g" style="font-size:11px;padding:4px 9px" onclick="event.stopPropagation();toast('🔔','Alert set for JIPMER Spandan!')">Set Alert</button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ═══ SCREEN 7: BHARAT OPPORTUNITIES ENGINE ═══ -->
+<section class="pg screen-section" id="screen-bharat-opportunities" data-screen="screen-opportunities">
+  <div id="pg-opportunities">
+    <header class="topbar">
+      <span class="tb-title">Bharat Opportunities Engine (Central Scraper & Bond Matrix)</span>
+      <span class="tag tg" style="font-size:12px">5 New Resident Matches</span>
+    </header>
+    
+    <div class="pi">
+      <!-- Search & Filter Pills -->
+      <div style="display:flex;gap:10px;margin-bottom:12px">
+        <input id="oppSearchInput" oninput="searchOpportunities(this.value)" placeholder="Search by institution, specialty or location (e.g. AIIMS, Oncology, Mumbai)..." style="flex:1;background:rgba(255,255,255,0.05);border:1px solid var(--border);border-radius:8px;padding:8px 12px;font-size:12.5px;color:var(--t1);outline:none;font-family:var(--sans)"/>
+      </div>
+      
+      <div class="fprow">
+        <div class="fp on active" data-cat="all" onclick="fpFilter(this, 'all')">All (12)</div>
+        <div class="fp" data-cat="jr" onclick="fpFilter(this, 'jr')">Central JR Posts (3)</div>
+        <div class="fp" data-cat="icmr" onclick="fpFilter(this, 'icmr')">ICMR Grants (2)</div>
+        <div class="fp" data-cat="obs" onclick="fpFilter(this, 'obs')">Observerships (4)</div>
+        <div class="fp" data-cat="bond" onclick="fpFilter(this, 'bond')">Rural Bond (1)</div>
+        <div class="fp" data-cat="scholar" onclick="fpFilter(this, 'scholar')">Scholarships (2)</div>
+      </div>
+      
+      <!-- Opportunity Cards Container -->
+      <div id="oppCardsList">
+        <!-- Opportunity Card 1: AIIMS JR -->
+        <div class="ofc" data-cat="jr" onclick="openOppModal('aiims-jr')">
+          <div class="ofh">
+            <div class="ofic oic-g">⚡</div>
+            <div style="flex:1">
+              <div class="oft">Non-Academic Junior Resident — Casualty & Emergency Medicine</div>
+              <div class="ofi">All India Institute of Medical Sciences (AIIMS), New Delhi</div>
+            </div>
+            <span class="tag ta">Deadline: Sep 14</span>
+          </div>
+          <div class="odets">
+            <div class="odet">📍 <span>Ansari Nagar, New Delhi</span></div>
+            <div class="odet">💼 <span>45 Vacancies</span></div>
+            <div class="odet">💰 <span class="mono em bold">7th CPC Level 10 (₹56,100 + 20% NPA + HRA = ₹89,420/mo)</span></div>
+            <div class="odet">🏥 <span>Walk-In Interview</span></div>
+            <div class="odet">📋 <span>NMC Registration + CRMI Completed</span></div>
+          </div>
+          <div class="off">
+            <div style="display:flex;gap:6px">
+              <span class="tag tg">✓ Profile Matched 98%</span>
+              <span class="tag tg">✓ NMC Verified Eligible</span>
+            </div>
+            <div style="display:flex;gap:7px">
+              <button class="btn btn-g" onclick="event.stopPropagation();toast('📄','Downloading AIIMS Official Gazette Notification PDF…')">Gazette PDF</button>
+              <button class="btn btn-p" onclick="event.stopPropagation();openOppModal('aiims-jr')">1-Click Apply</button>
+            </div>
+          </div>
+        </div>
+        
+        <!-- Opportunity Card 2: ICMR-STS -->
+        <div class="ofc" data-cat="icmr" onclick="openOppModal('icmr-sts')">
+          <div class="ofh">
+            <div class="ofic oic-b">🔬</div>
+            <div style="flex:1">
+              <div class="oft">ICMR Short-Term Studentship (STS) 2026 Cycle — Cardiology Track</div>
+              <div class="ofi">Indian Council of Medical Research (ICMR), Department of Health Research</div>
+            </div>
+            <span class="tag tg">28 Days Left</span>
+          </div>
+          <div class="odets">
+            <div class="odet">🔬 <span>Cardiology, AI Diagnostics, Community Medicine</span></div>
+            <div class="odet">💰 <span class="mono em bold">₹10,000 / month (INR 20,000 total stipend)</span></div>
+            <div class="odet">⏱ <span>2 Months Duration (May–June)</span></div>
+            <div class="odet">📋 <span>2nd / 3rd Year MBBS Students & Interns</span></div>
+          </div>
+          <div class="off">
+            <span class="tag ta">18 Verified Mentors Available on PulseUp</span>
+            <div style="display:flex;gap:7px">
+              <button class="btn btn-g" onclick="event.stopPropagation();go('goalspaces');toast('🎯','Switched to ICMR Protocol Drafting Hub')">Protocol Hub</button>
+              <button class="btn btn-p" onclick="event.stopPropagation();openOppModal('icmr-sts')">1-Click Apply</button>
+            </div>
+          </div>
+        </div>
+        
+        <!-- Opportunity Card 3: TMC Observership -->
+        <div class="ofc" data-cat="obs" onclick="openOppModal('tmc-obs')">
+          <div class="ofh">
+            <div class="ofic oic-p">🏥</div>
+            <div style="flex:1">
+              <div class="oft">Tata Memorial Centre (TMC) — Clinical Observership in Surgical Oncology</div>
+              <div class="ofi">Tata Memorial Hospital (ACTREC), Mumbai</div>
+            </div>
+            <span class="tag tb">Rolling Intake</span>
+          </div>
+          <div class="odets">
+            <div class="odet">📍 <span>Parel, Mumbai</span></div>
+            <div class="odet">⏱ <span>4–8 Weeks</span></div>
+            <div class="odet">🎓 <span>MBBS / Intern / PG Resident</span></div>
+            <div class="odet">📋 <span>No Fee for Indian Residents · Certificate issued</span></div>
+          </div>
+          <div class="off">
+            <span class="tag tg">Recognized for Super-Specialty MCh</span>
+            <div style="display:flex;gap:7px">
+              <button class="btn btn-g" onclick="event.stopPropagation();toast('📄','Downloading TMC Observership Brochure…')">Brochure</button>
+              <button class="btn btn-p" onclick="event.stopPropagation();openOppModal('tmc-obs')">1-Click Apply</button>
+            </div>
+          </div>
+        </div>
+      </div>
+      
+      <!-- Rural Service Bond Animated Progress Tracker -->
+      <div class="rbt">
+        <div style="display:flex;align-items:center;gap:12px;margin-bottom:13px">
+          <span style="font-size:22px">🗺️</span>
+          <div>
+            <div style="font-size:14.5px;font-weight:700">Maharashtra DMER / Karnataka KEA Rural Service Bond Tracker</div>
+            <div style="font-size:11.5px;color:var(--t2)">Primary Health Centre (PHC), Satara District — Mandatory 12-Month Posting</div>
+          </div>
+          <span class="tag ta" style="margin-left:auto">8 / 12 Months (66.7%)</span>
+        </div>
+        
+        <div class="pbar" style="height:8px"><div class="pfill pfill-a" style="width:66.7%"></div></div>
+        
+        <div style="display:flex;justify-content:space-between;margin-top:6px;font-size:10.5px;color:var(--t3);font-family:var(--mono)">
+          <span>Posting Commenced: Feb 2026</span>
+          <span>Mandatory Completion: Feb 2027</span>
+        </div>
+        <div style="margin-top:12px;font-size:12px;color:var(--t2);display:flex;align-items:center;justify-content:space-between">
+          <div>📌 <strong>Liability Reduction:</strong> ₹10,00,000 total bond liability reduced to ₹3,33,333 remaining.</div>
+          <div style="display:flex;gap:7px">
+            <button class="btn btn-g" style="font-size:11px;padding:4px 9px" onclick="toast('📄','Provisional Bond NOC Certificate exported!')">Download NOC</button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ═══ SCREEN 8: VERIFIED MEDICAL PASSPORT ═══ -->
+<section class="pg screen-section" id="screen-medical-passport" data-screen="screen-passport">
+  <div id="pg-identity">
+    <header class="topbar">
+      <span class="tb-title">Verified Medical Passport (Digital Credential Dossier)</span>
+      <div style="display:flex;gap:8px">
+        <button class="btn btn-g" onclick="openLogProcedureModal()">+ Log Procedure</button>
+        <button class="btn btn-p" onclick="openCvPreviewModal()">⬇ Export Verified CV</button>
+      </div>
+    </header>
+    
+    <div class="pi">
+      <!-- Profile Hero Header -->
+      <div class="prof-hero">
+        <div class="pav">AS</div>
+        <div style="flex:1">
+          <div class="pname">Dr. Aarav Sharma, MBBS</div>
+          <div class="ptitle">Senior Resident (JR-2) · Department of Internal Medicine · Maulana Azad Medical College (MAMC), New Delhi</div>
+          <div class="pchips">
+            <span class="tag tg" onclick="inspectBadge('NMC')">✓ NMC Reg: DMC/R/142981</span>
+            <span class="tag tb" onclick="inspectBadge('ABDM')">✓ ABDM HPID: aarav.sharma@hpid.abdm</span>
+            <span class="tag tp" onclick="inspectBadge('DigiLocker')">DigiLocker Synced</span>
+            <span class="tag ta" onclick="inspectBadge('TrustTier')">Tier 2 Cryptographic Trust</span>
+          </div>
+        </div>
+        <div class="pstats">
+          <div>
+            <div class="psv em">785</div>
+            <div class="psl">Career Score</div>
+          </div>
+          <div>
+            <div class="psv ia" id="passport-pc-val">340</div>
+            <div class="psl">Pulse Credits</div>
+          </div>
+          <div>
+            <div class="psv am">2</div>
+            <div class="psl">Active Papers</div>
+          </div>
+        </div>
+      </div>
+      
+      <!-- Grid: Career Timeline (3 Nodes) + Badge Shelf & Procedure Logbook -->
+      <div class="g2">
+        <!-- 3-Node Career Timeline -->
+        <div class="card">
+          <div class="sl"><span>⏳</span> Verified Career Timeline (3 Verified Milestones)</div>
+          
+          <div class="tl-item">
+            <div style="display:flex;flex-direction:column;align-items:center;margin-top:4px">
+              <div class="tldot"></div>
+            </div>
+            <div>
+              <div class="tlt">Postgraduate Residency (MD Internal Medicine)</div>
+              <div class="tls">Maulana Azad Medical College & Lok Nayak Hospital, New Delhi</div>
+              <div class="tld">2026 – Present &nbsp;<span class="tag tg" style="font-size:9px">✓ Active · DMC Verified</span></div>
+            </div>
+          </div>
+          
+          <div class="tl-item">
+            <div style="display:flex;flex-direction:column;align-items:center;margin-top:4px">
+              <div class="tldot"></div>
+            </div>
+            <div>
+              <div class="tlt">Compulsory Rotatory Residential Internship (CRRI)</div>
+              <div class="tls">Lok Nayak Hospital & GB Pant Institute, New Delhi · 12 Rotations Completed</div>
+              <div class="tld">2025 – 2026 &nbsp;<span class="tag tb" style="font-size:9px">DigiLocker ✓</span></div>
+            </div>
+          </div>
+          
+          <div class="tl-item">
+            <div style="display:flex;flex-direction:column;align-items:center;margin-top:4px">
+              <div class="tldot tldot-g"></div>
+            </div>
+            <div>
+              <div class="tlt">MBBS with Distinction — Maulana Azad Medical College</div>
+              <div class="tls">University of Delhi · Gold Medal in Pharmacology · 3x ICMR-STS Grantee</div>
+              <div class="tld">2020 – 2025 &nbsp;<span class="tag tg" style="font-size:9px">DigiLocker ✓</span></div>
+            </div>
+          </div>
+        </div>
+        
+        <!-- Badge Shelf & Procedure Logbook -->
+        <div class="card">
+          <div class="sl"><span>🏅</span> Digital Badge Shelf (5 Verifiable Credentials)</div>
+          <div class="badges">
+            <div class="badge" style="background:rgba(16,185,129,.08);border:1px solid rgba(16,185,129,.22)" onclick="inspectBadge('NMC')">
+              <div style="font-size:20px;margin-bottom:3px">🏥</div>
+              <div style="font-size:11px;font-weight:700;color:var(--em)">NMC Verified</div>
+            </div>
+            <div class="badge" style="background:rgba(59,130,246,.08);border:1px solid rgba(59,130,246,.22)" onclick="inspectBadge('ACLS')">
+              <div style="font-size:20px;margin-bottom:3px">💉</div>
+              <div style="font-size:11px;font-weight:700;color:var(--ia)">ACLS / BLS</div>
+            </div>
+            <div class="badge" style="background:rgba(245,158,11,.08);border:1px solid rgba(245,158,11,.22)" onclick="inspectBadge('ICMR')">
+              <div style="font-size:20px;margin-bottom:3px">🧪</div>
+              <div style="font-size:11px;font-weight:700;color:var(--am)">ICMR Scholar</div>
+            </div>
+            <div class="badge" style="background:rgba(139,92,246,.08);border:1px solid rgba(139,92,246,.22)" onclick="inspectBadge('MEDQ')">
+              <div style="font-size:20px;margin-bottom:3px">🏆</div>
+              <div style="font-size:11px;font-weight:700;color:var(--pu)">Med-Q Top 1%</div>
+            </div>
+            <div class="badge" style="background:rgba(16,185,129,.08);border:1px solid rgba(16,185,129,.22)" onclick="inspectBadge('RURAL')">
+              <div style="font-size:20px;margin-bottom:3px">🗺️</div>
+              <div style="font-size:11px;font-weight:700;color:var(--em)">Rural Pioneer</div>
+            </div>
+          </div>
+          
+          <div class="sl" style="margin-top:8px"><span>📋</span> NMC Procedure Logbook (<span id="proc-count-txt">133</span> Procedures Logged)</div>
+          <div id="procedureLogRows">
+            <div class="proc-row">
+              <span>Venipuncture & Central IV Line (IJV)</span>
+              <span class="tag tg">140+ · Independent</span>
+            </div>
+            <div class="proc-row">
+              <span>Lumbar Puncture (Diagnostic & Therapeutic)</span>
+              <span class="tag tg">24 · Independent</span>
+            </div>
+            <div class="proc-row">
+              <span>Endotracheal Intubation (ICU / Trauma)</span>
+              <span class="tag tb">32 · Supervised</span>
+            </div>
+            <div class="proc-row">
+              <span>Thoracocentesis / Pleural Fluid Tap</span>
+              <span class="tag tb">14 · Supervised</span>
+            </div>
+            <div class="proc-row">
+              <span>Bedside Point-of-Care Ultrasound (POCUS)</span>
+              <span class="tag ta">45 · Logged</span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+</main>
+</div>
+
+<!-- ═══ INTERACTIVE UPGRADE MODALS ═══ -->
+
+<!-- MODAL 1: AETCOM BEDSIDE SIMULATOR ENGINE -->
+<div class="app-modal hidden" id="aetcom-modal" onclick="closeModalOnBg(event, 'aetcom-modal')">
+  <div class="app-modal-card">
+    <div class="app-modal-header">
+      <div style="display:flex;align-items:center;gap:10px">
+        <span style="font-size:22px" id="sim-icon">💔</span>
+        <div>
+          <div style="font-size:14px;font-weight:700" id="sim-title">SPIKES Protocol — Breaking Bad News</div>
+          <div style="font-size:11px;color:var(--t2)" id="sim-step-indicator">Stage 1 of 4: Setting the Scene</div>
+        </div>
+      </div>
+      <button class="btn btn-g" style="padding:3px 8px;font-size:11px" onclick="closeModal('aetcom-modal')">✕</button>
+    </div>
+    <div class="app-modal-body" id="sim-body">
+      <!-- Dynamic Simulator Dialogue and Choices -->
+    </div>
+    <div class="app-modal-footer">
+      <button class="btn btn-g" onclick="closeModal('aetcom-modal')">Cancel</button>
+      <button class="btn btn-p" id="sim-action-btn" onclick="nextSimStage()">Continue →</button>
+    </div>
+  </div>
+</div>
+
+<!-- MODAL 2: SBAR MENTORSHIP TICKET CREATOR -->
+<div class="app-modal hidden" id="sbar-modal" onclick="closeModalOnBg(event, 'sbar-modal')">
+  <div class="app-modal-card">
+    <div class="app-modal-header">
+      <div style="display:flex;align-items:center;gap:10px">
+        <span style="font-size:20px">📋</span>
+        <div>
+          <div style="font-size:14px;font-weight:700">Open Clinical Mentorship Ticket (SBAR Gate)</div>
+          <div style="font-size:11px;color:var(--t2)">Structured format mandatory to respect senior consultant triage time</div>
+        </div>
+      </div>
+      <button class="btn btn-g" style="padding:3px 8px;font-size:11px" onclick="closeModal('sbar-modal')">✕</button>
+    </div>
+    <div class="app-modal-body">
+      <div style="display:flex;flex-direction:column;gap:12px">
+        <div>
+          <label style="font-size:11px;font-weight:700;color:var(--t3);text-transform:uppercase">Choose Verified Mentor</label>
+          <select id="sbar-mentor-sel" style="width:100%;margin-top:4px;background:rgba(255,255,255,0.05);border:1px solid var(--border);border-radius:8px;padding:8px;font-size:12px;color:var(--t1);outline:none">
+            <option value="Dr. Priya Ramaswamy">Prof. Dr. Priya Ramaswamy (Chief Neuro · 150 PC · 48h SLA)</option>
+            <option value="Dr. Anand Mehta">Dr. Anand Mehta, DM (AIIMS Cardiology · 100 PC · 72h SLA)</option>
+            <option value="Dr. Sunita Krishnan">Dr. Sunita Krishnan, MD (Pediatrics · 75 PC · 48h SLA)</option>
+          </select>
+        </div>
+        <div>
+          <label style="font-size:11px;font-weight:700;color:var(--em);text-transform:uppercase">S — Situation (Core Query in 1 Sentence)</label>
+          <input id="sbar-s" placeholder="e.g. Guidance needed on matching Neurosurgery residency vs clinical fellowship in UK..." style="width:100%;margin-top:4px;background:rgba(255,255,255,0.05);border:1px solid var(--border);border-radius:8px;padding:8px;font-size:12px;color:var(--t1);outline:none"/>
+        </div>
+        <div>
+          <label style="font-size:11px;font-weight:700;color:var(--ia);text-transform:uppercase">B — Background (Clinical or Academic History)</label>
+          <textarea id="sbar-b" rows="2" placeholder="e.g. 2nd-year resident at MAMC. 2 published papers in indexed journals. Step 1 cleared..." style="width:100%;margin-top:4px;background:rgba(255,255,255,0.05);border:1px solid var(--border);border-radius:8px;padding:8px;font-size:12px;color:var(--t1);outline:none;font-family:var(--sans)"></textarea>
+        </div>
+        <div>
+          <label style="font-size:11px;font-weight:700;color:var(--am);text-transform:uppercase">A — Assessment (Your Preliminary Thought)</label>
+          <input id="sbar-a" placeholder="e.g. Considering applying for the GMC sponsored route or MRCS Part B directly..." style="width:100%;margin-top:4px;background:rgba(255,255,255,0.05);border:1px solid var(--border);border-radius:8px;padding:8px;font-size:12px;color:var(--t1);outline:none"/>
+        </div>
+        <div>
+          <label style="font-size:11px;font-weight:700;color:var(--pu);text-transform:uppercase">R — Recommendation (Specific Guidance Requested)</label>
+          <input id="sbar-r" placeholder="e.g. Please critique my SOP draft and suggest 2 UK trust hospitals for observership..." style="width:100%;margin-top:4px;background:rgba(255,255,255,0.05);border:1px solid var(--border);border-radius:8px;padding:8px;font-size:12px;color:var(--t1);outline:none"/>
+        </div>
+      </div>
+    </div>
+    <div class="app-modal-footer">
+      <span style="margin-right:auto;font-size:11.5px;color:var(--am);font-family:var(--mono)">Escrow: 100 PC Locked</span>
+      <button class="btn btn-g" onclick="closeModal('sbar-modal')">Cancel</button>
+      <button class="btn btn-p" onclick="submitSbarTicket()">Lock Escrow & Submit Ticket</button>
+    </div>
+  </div>
+</div>
+
+<!-- MODAL 3: BHARAT OPPORTUNITY APPLICATION DRAWER -->
+<div class="app-modal hidden" id="opp-modal" onclick="closeModalOnBg(event, 'opp-modal')">
+  <div class="app-modal-card">
+    <div class="app-modal-header">
+      <div style="display:flex;align-items:center;gap:10px">
+        <span style="font-size:22px" id="opp-modal-ic">⚡</span>
+        <div>
+          <div style="font-size:14px;font-weight:700" id="opp-modal-title">AIIMS New Delhi — Junior Resident Walk-In</div>
+          <div style="font-size:11px;color:var(--em)" id="opp-modal-sub">Verified Government Opportunity · 7th Central Pay Commission</div>
+        </div>
+      </div>
+      <button class="btn btn-g" style="padding:3px 8px;font-size:11px" onclick="closeModal('opp-modal')">✕</button>
+    </div>
+    <div class="app-modal-body" id="opp-modal-body">
+      <!-- Dynamic payload -->
+    </div>
+    <div class="app-modal-footer">
+      <button class="btn btn-g" onclick="closeModal('opp-modal')">Close</button>
+      <button class="btn btn-p" id="opp-apply-btn" onclick="execute1ClickApply()">1-Click Apply with Verified Passport</button>
+    </div>
+  </div>
+</div>
+
+<!-- MODAL 4: LOG CLINICAL PROCEDURE -->
+<div class="app-modal hidden" id="proc-modal" onclick="closeModalOnBg(event, 'proc-modal')">
+  <div class="app-modal-card" style="width:500px">
+    <div class="app-modal-header">
+      <div style="display:flex;align-items:center;gap:10px">
+        <span style="font-size:20px">💉</span>
+        <div>
+          <div style="font-size:14px;font-weight:700">Log Clinical Procedure (NMC Logbook)</div>
+          <div style="font-size:11px;color:var(--t2)">Cryptographic entry tied to supervisor ABDM ID</div>
+        </div>
+      </div>
+      <button class="btn btn-g" style="padding:3px 8px;font-size:11px" onclick="closeModal('proc-modal')">✕</button>
+    </div>
+    <div class="app-modal-body">
+      <div style="display:flex;flex-direction:column;gap:12px">
+        <div>
+          <label style="font-size:11px;font-weight:700;color:var(--t3);text-transform:uppercase">Procedure Name</label>
+          <input id="new-proc-name" placeholder="e.g. Endotracheal Intubation, Central Line, Lumbar Puncture..." style="width:100%;margin-top:4px;background:rgba(255,255,255,0.05);border:1px solid var(--border);border-radius:8px;padding:8px;font-size:12px;color:var(--t1);outline:none"/>
+        </div>
+        <div class="g2" style="margin-bottom:0">
+          <div>
+            <label style="font-size:11px;font-weight:700;color:var(--t3);text-transform:uppercase">Role Level</label>
+            <select id="new-proc-role" style="width:100%;margin-top:4px;background:rgba(255,255,255,0.05);border:1px solid var(--border);border-radius:8px;padding:8px;font-size:12px;color:var(--t1);outline:none">
+              <option value="Independent">Independent</option>
+              <option value="Supervised">Supervised</option>
+              <option value="Observed">Observed</option>
+            </select>
+          </div>
+          <div>
+            <label style="font-size:11px;font-weight:700;color:var(--t3);text-transform:uppercase">Count Completed</label>
+            <input id="new-proc-count" type="number" value="1" min="1" style="width:100%;margin-top:4px;background:rgba(255,255,255,0.05);border:1px solid var(--border);border-radius:8px;padding:8px;font-size:12px;color:var(--t1);outline:none"/>
+          </div>
+        </div>
+        <div>
+          <label style="font-size:11px;font-weight:700;color:var(--t3);text-transform:uppercase">Supervising Consultant / Unit Head</label>
+          <input id="new-proc-sup" value="Dr. S. K. Rao, MD (DMC/R/08214)" style="width:100%;margin-top:4px;background:rgba(255,255,255,0.05);border:1px solid var(--border);border-radius:8px;padding:8px;font-size:12px;color:var(--t1);outline:none"/>
+        </div>
+      </div>
+    </div>
+    <div class="app-modal-footer">
+      <button class="btn btn-g" onclick="closeModal('proc-modal')">Cancel</button>
+      <button class="btn btn-p" onclick="saveNewProcedure()">Save into Logbook</button>
+    </div>
+  </div>
+</div>
+
+<!-- MODAL 5: VERIFIED ERAS / NMC CV PREVIEW -->
+<div class="app-modal hidden" id="cv-modal" onclick="closeModalOnBg(event, 'cv-modal')">
+  <div class="app-modal-card" style="width:680px">
+    <div class="app-modal-header">
+      <div style="display:flex;align-items:center;gap:10px">
+        <span style="font-size:20px">📜</span>
+        <div>
+          <div style="font-size:14px;font-weight:700">Official Verified Medical CV (ERAS / NMC Compliant)</div>
+          <div style="font-size:11px;color:var(--em)">Cryptographically Signed · Hash #PU-CV-2026-MAMC-0814</div>
+        </div>
+      </div>
+      <button class="btn btn-g" style="padding:3px 8px;font-size:11px" onclick="closeModal('cv-modal')">✕</button>
+    </div>
+    <div class="app-modal-body" style="background:#fff;color:#111;padding:24px;border-radius:8px;font-family:var(--sans)">
+      <div style="border-bottom:2px solid #059669;padding-bottom:12px;display:flex;justify-content:space-between">
+        <div>
+          <h2 style="font-family:var(--display);font-size:20px;color:#0F172A">DR. AARAV SHARMA, MBBS</h2>
+          <div style="font-size:12px;color:#475569">Junior Resident (MD Internal Medicine) · MAMC New Delhi</div>
+          <div style="font-size:11px;color:#059669;font-weight:600">NMC Reg: DMC/R/142981 · ABDM HPID: aarav.sharma@hpid.abdm</div>
+        </div>
+        <div style="text-align:right">
+          <div style="width:50px;height:50px;background:#0F172A;color:#fff;display:flex;align-items:center;justify-content:center;font-size:10px;font-family:monospace;border-radius:6px">QR HASH</div>
+          <div style="font-size:9px;color:#64748B;margin-top:3px">Verified by PulseUp</div>
+        </div>
+      </div>
+      <div style="margin-top:14px">
+        <h3 style="font-size:12px;text-transform:uppercase;letter-spacing:0.05em;color:#059669;border-bottom:1px solid #CBD5E1;padding-bottom:3px">Clinical Residency & Education</h3>
+        <div style="font-size:11.5px;margin-top:6px"><strong>MD Internal Medicine:</strong> Maulana Azad Medical College, New Delhi (2026–Present)</div>
+        <div style="font-size:11.5px;margin-top:2px"><strong>MBBS (Gold Medalist Pharmacology):</strong> Maulana Azad Medical College (2020–2025)</div>
+      </div>
+      <div style="margin-top:14px">
+        <h3 style="font-size:12px;text-transform:uppercase;letter-spacing:0.05em;color:#059669;border-bottom:1px solid #CBD5E1;padding-bottom:3px">Research Publications & Awards</h3>
+        <div style="font-size:11px;margin-top:4px">• 3x ICMR-STS Research Grant Awardee (Cardiology & Molecular Medicine)</div>
+        <div style="font-size:11px;margin-top:2px">• Co-Investigator: Multi-Center Stroke Thrombolysis Registry (NIMHANS/MAMC)</div>
+        <div style="font-size:11px;margin-top:2px">• CRediT Verified: Data Curation & Investigation Specialist</div>
+      </div>
+    </div>
+    <div class="app-modal-footer">
+      <button class="btn btn-g" onclick="closeModal('cv-modal')">Close</button>
+      <button class="btn btn-p" onclick="window.print();toast('🖨️','Printing official medical dossier…')">Print / Save as PDF</button>
+    </div>
+  </div>
+</div>
+
+<!-- INLINE JAVASCRIPT STATE ENGINE & EVENT ROUTER -->
+<script>
+// ── SCREEN NAVIGATION ENGINE ───────────────────────────
+const screens = [
+  { key: 'dashboard', sectionId: 'screen-daily-board', aliasId: 'pg-dashboard', navId: 'ni-dashboard', title: 'Daily Career Board' },
+  { key: 'research', sectionId: 'screen-research-hub', aliasId: 'pg-research', navId: 'ni-research', title: 'Research & Publishing Command Centre' },
+  { key: 'goalspaces', sectionId: 'screen-goal-spaces', aliasId: 'pg-goalspaces', navId: 'ni-goalspaces', title: 'Goal Spaces Workbench' },
+  { key: 'aetcom', sectionId: 'screen-aetcom-hub', aliasId: 'pg-aetcom', navId: 'ni-aetcom', title: 'AETCOM Bioethics & Communication' },
+  { key: 'mentorship', sectionId: 'screen-mentorship-triage', aliasId: 'pg-mentorship', navId: 'ni-mentorship', title: 'Async Mentorship Triage' },
+  { key: 'campus', sectionId: 'screen-campus-pulse', aliasId: 'pg-campus', navId: 'ni-campus', title: 'Campus Pulse & National Med-Q Arena' },
+  { key: 'opportunities', sectionId: 'screen-bharat-opportunities', aliasId: 'pg-opportunities', navId: 'ni-opportunities', title: 'Bharat Opportunities Engine' },
+  { key: 'identity', sectionId: 'screen-medical-passport', aliasId: 'pg-identity', navId: 'ni-identity', title: 'Verified Medical Passport' }
+];
+
+function go(target) {
+  let found = screens.find(s => s.key === target || s.sectionId === target || s.aliasId === target);
+  if (!found) {
+    if (target === 'screen-board') found = screens[0];
+    else if (target === 'screen-research') found = screens[1];
+    else if (target === 'screen-workbench') found = screens[2];
+    else if (target === 'screen-aetcom') found = screens[3];
+    else if (target === 'screen-mentorship') found = screens[4];
+    else if (target === 'screen-campus') found = screens[5];
+    else if (target === 'screen-opportunities') found = screens[6];
+    else if (target === 'screen-passport') found = screens[7];
+    else found = screens[0];
+  }
+
+  screens.forEach(s => {
+    const sec = document.getElementById(s.sectionId);
+    if (sec) {
+      sec.classList.remove('on');
+      sec.classList.remove('active');
+    }
+    const nav = document.getElementById(s.navId);
+    if (nav) {
+      nav.classList.remove('on');
+      nav.classList.remove('active');
+    }
+  });
+
+  const targetSec = document.getElementById(found.sectionId);
+  if (targetSec) {
+    targetSec.classList.add('on');
+    targetSec.classList.add('active');
+  }
+  const targetNav = document.getElementById(found.navId);
+  if (targetNav) {
+    targetNav.classList.add('on');
+    targetNav.classList.add('active');
+  }
+
+  cmdCloseSilent();
+  const mainEl = document.querySelector('.main') || document.querySelector('.main-viewport');
+  if (mainEl) mainEl.scrollTop = 0;
+}
+
+// ── CMD+K / CTRL+K COMMAND PALETTE ─────────────────────
+function cmdOpen() {
+  const ov = document.getElementById('cmd-ov');
+  if (ov) {
+    ov.classList.remove('hidden');
+    setTimeout(() => {
+      const inp = document.getElementById('cmd-inp');
+      if (inp) {
+        inp.value = '';
+        inp.focus();
+        filterCommands('');
+      }
+    }, 40);
+  }
+}
+
+function cmdClose(e) {
+  if (e && e.target && e.target.id === 'cmd-ov') {
+    cmdCloseSilent();
+  }
+}
+
+function cmdCloseSilent() {
+  const ov = document.getElementById('cmd-ov');
+  if (ov) ov.classList.add('hidden');
+}
+
+document.addEventListener('keydown', function(e) {
+  if ((e.metaKey || e.ctrlKey) && (e.key === 'k' || e.key === 'K')) {
+    e.preventDefault();
+    const ov = document.getElementById('cmd-ov');
+    if (ov && !ov.classList.contains('hidden')) {
+      cmdCloseSilent();
+    } else {
+      cmdOpen();
+    }
+  }
+  if (e.key === 'Escape') {
+    cmdCloseSilent();
+    closeAllModals();
+  }
+});
+
+function filterCommands(query) {
+  const items = document.querySelectorAll('.cmd-it');
+  const q = query.toLowerCase().trim();
+  items.forEach(item => {
+    const text = item.textContent.toLowerCase();
+    if (!q || text.includes(q)) {
+      item.style.display = 'flex';
+    } else {
+      item.style.display = 'none';
+    }
+  });
+}
+
+const cmdInp = document.getElementById('cmd-inp');
+if (cmdInp) {
+  cmdInp.addEventListener('input', function(e) {
+    filterCommands(e.target.value);
+  });
+  cmdInp.addEventListener('keydown', function(e) {
+    if (e.key === 'Enter') {
+      const visible = document.querySelector('.cmd-it:not([style*="display: none"])');
+      if (visible) {
+        visible.click();
+      }
+    }
+  });
+}
+
+// ── UNIVERSAL TOAST NOTIFICATION ENGINE ────────────────
+let toastQueue = [];
+function toast(iconOrMsg, maybeMsg) {
+  const icon = (maybeMsg !== undefined) ? iconOrMsg : '⚡';
+  const text = (maybeMsg !== undefined) ? maybeMsg : iconOrMsg;
+  
+  const container = document.getElementById('toast-container');
+  if (!container) return;
+  
+  const defaultToast = document.getElementById('toast');
+  const defaultIc = document.getElementById('toast-ic');
+  const defaultTx = document.getElementById('toast-tx');
+  if (defaultToast && defaultIc && defaultTx) {
+    defaultIc.textContent = icon;
+    defaultTx.textContent = text;
+    defaultToast.classList.add('show');
+    clearTimeout(defaultToast._timeout);
+    defaultToast._timeout = setTimeout(() => {
+      defaultToast.classList.remove('show');
+    }, 3200);
+  }
+  
+  const t = document.createElement('div');
+  t.className = 'toast show';
+  t.innerHTML = `<span class="toast-icon">${icon}</span><span class="toast-text">${text}</span>`;
+  container.appendChild(t);
+  
+  while (container.children.length > 5) {
+    container.removeChild(container.children[1]);
+  }
+  
+  setTimeout(() => {
+    t.classList.remove('show');
+    t.classList.add('hide');
+    setTimeout(() => {
+      if (t.parentNode === container) {
+        container.removeChild(t);
+      }
+    }, 300);
+  }, 3200);
+}
+
+// Universal Button Click Interceptor
+document.addEventListener('click', function(e) {
+  const btn = e.target.closest('button, .btn, .apb');
+  if (!btn) return;
+  
+  const onclickAttr = btn.getAttribute('onclick') || '';
+  if (onclickAttr.includes('toast(') || onclickAttr.includes('open') || onclickAttr.includes('run') || onclickAttr.includes('move') || onclickAttr.includes('claim')) return;
+  
+  const customMsg = btn.getAttribute('data-toast');
+  if (customMsg) {
+    toast('⚡', customMsg);
+    return;
+  }
+  
+  const label = btn.innerText.trim().replace(/[\n\r]+/g, ' ').substring(0, 32);
+  toast('✅', (label || 'Action') + ' confirmed');
+});
+
+// ── WORKBENCH TABS SWITCHER ────────────────────────────
+function wbOpen(title, sub) {
+  const panel = document.getElementById('wb-panel');
+  if (panel) {
+    panel.classList.remove('hidden');
+    if (title) document.getElementById('wb-title-txt').textContent = title;
+    if (sub) document.getElementById('wb-subtitle-txt').textContent = sub;
+    panel.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    toast('🎯', 'Opened Goal Space Workbench: ' + (title || 'AI ECG Study'));
+  }
+}
+
+function wbClose() {
+  const panel = document.getElementById('wb-panel');
+  if (panel) panel.classList.add('hidden');
+}
+
+function wbTab(el, paneId) {
+  document.querySelectorAll('.wbtab').forEach(t => t.classList.remove('on'));
+  document.querySelectorAll('.wbc').forEach(c => {
+    c.classList.remove('on');
+    c.style.display = 'none';
+  });
+  
+  el.classList.add('on');
+  const pane = document.getElementById(paneId);
+  if (pane) {
+    pane.classList.add('on');
+    pane.style.display = 'block';
+  }
+  toast('📋', 'Workbench view: ' + el.textContent.trim());
+}
+
+// Interactive Kanban Task Drag/Move Engine
+function moveTask(cardId, targetCol) {
+  const card = document.getElementById(cardId);
+  if (!card) return;
+  
+  const colTodo = document.getElementById('kcol-todo');
+  const colReview = document.getElementById('kcol-review');
+  const colDone = document.getElementById('kcol-done');
+  
+  if (targetCol === 'review') {
+    colReview.appendChild(card);
+    card.querySelector('.kmove-bar').innerHTML = `
+      <button class="kmove-btn" onclick="moveTask('${cardId}','todo')">← Return</button>
+      <button class="kmove-btn" onclick="moveTask('${cardId}','done')">Mark Done ✓</button>
+    `;
+    toast('📋', 'Task moved to In Review stage');
+  } else if (targetCol === 'done') {
+    colDone.appendChild(card);
+    card.querySelector('.kmove-bar').innerHTML = `
+      <button class="kmove-btn" onclick="moveTask('${cardId}','review')">← Reopen</button>
+    `;
+    card.style.opacity = '0.75';
+    toast('🎉', 'Task marked Complete! Sprint progress updated.');
+  } else {
+    colTodo.appendChild(card);
+    card.querySelector('.kmove-bar').innerHTML = `
+      <button class="kmove-btn" onclick="moveTask('${cardId}','review')">Move to Review →</button>
+    `;
+    card.style.opacity = '1';
+    toast('📋', 'Task returned to To Do backlog');
+  }
+  
+  // Recalculate column counters
+  const cntTodo = colTodo.querySelectorAll('.kcard').length;
+  const cntRev = colReview.querySelectorAll('.kcard').length;
+  const cntDone = colDone.querySelectorAll('.kcard').length;
+  const total = cntTodo + cntRev + cntDone;
+  
+  document.getElementById('cnt-todo').textContent = cntTodo;
+  document.getElementById('cnt-review').textContent = cntRev;
+  document.getElementById('cnt-done').textContent = cntDone;
+  
+  const pct = total > 0 ? Math.round((cntDone / total) * 100) : 0;
+  const pTag = document.getElementById('kanban-progress-tag');
+  if (pTag) pTag.textContent = `Sprint Progress: ${pct}%`;
+}
+
+// Interactive Research Copilot Chat
+function sendChat() {
+  const inp = document.getElementById('chat-inp');
+  if (!inp || !inp.value.trim()) return;
+  const msgText = inp.value.trim();
+  inp.value = '';
+  
+  const chatArea = document.getElementById('chatContainer') || document.querySelector('.chat-area');
+  if (chatArea) {
+    const userMsg = document.createElement('div');
+    userMsg.className = 'cmsg';
+    userMsg.innerHTML = `
+      <div class="av av-g">AS</div>
+      <div class="cbub">
+        <div class="cn em">Dr. Aarav Sharma (Resident)</div>
+        <div class="ct">${msgText}</div>
+        <div class="ctm">Just now</div>
+      </div>
+    `;
+    chatArea.appendChild(userMsg);
+    chatArea.scrollTop = chatArea.scrollHeight;
+    
+    // AI Copilot Clinical Response Generator
+    setTimeout(() => {
+      const aiMsg = document.createElement('div');
+      aiMsg.className = 'cmsg';
+      aiMsg.innerHTML = `
+        <div class="av av-g" style="background:rgba(16,185,129,.2)">AI</div>
+        <div class="cbub ai">
+          <div class="cn em">PulseUp Research Copilot</div>
+          <div class="ct">Synthesizing clinical query: <em>"${msgText.substring(0, 45)}..."</em><br>Under <strong>STROBE Statement (Item 13)</strong>, report participant flow at each stage. Statistical power exceeds 80% if attrition is held under 10%. Ethical clearance documentation is logged in the Vault.</div>
+          <div class="ctm">Just now · Real-Time Copilot Response</div>
+        </div>
+      `;
+      chatArea.appendChild(aiMsg);
+      chatArea.scrollTop = chatArea.scrollHeight;
+    }, 700);
+  }
+  toast('💬', 'Message sent to sprint thread!');
+}
+
+// ── BHARAT OPPORTUNITIES FILTER & SEARCH ENGINE ────────
+function fpClick(el) {
+  fpFilter(el, el.getAttribute('data-cat') || 'all');
+}
+
+function fpFilter(el, category) {
+  document.querySelectorAll('.fp').forEach(p => {
+    p.classList.remove('on');
+    p.classList.remove('active');
+  });
+  el.classList.add('on');
+  el.classList.add('active');
+  
+  const cards = document.querySelectorAll('.ofc');
+  cards.forEach(card => {
+    const cat = card.getAttribute('data-cat');
+    if (category === 'all' || cat === category) {
+      card.style.display = 'block';
+    } else {
+      card.style.display = 'none';
+    }
+  });
+  toast('🔍', 'Filtered by: ' + el.textContent.trim());
+}
+
+function searchOpportunities(query) {
+  const q = query.toLowerCase().trim();
+  const cards = document.querySelectorAll('.ofc');
+  cards.forEach(card => {
+    const text = card.textContent.toLowerCase();
+    if (!q || text.includes(q)) {
+      card.style.display = 'block';
+    } else {
+      card.style.display = 'none';
+    }
+  });
+}
+
+// ── LIVE COUNTDOWN TIMER ENGINE ────────────────────────
+let countdownRemainingSeconds = (8 * 86400) + (14 * 3600) + (27 * 60) + 43;
+
+function tickCountdown() {
+  if (countdownRemainingSeconds < 0) countdownRemainingSeconds = 0;
+  
+  const days = Math.floor(countdownRemainingSeconds / 86400);
+  const hours = Math.floor((countdownRemainingSeconds % 86400) / 3600);
+  const mins = Math.floor((countdownRemainingSeconds % 3600) / 60);
+  const secs = countdownRemainingSeconds % 60;
+  
+  const dStr = String(days).padStart(2, '0');
+  const hStr = String(hours).padStart(2, '0');
+  const mStr = String(mins).padStart(2, '0');
+  const sStr = String(secs).padStart(2, '0');
+  
+  const elDays = document.getElementById('timerDays');
+  if (elDays) elDays.textContent = dStr;
+  const elHours = document.getElementById('timerHours');
+  if (elHours) elHours.textContent = hStr;
+  const elMins = document.getElementById('timerMins');
+  if (elMins) elMins.textContent = mStr;
+  const elSecs = document.getElementById('timerSecs');
+  if (elSecs) elSecs.textContent = sStr;
+  
+  const qcd = document.getElementById('qcd');
+  if (qcd) qcd.textContent = `${dStr}:${hStr}:${mStr}:${sStr}`;
+  
+  if (countdownRemainingSeconds > 0) {
+    countdownRemainingSeconds--;
+  }
+}
+setInterval(tickCountdown, 1000);
+tickCountdown();
+
+// ── MULTI-QUESTION NATIONAL MED-Q QUIZ ENGINE ───────────
+const quizBank = [
+  {
+    q: "A 2-day-old term neonate presents with bilious vomiting, progressive upper abdominal distension, and absence of distal bowel gas. Plain radiograph demonstrates the classic 'double bubble' sign. What is the most definitive diagnosis?",
+    options: [
+      { t: "A. Infantile Hypertrophic Pyloric Stenosis", correct: false },
+      { t: "B. Congenital Duodenal Atresia (Trisomy 21 Association)", correct: true },
+      { t: "C. Aganglionic Megacolon (Hirschsprung's Disease)", correct: false },
+      { t: "D. Midgut Malrotation with Volvulus", correct: false }
+    ],
+    rationale: "Duodenal Atresia results from failure of recanalization of the embryonic duodenum. The radiographic 'double bubble' sign represents gas in the distended stomach and duodenal bulb. Over 30% are associated with Trisomy 21. — Nelson Pediatrics 21st Ed."
+  },
+  {
+    q: "A 58-year-old male with acute inferior wall STEMI presents with BP 82/50 mmHg, clear lung fields, and marked jugular venous distension. ECG reveals ST elevation in II, III, aVF and V4R. What is the most critical initial management step?",
+    options: [
+      { t: "A. Intravenous Furosemide 40 mg bolus", correct: false },
+      { t: "B. Sublingual Nitroglycerin 0.4 mg", correct: false },
+      { t: "C. Intravenous Normal Saline fluid bolus (preload augmentation)", correct: true },
+      { t: "D. Immediate Intravenous Beta-blocker administration", correct: false }
+    ],
+    rationale: "Right Ventricular Infarction is preload-dependent. Patients present with hypotension, clear lung fields, and elevated JVP. Nitrates and diuretics severely drop RV preload and are contraindicated. Immediate volume loading is required. — Harrison's Principles 21st Ed."
+  },
+  {
+    q: "In an adult trauma patient with tension pneumothorax, tracheal deviation, and absent breath sounds, what is the ATLS 10th Edition recommended primary emergency decompression site?",
+    options: [
+      { t: "A. 2nd Intercostal Space, Midclavicular Line or 5th ICS Anterior Axillary Line", correct: true },
+      { t: "B. 4th Intercostal Space, Posterior Scapular Line", correct: false },
+      { t: "C. 7th Intercostal Space, Midaxillary Line", correct: false },
+      { t: "D. Subxiphoid pericardial window", correct: false }
+    ],
+    rationale: "ATLS 10th edition recommends 2nd ICS in the midclavicular line or 5th ICS at the anterior/mid-axillary line with a 14-gauge angiocatheter to avoid chest wall depth failure. — American College of Surgeons ATLS."
+  },
+  {
+    q: "A 24-year-old farmer is brought to Casualty with pin-point pupils, severe salivation, wheezing, and bradycardia following insecticide exposure. During Atropine titration, what is the key clinical endpoint of adequate atropinization?",
+    options: [
+      { t: "A. Complete pupillary dilation (Mydriasis)", correct: false },
+      { t: "B. Tachycardia above 130 bpm", correct: false },
+      { t: "C. Clearing of bronchial secretions and pulmonary rales", correct: true },
+      { t: "D. Normalization of blood pressure", correct: false }
+    ],
+    rationale: "In Organophosphate toxicity, the therapeutic endpoint of atropinization is drying of tracheobronchial secretions and clearing of lung crepitations (rales), NOT pupillary dilation or heart rate alone. — Goodman & Gilman's Pharmacology."
+  },
+  {
+    q: "Two hours following an uncomplicated vaginal delivery, a primipara experiences torrential postpartum hemorrhage. Palpation reveals a soft, boggy uterus above the umbilicus. What is the immediate first-line management?",
+    options: [
+      { t: "A. Immediate B-Lynch brace suturing", correct: false },
+      { t: "B. Fundal bimanual uterine massage and IV Oxytocin infusion", correct: true },
+      { t: "C. Uterine artery embolization", correct: false },
+      { t: "D. Sublingual Misoprostol 1000 mcg single monotherapy", correct: false }
+    ],
+    rationale: "Uterine Atony accounts for 80% of primary PPH. Immediate step is vigorous bimanual fundal massage accompanied by high-dose IV Oxytocin (20–40 IU in 1000 mL crystalloid). — Dutta Textbook of Obstetrics."
+  }
+];
+
+let currentQuizIdx = 0;
+let quizScore = 0;
+let qTimerInt = null;
+let qSecondsLeft = 15;
+
+function startQuiz() {
+  currentQuizIdx = 0;
+  quizScore = 0;
+  const qBox = document.getElementById('quiz-q');
+  if (qBox) {
+    qBox.style.display = 'block';
+    qBox.scrollIntoView({ behavior: 'smooth', block: 'center' });
+  }
+  loadQuizQuestion(0);
+}
+
+function loadQuizQuestion(idx) {
+  if (idx >= quizBank.length) {
+    // Finish Quiz Round
+    toast('🏆', `National Quiz Round Complete! Score: ${quizScore}/250 PC. National Percentile: Top 2.8% (AIR #42)`);
+    document.getElementById('quiz-question-txt').innerHTML = `🎉 <strong>National Clinical Grand Prix Round Completed!</strong><br>You scored <strong>${quizScore} / 250 Pulse Credits</strong>. All 5 cases verified against Harrison & Nelson textbooks.`;
+    document.getElementById('quiz-options-container').innerHTML = `
+      <div style="grid-column: span 2; text-align:center; padding: 20px;">
+        <div style="font-size:32px; margin-bottom:8px">🥇</div>
+        <div style="font-size:16px; font-weight:700; color:var(--em)">National Laureate Distinction Awarded</div>
+        <div style="font-size:12px; color:var(--t2); margin-top:4px">Your score has been registered on the All-India Resident Leaderboard. +${quizScore} PC deposited to your Passport.</div>
+        <button class="btn btn-p" style="margin-top:14px" onclick="startQuiz()">Play Another Round</button>
+      </div>
+    `;
+    document.getElementById('qexp').style.display = 'none';
+    document.getElementById('quiz-next-btn').style.display = 'none';
+    addPulseCredits(quizScore);
+    return;
+  }
+  
+  const qData = quizBank[idx];
+  document.getElementById('quiz-round-txt').textContent = `Question ${idx + 1} of ${quizBank.length} · High-Yield National Round`;
+  document.getElementById('quiz-question-txt').textContent = qData.q;
+  document.getElementById('qexp').style.display = 'none';
+  document.getElementById('qexp').innerHTML = `<strong>✅ Clinical Rationale:</strong> ${qData.rationale}`;
+  document.getElementById('quiz-next-btn').style.display = 'none';
+  
+  // Render options
+  const optContainer = document.getElementById('quiz-options-container');
+  optContainer.innerHTML = '';
+  qData.options.forEach((opt, oIdx) => {
+    const div = document.createElement('div');
+    div.className = 'qopt';
+    if (idx === 0 && oIdx === 1) div.id = 'opt-a'; // Compatibility test hook
+    div.textContent = opt.t;
+    div.onclick = function() { handleQuizAnswer(div, opt.correct, oIdx); };
+    optContainer.appendChild(div);
+  });
+  
+  // Update Question Indicator Pills
+  const pills = document.getElementById('quiz-pills');
+  if (pills) {
+    pills.innerHTML = '';
+    for (let i = 0; i < quizBank.length; i++) {
+      const span = document.createElement('span');
+      span.className = i === idx ? 'tag tg' : (i < idx ? 'tag tb' : 'tag td');
+      span.style.fontSize = '9px';
+      span.textContent = i === idx ? `Q${i+1} ●` : `Q${i+1}`;
+      pills.appendChild(span);
+    }
+  }
+  
+  // Reset Timer
+  qSecondsLeft = 15;
+  const timerTag = document.getElementById('qtimer');
+  if (timerTag) timerTag.textContent = `⏱ ${qSecondsLeft}s`;
+  clearInterval(qTimerInt);
+  qTimerInt = setInterval(() => {
+    if (qSecondsLeft > 0) {
+      qSecondsLeft--;
+      if (timerTag) timerTag.textContent = `⏱ ${qSecondsLeft}s`;
+    } else {
+      clearInterval(qTimerInt);
+      // Timeout
+      document.querySelectorAll('.qopt').forEach(o => o.style.pointerEvents = 'none');
+      document.getElementById('qexp').style.display = 'block';
+      document.getElementById('quiz-next-btn').style.display = 'inline-flex';
+      toast('⏰', "Time's up for this question!");
+    }
+  }, 1000);
+}
+
+function handleQuizAnswer(el, isCorrect, optId) {
+  clearInterval(qTimerInt);
+  document.querySelectorAll('.qopt').forEach(o => {
+    o.style.pointerEvents = 'none';
+  });
+  
+  if (isCorrect) {
+    el.classList.add('correct');
+    el.classList.add('quiz-correct');
+    quizScore += 50;
+    document.getElementById('quiz-score-tag').textContent = `Score: ${quizScore} PC`;
+    toast('✅', 'Correct! +50 Pulse Credits earned — High-Yield Pearl');
+  } else {
+    el.classList.add('wrong');
+    el.classList.add('quiz-wrong');
+    // Highlight correct option
+    const currentQ = quizBank[currentQuizIdx];
+    document.querySelectorAll('.qopt').forEach((o, i) => {
+      if (currentQ.options[i] && currentQ.options[i].correct) {
+        o.classList.add('correct');
+        o.classList.add('quiz-correct');
+      }
+    });
+    toast('❌', 'Incorrect — Review clinical rationale below');
+  }
+  
+  const expBox = document.getElementById('qexp');
+  if (expBox) expBox.style.display = 'block';
+  
+  const nextBtn = document.getElementById('quiz-next-btn');
+  if (nextBtn) nextBtn.style.display = 'inline-flex';
+}
+
+function answerQ(el, isCorrect) {
+  handleQuizAnswer(el, isCorrect, 'default');
+}
+
+function nextQuizQuestion() {
+  currentQuizIdx++;
+  loadQuizQuestion(currentQuizIdx);
+}
+
+// ── AUDIO WAVEFORM TOGGLE ENGINE ───────────────────────
+let isWavePlaying = false;
+let waveTimer = null;
+let waveSeconds = 15;
+
+function toggleWaveform(btn) {
+  const wviz = document.getElementById('wviz');
+  const timeTxt = document.getElementById('voice-time-txt');
+  isWavePlaying = !isWavePlaying;
+  
+  if (isWavePlaying) {
+    if (wviz) wviz.classList.remove('paused');
+    if (btn) btn.textContent = '⏸';
+    toast('🔊', "Playing Prof. Dr. Priya Ramaswamy's 1:48 clinical audio memo…");
+    clearInterval(waveTimer);
+    waveTimer = setInterval(() => {
+      if (waveSeconds < 108) {
+        waveSeconds++;
+        const m = Math.floor(waveSeconds / 60);
+        const s = String(waveSeconds % 60).padStart(2, '0');
+        if (timeTxt) timeTxt.textContent = `${m}:${s} / 1:48`;
+      } else {
+        clearInterval(waveTimer);
+        isWavePlaying = false;
+        if (btn) btn.textContent = '▶';
+        if (wviz) wviz.classList.add('paused');
+      }
+    }, 1000);
+  } else {
+    if (wviz) wviz.classList.add('paused');
+    if (btn) btn.textContent = '▶';
+    clearInterval(waveTimer);
+    toast('⏸', 'Audio voice memo paused');
+  }
+}
+
+// ── RED-SHIFT NIGHT CALL ERGONOMIC MODE ────────────────
+function toggleRedShift() {
+  document.body.classList.toggle('redshift-mode');
+  const isRed = document.body.classList.contains('redshift-mode');
+  const label = document.getElementById('redshift-label');
+  if (label) label.textContent = isRed ? 'Day Mode' : 'Night Call';
+  toast(isRed ? '🔴' : '☀️', isRed ? 'Night Call Red-Shift Mode active (Melatonin preserved)' : 'Standard High-Contrast Clinical Palette restored');
+}
+
+// ── MODAL UTILITIES ────────────────────────────────────
+function openModal(id) {
+  const m = document.getElementById(id);
+  if (m) m.classList.remove('hidden');
+}
+
+function closeModal(id) {
+  const m = document.getElementById(id);
+  if (m) m.classList.add('hidden');
+}
+
+function closeModalOnBg(e, id) {
+  if (e.target.id === id) {
+    closeModal(id);
+  }
+}
+
+function closeAllModals() {
+  document.querySelectorAll('.app-modal').forEach(m => m.classList.add('hidden'));
+}
+
+// ── AETCOM INTERACTIVE BEDSIDE SIMULATOR ENGINE ────────
+let currentSim = null;
+let currentSimStage = 0;
+
+const simScenarios = {
+  spikes: {
+    title: "SPIKES Protocol — Breaking Bad News",
+    icon: "💔",
+    stages: [
+      {
+        step: "Setting (S): Physical Environment",
+        prompt: "You are the resident on call. The family (mother and elder brother of a 35-year-old patient with an inoperable frontoparietal Glioblastoma) is waiting outside the ICU. How do you prepare the room?",
+        choices: [
+          { text: "Call them to the open ICU nurse's station while monitoring vitals.", score: 40, feedback: "Poor privacy. Interruptions undermine trust." },
+          { text: "Take them to the private doctor's consultation room, ensure seats for all, turn off pager sound, and have tissues ready.", score: 100, feedback: "Ideal Setting. Establishes confidentiality and psychological containment." },
+          { text: "Break the news quickly in the corridor before entering rounds.", score: 10, feedback: "Severe ethical violation. Corridor consultations breach dignity." }
+        ]
+      },
+      {
+        step: "Perception (P): Assessing Knowledge",
+        prompt: "The mother is anxious and clutching her son's OPD book. What is your opening dialogue?",
+        choices: [
+          { text: "'The MRI shows a grade IV malignant astrocytoma with midline shift.'", score: 30, feedback: "Violates Perception phase; drops medical jargon without gauging baseline understanding." },
+          { text: "'Could you share with me what the doctors have told you so far about your son's headaches and seizures?'", score: 100, feedback: "Exemplary perception inquiry. Allows family to express their baseline level of comprehension." },
+          { text: "'Have you prepared yourself for difficult news today?'", score: 65, feedback: "Somewhat blunt warning shot, but acceptable in emergency settings." }
+        ]
+      },
+      {
+        step: "Knowledge (K) & Empathy (E): Delivering Findings",
+        prompt: "The family realizes something is very wrong. As you explain that the scan shows an aggressive growth, the mother breaks down weeping uncontrollably. What is your response?",
+        choices: [
+          { text: "Maintain compassionate silence, hand her tissues, and say: 'I can see how deeply overwhelming and heartbreaking this news is for you.'", score: 100, feedback: "NURSE Empathy Protocol in action. Validates emotional response without rushing." },
+          { text: "'Please do not cry, we have surgical chemotherapy options that might buy some months.'", score: 40, feedback: "Invalidating grief with premature problem-solving suppresses necessary family coping." },
+          { text: "Call the staff nurse to administer a sedative so you can finish the discussion.", score: 20, feedback: "Pathologizing acute bereavement reactions is unethical." }
+        ]
+      },
+      {
+        step: "Strategy & Summary (S): Next Steps",
+        prompt: "The brother asks: 'Doctor, what is our immediate next step? Will he suffer pain?' How do you conclude?",
+        choices: [
+          { text: "'Our multidisciplinary neuro-oncology team is meeting tomorrow morning. Our immediate focus is preventing seizures, managing cerebral edema, and ensuring he remains completely pain-free.'", score: 100, feedback: "Comprehensive Strategy. Reassures symptom control and continuity of care." },
+          { text: "'You will have to consult the radiation oncologist on Monday.'", score: 40, feedback: "Disjointed care fragmentation causes patient abandonment." }
+        ]
+      }
+    ]
+  },
+  casualty: {
+    title: "Casualty Mob De-escalation Protocol",
+    icon: "🚨",
+    stages: [
+      {
+        step: "Triage Assessment & Non-Verbal Posture",
+        prompt: "15 agitated relatives surround the Casualty triage desk after a young polytrauma victim is declared dead on arrival. 3 people have cameras recording your face. What is your initial stance?",
+        choices: [
+          { text: "Adopt an open body posture, lower vocal volume by 20%, maintain steady eye contact without staring, and identify yourself clearly.", score: 100, feedback: "De-escalation gold standard: Lower vocal volume forces the crowd to quiet down to hear." },
+          { text: "Order hospital security to seize their mobile phones immediately.", score: 20, feedback: "Physical provocation escalates crowd violence." },
+          { text: "Shout back that assaulting medical personnel is punishable under the Medical Protection Act.", score: 35, feedback: "Legal threats during acute panic provoke violent defensive reactions." }
+        ]
+      },
+      {
+        step: "Defusing & Re-Routing",
+        prompt: "The leader of the group demands: 'You killed him! Why didn't you start CPR immediately?'",
+        choices: [
+          { text: "'I understand your profound shock. Let us step into the family consultation room where I can show you the monitor tracings and every resuscitation drug administered.'", score: 100, feedback: "Splits crowd from public ER space into controlled environment." },
+          { text: "'He had no pulse on arrival, read the MLC sheet yourself.'", score: 25, feedback: "Cold, dismissive response inflames grief into rage." }
+        ]
+      }
+    ]
+  },
+  consent: {
+    title: "Medico-Legal Informed Consent (CPA Mandate)",
+    icon: "📋",
+    stages: [
+      {
+        step: "Emergency Consent in Unaccompanied Patient",
+        prompt: "A 40-year-old unconscious patient with peritonitis requires emergency exploratory laparotomy. No relatives are contactable. How do you proceed under Indian Supreme Court guidelines (Samira Kohli ruling)?",
+        choices: [
+          { text: "Document emergency necessity on bedhead ticket with countersignature of two senior consultants and proceed immediately under principle of necessity.", score: 100, feedback: "Complies strictly with Indian Supreme Court emergency doctrine." },
+          { text: "Wait 6 hours for relatives to arrive before opening the abdomen.", score: 10, feedback: "Medical negligence through fatal delay." }
+        ]
+      }
+    ]
+  }
+};
+
+function runAetcomSim(type) {
+  currentSim = simScenarios[type] || simScenarios.spikes;
+  currentSimStage = 0;
+  
+  document.getElementById('sim-title').textContent = currentSim.title;
+  document.getElementById('sim-icon').textContent = currentSim.icon;
+  renderSimStage();
+  openModal('aetcom-modal');
+}
+
+function renderSimStage() {
+  const stage = currentSim.stages[currentSimStage];
+  document.getElementById('sim-step-indicator').textContent = `Stage ${currentSimStage + 1} of ${currentSim.stages.length}: ${stage.step}`;
+  
+  const body = document.getElementById('sim-body');
+  body.innerHTML = `
+    <div style="font-size:13.5px;font-weight:600;color:var(--t1);margin-bottom:12px;line-height:1.5">${stage.prompt}</div>
+    <div style="display:flex;flex-direction:column;gap:9px" id="sim-choices-box">
+      ${stage.choices.map((ch, idx) => `
+        <div class="qopt" onclick="chooseSimOption(this, ${ch.score}, '${ch.feedback.replace(/'/g, "\\'")}')" style="border-radius:10px;padding:12px;font-size:12.5px">
+          ${ch.text}
+        </div>
+      `).join('')}
+    </div>
+    <div id="sim-feedback-box" style="display:none;margin-top:14px;padding:12px;border-radius:8px;font-size:12.5px;line-height:1.5"></div>
+  `;
+  document.getElementById('sim-action-btn').style.display = 'none';
+}
+
+function chooseSimOption(el, score, feedback) {
+  document.querySelectorAll('#sim-choices-box .qopt').forEach(o => o.style.pointerEvents = 'none');
+  
+  const fb = document.getElementById('sim-feedback-box');
+  fb.style.display = 'block';
+  if (score >= 80) {
+    el.classList.add('correct');
+    fb.style.background = 'rgba(16,185,129,0.1)';
+    fb.style.border = '1px solid var(--em)';
+    fb.style.color = 'var(--em)';
+    fb.innerHTML = `<strong>✅ Exemplary Clinical Communication (${score}/100):</strong> ${feedback}`;
+  } else {
+    el.classList.add('wrong');
+    fb.style.background = 'rgba(239,68,68,0.1)';
+    fb.style.border = '1px solid var(--cr)';
+    fb.style.color = 'var(--cr)';
+    fb.innerHTML = `<strong>⚠️ Communication Flaw Identified (${score}/100):</strong> ${feedback}`;
+  }
+  
+  document.getElementById('sim-action-btn').style.display = 'inline-flex';
+}
+
+function nextSimStage() {
+  currentSimStage++;
+  if (currentSimStage < currentSim.stages.length) {
+    renderSimStage();
+  } else {
+    // Complete simulation
+    closeModal('aetcom-modal');
+    toast('🎉', `Simulation Completed! Empathy Score: 94%. +50 Pulse Credits deposited.`);
+    addPulseCredits(50);
+    // Update Career Score
+    const cs = document.getElementById('board-career-score');
+    if (cs) cs.textContent = '790';
+  }
+}
+
+// ── SBAR TICKET SUBMISSION ─────────────────────────────
+function openSbarModal() {
+  openModal('sbar-modal');
+}
+
+function openSbarModalWithMentor(mentorName) {
+  openModal('sbar-modal');
+  const sel = document.getElementById('sbar-mentor-sel');
+  if (sel) {
+    for (let i = 0; i < sel.options.length; i++) {
+      if (sel.options[i].value.includes(mentorName)) {
+        sel.selectedIndex = i;
+        break;
+      }
+    }
+  }
+}
+
+function submitSbarTicket() {
+  const s = document.getElementById('sbar-s').value.trim();
+  const mentor = document.getElementById('sbar-mentor-sel').value;
+  if (!s) {
+    toast('⚠️', 'Please enter the Situation (core clinical question) first.');
+    return;
+  }
+  
+  closeModal('sbar-modal');
+  toast('🔒', `Escrow Locked (100 PC) · SBAR Ticket dispatched to ${mentor}`);
+  
+  // Append new ticket to screen 5
+  const container = document.getElementById('additional-tickets-container');
+  if (container) {
+    const div = document.createElement('div');
+    div.className = 'tcard';
+    div.innerHTML = `
+      <div class="th">
+        <div class="av av-g" style="width:38px;height:38px;font-size:14px">ME</div>
+        <div class="tmt">
+          <div class="tsub">${s}</div>
+          <div class="tprev">Consultant: ${mentor} · 100 PC Escrowed</div>
+        </div>
+        <span class="tag tg">Active</span>
+      </div>
+      <div class="tf">
+        <div class="sla">⏱ 48h SLA Active</div>
+        <span class="tag ta">Awaiting Triage</span>
+      </div>
+    `;
+    container.prepend(div);
+  }
+}
+
+function rateAndCloseTicket(id) {
+  const card = document.getElementById(id);
+  if (card) {
+    card.classList.remove('unread');
+    card.querySelector('.sla').textContent = '✓ Completed & 5-Star Rated';
+    card.querySelector('button').style.display = 'none';
+  }
+  toast('⭐', '5-Star rating submitted! 150 PC released to Prof. Priya Ramaswamy.');
+}
+
+// ── BHARAT OPPORTUNITIES APPLICATION DRAWER ────────────
+const oppData = {
+  'aiims-jr': {
+    title: "AIIMS New Delhi — Non-Academic Junior Resident",
+    ic: "⚡",
+    dept: "Casualty & Emergency Medicine · Ansari Nagar Campus",
+    salary: "7th CPC Pay Matrix Level 10 (Basic: ₹56,100 + 20% NPA ₹11,220 + HRA ₹15,147 = ₹89,420/month)",
+    criteria: [
+      "MBBS Degree recognized by National Medical Commission (NMC)",
+      "Completion of Compulsory Rotatory Residential Internship (CRRI) on or before Aug 31, 2026",
+      "DMC / State Medical Council Permanent or Provisional Registration",
+      "Upper age limit 30 years (relaxable for OBC/SC/ST per central norms)"
+    ],
+    bond: "Leaves State rural bond intact — Central AIIMS service qualifies for temporary bond deferment."
+  },
+  'icmr-sts': {
+    title: "ICMR Short-Term Studentship (STS) 2026 Cycle",
+    ic: "🔬",
+    dept: "Division of Non-Communicable Diseases · Cardiology & Neurology",
+    salary: "₹10,000 / month stipend for 2 months (Total ₹20,000 research award upon report acceptance)",
+    criteria: [
+      "Currently enrolled in 2nd / 3rd Year MBBS in an NMC-recognized institution",
+      "Research protocol approved by Institutional Ethics Committee (IEC)",
+      "Attestation from Faculty Guide / Head of Department",
+      "CRediT authorship mapping framework compliance"
+    ],
+    bond: "No service bond. Fully compatible with ongoing clinical rotations."
+  },
+  'tmc-obs': {
+    title: "Tata Memorial Centre (TMC) — Surgical Oncology Observership",
+    ic: "🏥",
+    dept: "Department of Surgical Oncology · Parel & Kharghar (ACTREC) Campuses",
+    salary: "Honorary Educational Observership (No stipend, no tuition fee for Indian postgraduates)",
+    criteria: [
+      "MS General Surgery or DNB Surgery resident / Post-MBBS doctor",
+      "NOC from current Medical Superintendent / Principal",
+      "Hepatitis B & Tetanus vaccination certificate",
+      "Valid state medical council registration"
+    ],
+    bond: "Accredited for National Board super-specialty points."
+  }
+};
+
+let currentOppKey = 'aiims-jr';
+function openOppModal(key) {
+  currentOppKey = key;
+  const opp = oppData[key] || oppData['aiims-jr'];
+  
+  document.getElementById('opp-modal-title').textContent = opp.title;
+  document.getElementById('opp-modal-sub').textContent = opp.dept;
+  document.getElementById('opp-modal-ic').textContent = opp.ic;
+  
+  const body = document.getElementById('opp-modal-body');
+  body.innerHTML = `
+    <div style="background:rgba(16,185,129,0.06);border:1px solid rgba(16,185,129,0.2);padding:14px;border-radius:10px;margin-bottom:14px">
+      <div style="font-size:11px;font-weight:700;color:var(--em);text-transform:uppercase">Remuneration / Fellowship Package</div>
+      <div style="font-size:13.5px;font-weight:700;color:var(--t1);margin-top:2px">${opp.salary}</div>
+    </div>
+    <div style="margin-bottom:14px">
+      <div style="font-size:11px;font-weight:700;color:var(--t3);text-transform:uppercase;margin-bottom:6px">Eligibility & Automated Check</div>
+      <div style="display:flex;flex-direction:column;gap:6px">
+        ${opp.criteria.map(c => `
+          <div style="display:flex;align-items:center;gap:8px;font-size:12px;color:var(--t1)">
+            <span style="color:var(--em);font-weight:700">✓</span>
+            <span>${c}</span>
+          </div>
+        `).join('')}
+      </div>
+    </div>
+    <div style="font-size:11.5px;color:var(--t2);background:rgba(255,255,255,0.03);padding:10px;border-radius:8px">
+      <strong>📌 Rural Service Note:</strong> ${opp.bond}
+    </div>
+  `;
+  
+  openModal('opp-modal');
+}
+
+function execute1ClickApply() {
+  closeModal('opp-modal');
+  const trackingId = 'PU-' + Math.random().toString(36).substring(2, 8).toUpperCase();
+  toast('🎉', `Application Dispatched! Tracking Hash: #${trackingId}. Profile and DigiLocker credentials pre-filled.`);
+}
+
+// ── PROCEDURE LOGGING ENGINE ───────────────────────────
+function openLogProcedureModal() {
+  openModal('proc-modal');
+}
+
+function saveNewProcedure() {
+  const name = document.getElementById('new-proc-name').value.trim();
+  const role = document.getElementById('new-proc-role').value;
+  const count = document.getElementById('new-proc-count').value || 1;
+  
+  if (!name) {
+    toast('⚠️', 'Please enter a procedure name');
+    return;
+  }
+  
+  closeModal('proc-modal');
+  
+  const container = document.getElementById('procedureLogRows');
+  if (container) {
+    const div = document.createElement('div');
+    div.className = 'proc-row';
+    div.innerHTML = `
+      <span>${name}</span>
+      <span class="tag tg">${count} · ${role}</span>
+    `;
+    container.prepend(div);
+  }
+  
+  // Update total count
+  const countEl = document.getElementById('proc-count-txt');
+  if (countEl) {
+    let cur = parseInt(countEl.textContent, 10) || 133;
+    cur += parseInt(count, 10);
+    countEl.textContent = cur;
+  }
+  
+  toast('💉', `Logged: ${name} (${role}) · Synchronized with NMC e-Logbook`);
+}
+
+// ── OFFICIAL CV PREVIEW MODAL ──────────────────────────
+function openCvPreviewModal() {
+  openModal('cv-modal');
+}
+
+// ── BADGE INSPECTION MODAL ─────────────────────────────
+function inspectBadge(type) {
+  toast('🪪', `Verified Credential [${type}]: Cryptographic SHA-256 Hash matches ABDM National Registry.`);
+}
+
+// ── RESEARCH BOUNTY CLAIM ──────────────────────────────
+function claimBounty(btn, title, credits) {
+  btn.textContent = 'Claimed ✓';
+  btn.disabled = true;
+  btn.style.opacity = '0.6';
+  addPulseCredits(credits);
+  toast('⚡', `Claimed: ${title}! +${credits} Pulse Credits allocated to your Escrow account.`);
+}
+
+// ── PREDATORY JOURNAL CHECKER ──────────────────────────
+function filterJournals(query) {
+  const q = query.toLowerCase().trim();
+  const rows = document.querySelectorAll('.jr');
+  rows.forEach(r => {
+    const name = (r.getAttribute('data-jname') || r.textContent).toLowerCase();
+    if (!q || name.includes(q)) {
+      r.style.display = 'flex';
+    } else {
+      r.style.display = 'none';
+    }
+  });
+}
+
+function openPredatoryChecker() {
+  const inp = document.getElementById('journalSearchInput');
+  if (inp) {
+    inp.focus();
+    inp.scrollIntoView({ behavior: 'smooth', block: 'center' });
+  }
+  toast('🛡️', 'Type journal name in the search box to verify UGC-CARE & NMC whitelist status.');
+}
+
+// ── PULSE CREDITS HELPER ───────────────────────────────
+function addPulseCredits(amount) {
+  const curEl = document.getElementById('sb-pc-val');
+  const passEl = document.getElementById('passport-pc-val');
+  let cur = 340;
+  if (curEl) {
+    cur = parseInt(curEl.textContent, 10) || 340;
+    cur += amount;
+    curEl.textContent = `${cur} PC`;
+  }
+  if (passEl) passEl.textContent = cur;
+  
+  const fill = document.getElementById('sb-pc-fill');
+  if (fill) {
+    const pct = Math.min(100, Math.round((cur / 1000) * 100));
+    fill.style.width = `${pct}%`;
+  }
+}
+
+function openCreditDrawer() {
+  toast('💳', 'Pulse Credits Balance: 340 PC. Earned via Med-Q (+200), Peer Review (+140). 150 PC in Active Escrow.');
+}
+
+function openNewProjectModal() {
+  toast('🔬', 'Launched New Research Study Wizard: Select Study Type (Registry, RCT, Systematic Review)');
+}
+
+function openNewSpaceModal() {
+  toast('🎯', 'Goal Space Creator: Name sprint, invite co-residents, set weekly target date.');
+}
+
+function openNewTaskModal() {
+  const title = prompt("Enter new sprint milestone / task title:", "Statistical verification with Biostatistics unit");
+  if (title) {
+    const colTodo = document.getElementById('kcol-todo');
+    const newId = 'card-task-' + Date.now();
+    const div = document.createElement('div');
+    div.className = 'kcard';
+    div.id = newId;
+    div.innerHTML = `
+      <div class="kcard-t">${title}</div>
+      <div class="kcard-m">
+        <span class="kas">→ Dr. Aarav</span>
+        <span class="tag ta" style="font-size:9.5px">New</span>
+      </div>
+      <div class="kmove-bar">
+        <button class="kmove-btn" onclick="moveTask('${newId}','review')">Move to Review →</button>
+      </div>
+    `;
+    colTodo.appendChild(div);
+    const cnt = colTodo.querySelectorAll('.kcard').length;
+    document.getElementById('cnt-todo').textContent = cnt;
+    toast('📋', 'Added new task to To Do column: ' + title);
+  }
+}
+
+function addAuthorModal() {
+  toast('👥', 'CRediT Contributor Added: Dr. Marcus Vance assigned Formal Analysis role.');
+}
+
+// ── DOM READY INITIALIZATION ───────────────────────────
+document.addEventListener('DOMContentLoaded', () => {
+  go('dashboard');
+  const wviz = document.getElementById('wviz');
+  if (wviz) wviz.classList.add('paused');
+});
+</script>
+</body>
+</html>
