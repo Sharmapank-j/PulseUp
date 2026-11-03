@@ -168,7 +168,11 @@ export default function App() {
         />
 
         {/* Scrollable Workspace Body */}
-        <main className="flex-1 overflow-y-auto p-4 md:p-6 max-w-[1500px] w-full mx-auto">
+        <main className={`flex-1 min-w-0 ${
+          activeScreen === 'chatbot'
+            ? 'p-0 sm:p-2 md:p-4 max-w-full overflow-hidden flex flex-col'
+            : 'overflow-y-auto p-4 md:p-6 max-w-[1500px] w-full mx-auto'
+        }`}>
           {activeScreen === 'dashboard' && (
             <CareerBoardView
               onNavigate={setActiveScreen}
@@ -233,8 +237,10 @@ export default function App() {
       {/* Stacked Bottom-Right Toast Notifications */}
       <ToastContainer toasts={toasts} onClose={removeToast} />
 
-      {/* PulseAI Floating Chatbot */}
-      <AiChatbot onToast={addToast} onOpenSpace={() => setActiveScreen('chatbot')} />
+      {/* PulseAI Floating Chatbot (Hidden when already inside medimind.ai fullscreen space) */}
+      {activeScreen !== 'chatbot' && (
+        <AiChatbot onToast={addToast} onOpenSpace={() => setActiveScreen('chatbot')} />
+      )}
     </div>
   );
 }

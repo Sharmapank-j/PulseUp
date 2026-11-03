@@ -300,12 +300,11 @@ export default function AiChatbot({ onToast, onOpenSpace }) {
         )}
       </button>
 
-      {/* ── Glassmorphic Chat Panel ── */}
+      {/* ── Glassmorphic Chat Panel (Responsive Auto-Fit for Android & Desktop) ── */}
       <div
-        className={`fixed bottom-24 right-5 z-50 w-[390px] max-w-[calc(100vw-24px)] flex flex-col rounded-3xl overflow-hidden backdrop-blur-2xl bg-zinc-900/90 border border-white/20 shadow-[0_16px_48px_rgba(0,0,0,0.5)] transition-all duration-300 ease-out ${
+        className={`fixed bottom-20 sm:bottom-24 right-2.5 sm:right-5 z-50 w-[calc(100vw-20px)] sm:w-[390px] h-[calc(100dvh-100px)] sm:h-[560px] max-h-[580px] flex flex-col rounded-3xl overflow-hidden backdrop-blur-2xl bg-zinc-900/95 border border-white/20 shadow-[0_16px_48px_rgba(0,0,0,0.5)] transition-all duration-300 ease-out ${
           isOpen ? 'opacity-100 translate-y-0 pointer-events-auto' : 'opacity-0 translate-y-5 pointer-events-none'
         }`}
-        style={{ height: '560px' }}
       >
         {/* Subtle ambient lighting */}
         <div className="absolute -top-20 -left-20 w-48 h-48 bg-blue-500/20 rounded-full blur-2xl pointer-events-none" />
