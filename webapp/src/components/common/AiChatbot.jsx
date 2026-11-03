@@ -126,6 +126,44 @@ export default function AiChatbot({ onToast, onOpenSpace, messages: propMessages
   const [loading, setLoading] = useState(false);
   const [copiedId, setCopiedId] = useState(null);
 
+  // Dynamic Viewport Height & Auto-fit for Android & Mobile
+  const [viewportHeight, setViewportHeight] = useState(() =>
+    typeof window !== 'undefined' && window.visualViewport
+      ? window.visualViewport.height
+      : typeof window !== 'undefined'
+      ? window.innerHeight
+      : 800
+  );
+  const [isMobile, setIsMobile] = useState(() =>
+    typeof window !== 'undefined' ? window.innerWidth < 640 : false
+  );
+
+  useEffect(() => {
+    const updateDimensions = () => {
+      const mobile = window.innerWidth < 640;
+      setIsMobile(mobile);
+      if (window.visualViewport) {
+        setViewportHeight(window.visualViewport.height);
+      } else {
+        setViewportHeight(window.innerHeight);
+      }
+    };
+
+    updateDimensions();
+    window.addEventListener('resize', updateDimensions);
+    if (window.visualViewport) {
+      window.visualViewport.addEventListener('resize', updateDimensions);
+      window.visualViewport.addEventListener('scroll', updateDimensions);
+    }
+    return () => {
+      window.removeEventListener('resize', updateDimensions);
+      if (window.visualViewport) {
+        window.visualViewport.removeEventListener('resize', updateDimensions);
+        window.visualViewport.removeEventListener('scroll', updateDimensions);
+      }
+    };
+  }, []);
+
   const bottomRef = useRef(null);
   const inputRef = useRef(null);
 
@@ -285,7 +323,9 @@ export default function AiChatbot({ onToast, onOpenSpace, messages: propMessages
       <button
         onClick={() => setIsOpen(o => !o)}
         aria-label="Open medimind.ai chat"
-        className={`fixed bottom-5 right-5 z-50 w-14 h-14 rounded-2xl backdrop-blur-2xl transition-all duration-300 focus:outline-none shadow-[0_8px_32px_rgba(37,99,235,0.4)] flex items-center justify-center ${
+        className={`fixed bottom-5 right-5 z-50 w-14 h-14 rounded-2xl backdrop-blur-2xl transition-all duration-300 focus:outline-none shadow-[0_8px_32px_rgba(37,99,235,0.4)] ${
+          isOpen ? 'hidden sm:flex' : 'flex'
+        } items-center justify-center ${
           isOpen
             ? 'bg-zinc-900/90 border border-white/20 rotate-0'
             : 'bg-gradient-to-br from-blue-600 via-indigo-600 to-purple-600 hover:scale-105 border border-white/30 shadow-[0_0_24px_rgba(59,130,246,0.5)]'
@@ -303,9 +343,10 @@ export default function AiChatbot({ onToast, onOpenSpace, messages: propMessages
         )}
       </button>
 
-      {/* ── Glassmorphic Chat Panel (Responsive Auto-Fit for Android & Desktop) ── */}
+      {/* ── Glassmorphic Chat Panel (True Screen-Adaptive Auto-Fit for Mobile & Desktop) ── */}
       <div
-        className={`fixed inset-x-2.5 bottom-20 top-14 sm:inset-x-auto sm:top-auto sm:bottom-24 sm:right-6 sm:w-[410px] sm:h-[580px] sm:max-h-[calc(100dvh-120px)] z-50 flex flex-col rounded-3xl overflow-hidden backdrop-blur-2xl bg-white/95 dark:bg-[#0E1526]/95 border border-zinc-200/90 dark:border-white/20 shadow-[0_16px_48px_rgba(0,0,0,0.15)] dark:shadow-[0_16px_48px_rgba(0,0,0,0.5)] text-zinc-900 dark:text-zinc-100 transition-all duration-300 ease-out ${
+        style={isMobile ? { height: `${viewportHeight}px`, maxHeight: `${viewportHeight}px` } : undefined}
+        className={`fixed inset-0 sm:inset-auto sm:bottom-24 sm:right-6 sm:w-[430px] md:sm:w-[460px] sm:h-[620px] sm:max-h-[calc(100dvh-120px)] z-50 flex flex-col rounded-none sm:rounded-3xl overflow-hidden backdrop-blur-2xl bg-white/95 dark:bg-[#0E1526]/95 border-0 sm:border border-zinc-200/90 dark:border-white/20 shadow-none sm:shadow-[0_16px_48px_rgba(0,0,0,0.15)] dark:sm:shadow-[0_16px_48px_rgba(0,0,0,0.5)] text-zinc-900 dark:text-zinc-100 transition-all duration-300 ease-out ${
           isOpen ? 'opacity-100 translate-y-0 pointer-events-auto' : 'opacity-0 translate-y-5 pointer-events-none'
         }`}
       >

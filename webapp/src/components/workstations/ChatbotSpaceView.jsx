@@ -32,7 +32,10 @@ import {
   ShieldCheck,
   Maximize2,
   X,
-  Menu
+  Menu,
+  Sun,
+  Moon,
+  PanelLeft
 } from 'lucide-react';
 
 const SYSTEM_INSTRUCTION_BASE = `You are medimind.ai, the embedded AI clinical copilot for PulseUp — a career operating system for Indian medical students, interns, and residents.
@@ -191,7 +194,10 @@ export default function ChatbotSpaceView({
   onToast,
   onAddCredits,
   onReturnToEcosystem,
-  ecosystemScreenName
+  ecosystemScreenName,
+  isDarkMode,
+  onToggleDarkMode,
+  onToggleMobileMenu
 }) {
   // Provider Settings State
   const [provider, setProvider] = useState(() => LS.get('pulseup_ai_provider', 'none'));
@@ -209,9 +215,10 @@ export default function ChatbotSpaceView({
   // Ping Test State
   const [pingStatus, setPingStatus] = useState(null);
 
-  // Active Clinical Mode
+  // Active Clinical Mode & Rail Toggle
   const [activeMode, setActiveMode] = useState('general');
   const [isFullscreen, setIsFullscreen] = useState(false);
+  const [isRailOpen, setIsRailOpen] = useState(true);
 
   const toggleFullscreen = () => {
     try {
@@ -789,7 +796,7 @@ export default function ChatbotSpaceView({
   );
 
   return (
-    <div className="relative flex flex-col h-full max-h-full flex-1 w-full min-h-0 rounded-none sm:rounded-3xl overflow-hidden backdrop-blur-2xl bg-zinc-50/90 dark:bg-[#0B101B]/90 border-0 sm:border border-zinc-200 dark:border-white/[0.12] shadow-none sm:shadow-[0_12px_48px_0_rgba(0,0,0,0.15)] dark:sm:shadow-[0_12px_48px_0_rgba(0,0,0,0.35)]">
+    <div className="relative flex flex-col h-full max-h-full flex-1 w-full min-h-0 rounded-none overflow-hidden backdrop-blur-2xl bg-zinc-50/90 dark:bg-[#0B101B]/90 border-0 shadow-none">
       {/* Glassmorphic Ambient Glow Highlights */}
       <div className="absolute -top-32 -left-32 w-80 h-80 bg-blue-500/10 dark:bg-blue-500/15 rounded-full blur-3xl pointer-events-none" />
       <div className="absolute -bottom-32 -right-32 w-80 h-80 bg-purple-500/10 dark:bg-purple-500/15 rounded-full blur-3xl pointer-events-none" />
@@ -797,6 +804,17 @@ export default function ChatbotSpaceView({
       {/* Top Banner / Space Header with Frosted Glass Reflex (Mobile Optimized - Sticky and Locked) */}
       <div className="sticky top-0 z-30 flex items-center justify-between px-3 sm:px-6 py-2.5 sm:py-3.5 backdrop-blur-2xl bg-white/95 dark:bg-[#121A2D]/95 border-b border-zinc-200 dark:border-white/[0.08] flex-shrink-0 shadow-sm">
         <div className="flex items-center gap-2 sm:gap-3 min-w-0">
+          {/* Mobile Menu Drawer Button */}
+          {onToggleMobileMenu && (
+            <button
+              onClick={onToggleMobileMenu}
+              className="md:hidden p-1.5 rounded-xl text-zinc-700 dark:text-zinc-200 hover:bg-zinc-200 dark:hover:bg-white/10 transition-colors flex-shrink-0"
+              title="Open Navigation Drawer"
+            >
+              <Menu size={16} />
+            </button>
+          )}
+
           {/* Return to PulseUp Ecosystem Navigation Button */}
           {onReturnToEcosystem && (
             <button
@@ -845,6 +863,27 @@ export default function ChatbotSpaceView({
 
         {/* Action Controls with Glassmorphism */}
         <div className="flex items-center gap-1 sm:gap-2 flex-shrink-0">
+          {/* Desktop Tools Rail Toggle */}
+          <button
+            onClick={() => setIsRailOpen(r => !r)}
+            className="hidden lg:flex items-center gap-1.5 px-2.5 sm:px-3 py-1.5 rounded-xl text-xs font-semibold backdrop-blur-md border border-zinc-200 dark:border-white/20 bg-white/80 dark:bg-white/[0.06] text-zinc-700 dark:text-zinc-200 hover:bg-zinc-100 dark:hover:bg-white/10 transition-all shadow-sm"
+            title={isRailOpen ? 'Collapse Tools Panel' : 'Expand Tools Panel'}
+          >
+            <PanelLeft size={13} className="text-blue-500 dark:text-blue-400" />
+            <span className="hidden xl:inline">{isRailOpen ? 'Hide Tools' : 'Tools'}</span>
+          </button>
+
+          {/* Dark / Light Mode Toggle */}
+          {onToggleDarkMode && (
+            <button
+              onClick={onToggleDarkMode}
+              className="p-1.5 sm:px-2.5 sm:py-1.5 rounded-xl text-xs font-semibold backdrop-blur-md border border-zinc-200 dark:border-white/20 bg-white/80 dark:bg-white/[0.06] text-zinc-700 dark:text-zinc-200 hover:bg-zinc-100 dark:hover:bg-white/10 transition-all shadow-sm"
+              title={isDarkMode ? 'Switch to Light Theme' : 'Switch to Dark Theme'}
+            >
+              {isDarkMode ? <Sun size={13} className="text-amber-400" /> : <Moon size={13} className="text-blue-600" />}
+            </button>
+          )}
+
           <button
             onClick={() => setIsConfigOpen(!isConfigOpen)}
             className="flex items-center gap-1 px-2.5 sm:px-3 py-1.5 rounded-xl text-xs font-semibold backdrop-blur-md border border-zinc-200 dark:border-white/20 bg-white/80 dark:bg-white/[0.06] text-zinc-700 dark:text-zinc-200 hover:bg-zinc-100 dark:hover:bg-white/10 transition-all shadow-sm"
@@ -884,9 +923,11 @@ export default function ChatbotSpaceView({
       {/* Workspace Body */}
       <div className="relative z-10 flex-1 flex min-h-0 h-full overflow-hidden">
         {/* Desktop Left Rail (lg only) */}
-        <div className="hidden lg:flex w-72 backdrop-blur-xl bg-zinc-50/90 dark:bg-[#0D1424]/60 border-r border-zinc-200 dark:border-white/[0.08] p-3.5 flex-col gap-4 overflow-y-auto flex-shrink-0">
-          {renderSidebarContent()}
-        </div>
+        {isRailOpen && (
+          <div className="hidden lg:flex w-72 backdrop-blur-xl bg-zinc-50/90 dark:bg-[#0D1424]/60 border-r border-zinc-200 dark:border-white/[0.08] p-3.5 flex-col gap-4 overflow-y-auto flex-shrink-0 animate-fadeIn">
+            {renderSidebarContent()}
+          </div>
+        )}
 
         {/* Mobile Slide-In Overlay Drawer (< lg) */}
         {isConfigOpen && (

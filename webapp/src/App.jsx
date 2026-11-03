@@ -145,46 +145,72 @@ export default function App() {
 
   return (
     <div className="flex h-screen h-[100dvh] max-h-[100dvh] w-screen overflow-hidden bg-zinc-50 dark:bg-[#0B101B] text-zinc-900 dark:text-[#F1F5F9] font-sans antialiased overscroll-none">
-      {/* Sidebar Navigation (Desktop Persistent + Mobile Drawer) */}
-      <Sidebar
-        activeScreen={activeScreen}
-        onSelectScreen={handleSelectScreen}
-        credits={credits}
-        isMobileOpen={isMobileMenuOpen}
-        onCloseMobile={() => setIsMobileMenuOpen(false)}
-        userProfile={userProfile}
-        onOpenProfile={() => handleSelectScreen('identity')}
-        onOpenCredits={() =>
-          addToast({
-            type: 'info',
-            title: 'Pulse Credits Balance',
-            message: `Current Balance: ${credits} PC. Earned via Med-Q, Peer Review & AETCOM Simulations. 150 PC in Active Escrow.`,
-          })
-        }
-      />
+      {/* Sidebar Navigation (Desktop Persistent for Ecosystem + Mobile Drawer for All) */}
+      {activeScreen !== 'chatbot' ? (
+        <Sidebar
+          activeScreen={activeScreen}
+          onSelectScreen={handleSelectScreen}
+          credits={credits}
+          isMobileOpen={isMobileMenuOpen}
+          onCloseMobile={() => setIsMobileMenuOpen(false)}
+          userProfile={userProfile}
+          onOpenProfile={() => handleSelectScreen('identity')}
+          onOpenCredits={() =>
+            addToast({
+              type: 'info',
+              title: 'Pulse Credits Balance',
+              message: `Current Balance: ${credits} PC. Earned via Med-Q, Peer Review & AETCOM Simulations. 150 PC in Active Escrow.`,
+            })
+          }
+        />
+      ) : (
+        isMobileMenuOpen && (
+          <Sidebar
+            activeScreen={activeScreen}
+            onSelectScreen={(screen) => {
+              setIsMobileMenuOpen(false);
+              handleSelectScreen(screen);
+            }}
+            credits={credits}
+            isMobileOpen={true}
+            onCloseMobile={() => setIsMobileMenuOpen(false)}
+            userProfile={userProfile}
+            onOpenProfile={() => handleSelectScreen('identity')}
+            onOpenCredits={() =>
+              addToast({
+                type: 'info',
+                title: 'Pulse Credits Balance',
+                message: `Current Balance: ${credits} PC. Earned via Med-Q, Peer Review & AETCOM Simulations. 150 PC in Active Escrow.`,
+              })
+            }
+          />
+        )
+      )}
 
       {/* Main Viewport */}
       <div className="flex-1 flex flex-col min-w-0 min-h-0 h-full max-h-full overflow-hidden">
-        {/* Sticky Frosted Topbar */}
-        <Topbar
-          title={screenTitles[activeScreen] || 'PulseUp Clinical OS'}
-          onOpenSearch={() => setIsSearchOpen(true)}
-          isDarkMode={isDarkMode}
-          onToggleDarkMode={() => {
-            setIsDarkMode(!isDarkMode);
-            addToast({
-              type: 'info',
-              title: isDarkMode ? 'Light Theme Activated' : 'Dark Theme Activated',
-              message: isDarkMode ? 'Switched to clean daytime clinical palette.' : 'Switched to dark ward palette.',
-            });
-          }}
-          onToggleMobileMenu={() => setIsMobileMenuOpen(prev => !prev)}
-        />
+        {/* Sticky Frosted Topbar (Hidden in dedicated fullscreen chatbot workspace to maximize screen space) */}
+        {activeScreen !== 'chatbot' && (
+          <Topbar
+            title={screenTitles[activeScreen] || 'PulseUp Clinical OS'}
+            onOpenSearch={() => setIsSearchOpen(true)}
+            isDarkMode={isDarkMode}
+            onToggleDarkMode={() => {
+              setIsDarkMode(!isDarkMode);
+              addToast({
+                type: 'info',
+                title: isDarkMode ? 'Light Theme Activated' : 'Dark Theme Activated',
+                message: isDarkMode ? 'Switched to clean daytime clinical palette.' : 'Switched to dark ward palette.',
+              });
+            }}
+            onToggleMobileMenu={() => setIsMobileMenuOpen(prev => !prev)}
+          />
+        )}
 
         {/* Scrollable Workspace Body */}
         <main className={`flex-1 min-w-0 min-h-0 ${
           activeScreen === 'chatbot'
-            ? 'p-0 sm:p-2 md:p-3 max-w-full h-full overflow-hidden flex flex-col'
+            ? 'p-0 w-full h-full max-w-full overflow-hidden flex flex-col'
             : 'overflow-y-auto overscroll-contain p-3 sm:p-4 md:p-6 pb-28 sm:pb-32 max-w-[1500px] w-full mx-auto scroll-smooth'
         }`}>
           {activeScreen === 'dashboard' && (
@@ -202,6 +228,16 @@ export default function App() {
               onAddCredits={handleAddCredits}
               onReturnToEcosystem={() => handleSelectScreen(lastEcosystemScreen || 'dashboard')}
               ecosystemScreenName={screenTitles[lastEcosystemScreen] || 'Career Board'}
+              isDarkMode={isDarkMode}
+              onToggleDarkMode={() => {
+                setIsDarkMode(!isDarkMode);
+                addToast({
+                  type: 'info',
+                  title: isDarkMode ? 'Light Theme Activated' : 'Dark Theme Activated',
+                  message: isDarkMode ? 'Switched to clean daytime clinical palette.' : 'Switched to dark ward palette.',
+                });
+              }}
+              onToggleMobileMenu={() => setIsMobileMenuOpen(prev => !prev)}
             />
           )}
           {activeScreen === 'opportunities' && (
