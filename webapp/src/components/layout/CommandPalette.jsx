@@ -10,6 +10,7 @@ import {
   Compass,
   CreditCard,
   ExternalLink,
+  Bot,
   X
 } from 'lucide-react';
 
@@ -18,6 +19,7 @@ export default function CommandPalette({ isOpen, onClose, onSelectScreen }) {
 
   const commands = [
     { id: 'dashboard', title: 'Daily Career Board', sub: 'Overview, career score, sprint milestones & radar', icon: LayoutDashboard, category: 'Screens' },
+    { id: 'chatbot', title: 'medimind.ai (Fullscreen AI Copilot)', sub: 'Clinical AI intelligence, NEET PG drill, ICMR grants, Gemini & Custom LLMs', icon: Bot, category: 'Screens' },
     { id: 'research', title: 'Research & Publishing Hub', sub: 'CRediT authorship matrix, bounties, journal risk shield', icon: FlaskConical, category: 'Screens' },
     { id: 'goalspaces', title: 'Goal Spaces Workbench', sub: 'Kanban sprints, team discussion, AI copilot, file vault', icon: Target, category: 'Screens' },
     { id: 'aetcom', title: 'AETCOM Bioethics Hub', sub: 'NMC CBME module logbook, SPIKES bedside simulator', icon: Stethoscope, category: 'Screens' },

@@ -1,5 +1,5 @@
 import React from 'react';
-import { Search, Sun, Moon, Radio, ShieldCheck, Menu } from 'lucide-react';
+import { Search, Sun, Moon, Radio, ShieldCheck, Menu, Bot, Sparkles } from 'lucide-react';
 
 export default function Topbar({
   title,
@@ -9,7 +9,8 @@ export default function Topbar({
   isRedShift,
   onToggleRedShift,
   onShowNmcStatus,
-  onToggleMobileMenu
+  onToggleMobileMenu,
+  onSelectScreen
 }) {
   return (
     <header className="h-[52px] sticky top-0 z-15 backdrop-blur-md bg-white/90 dark:bg-[#0B101B]/90 border-b border-zinc-200 dark:border-white/[0.07] px-4 md:px-6 flex items-center justify-between gap-3">
@@ -26,6 +27,22 @@ export default function Topbar({
       <h1 className="font-display font-bold text-xs md:text-sm tracking-tight text-zinc-900 dark:text-zinc-100 flex-1 truncate">
         {title}
       </h1>
+
+      {/* medimind.ai Quick Toggle in Topbar */}
+      {onSelectScreen && (
+        <button
+          onClick={() => onSelectScreen('chatbot')}
+          className="flex items-center gap-1.5 px-3 py-1 rounded-xl text-xs font-semibold backdrop-blur-md bg-gradient-to-r from-blue-600/20 via-indigo-600/20 to-purple-600/20 border border-blue-400/40 text-blue-600 dark:text-blue-300 hover:from-blue-600/30 hover:to-purple-600/30 transition-all shadow-sm hover:shadow-[0_0_12px_rgba(59,130,246,0.3)] flex-shrink-0"
+          title="Open medimind.ai Fullscreen Copilot"
+        >
+          <Sparkles size={13} className="text-amber-400 animate-pulse" />
+          <span className="font-display font-black tracking-tight">medimind.ai</span>
+          <span className="hidden sm:inline text-[9.5px] font-mono px-1.5 py-0.2 rounded-full bg-blue-500/20 text-blue-400 border border-blue-400/30">
+            Full
+          </span>
+          <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse shadow-[0_0_6px_rgba(52,211,153,0.8)]"></span>
+        </button>
+      )}
 
       {/* Search Bar Trigger */}
       <button

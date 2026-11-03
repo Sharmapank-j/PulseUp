@@ -13,6 +13,7 @@ import AetcomView from './components/workstations/AetcomView';
 import MentorshipView from './components/workstations/MentorshipView';
 import CampusView from './components/workstations/CampusView';
 import PassportView from './components/workstations/PassportView';
+import ChatbotSpaceView from './components/workstations/ChatbotSpaceView';
 
 export default function App() {
   const [activeScreen, setActiveScreen] = useState('dashboard');
@@ -99,6 +100,7 @@ export default function App() {
 
   const screenTitles = {
     dashboard: 'Daily Career Board & Clinical Cockpit',
+    chatbot: 'medimind.ai — Fullscreen Clinical Intelligence Workspace',
     research: 'Research & Publishing Command Centre',
     goalspaces: 'Goal Spaces Workbench (Collaborative Sprints)',
     aetcom: 'AETCOM Bioethics, Attitude & Communication',
@@ -135,6 +137,7 @@ export default function App() {
           title={screenTitles[activeScreen] || 'PulseUp Clinical OS'}
           onOpenSearch={() => setIsSearchOpen(true)}
           isDarkMode={isDarkMode}
+          onSelectScreen={setActiveScreen}
           onToggleDarkMode={() => {
             setIsDarkMode(!isDarkMode);
             addToast({
@@ -171,6 +174,12 @@ export default function App() {
               onNavigate={setActiveScreen}
               isDarkMode={isDarkMode}
               onToast={addToast}
+            />
+          )}
+          {activeScreen === 'chatbot' && (
+            <ChatbotSpaceView
+              onToast={addToast}
+              onAddCredits={handleAddCredits}
             />
           )}
           {activeScreen === 'opportunities' && (
@@ -225,7 +234,7 @@ export default function App() {
       <ToastContainer toasts={toasts} onClose={removeToast} />
 
       {/* PulseAI Floating Chatbot */}
-      <AiChatbot onToast={addToast} />
+      <AiChatbot onToast={addToast} onOpenSpace={() => setActiveScreen('chatbot')} />
     </div>
   );
 }

@@ -9,6 +9,9 @@ import {
   Compass,
   CreditCard,
   ChevronRight,
+  Bot,
+  Sparkles,
+  Maximize2,
   X
 } from 'lucide-react';
 
@@ -24,6 +27,7 @@ export default function Sidebar({
 }) {
   const navItems = [
     { id: 'dashboard', label: 'Career Board', icon: LayoutDashboard, badge: null, section: 'Workspace' },
+    { id: 'chatbot', label: 'medimind.ai', icon: Sparkles, badge: 'Fullscreen', section: 'Workspace' },
     { id: 'research', label: 'Research Hub', icon: FlaskConical, badge: '2', section: 'Clinical' },
     { id: 'goalspaces', label: 'Goal Spaces', icon: Target, badge: null, section: 'Clinical' },
     { id: 'aetcom', label: 'AETCOM Ethics', icon: Stethoscope, badge: '22/27', section: 'Clinical' },
@@ -79,6 +83,36 @@ export default function Sidebar({
         <div className="text-[10.5px] font-mono font-bold text-emerald bg-emerald/10 border border-emerald/20 px-1.5 py-0.5 rounded-full">
           {userProfile.score || 785}
         </div>
+      </div>
+
+      {/* Featured medimind.ai Fullscreen Card */}
+      <div className="px-2 pt-0.5 pb-2">
+        <button
+          onClick={() => {
+            onSelectScreen('chatbot');
+            if (onCloseMobile) onCloseMobile();
+          }}
+          className={`w-full group relative overflow-hidden rounded-xl p-2.5 flex items-center justify-between text-left transition-all duration-300 border backdrop-blur-md ${
+            activeScreen === 'chatbot'
+              ? 'bg-gradient-to-r from-blue-600/30 via-indigo-600/25 to-purple-600/30 border-blue-400/60 shadow-[0_0_20px_rgba(59,130,246,0.35)]'
+              : 'bg-gradient-to-r from-blue-500/10 via-indigo-500/5 to-purple-500/10 border-blue-500/25 hover:border-blue-400/50 hover:bg-blue-500/15 hover:shadow-[0_0_12px_rgba(59,130,246,0.2)]'
+          }`}
+        >
+          <div className="flex items-center gap-2.5 min-w-0">
+            <div className="w-7 h-7 rounded-lg bg-gradient-to-br from-blue-500 via-indigo-600 to-purple-600 flex items-center justify-center text-white shadow-sm flex-shrink-0 group-hover:scale-105 transition-transform">
+              <Sparkles size={14} className="text-amber-300 animate-pulse" />
+            </div>
+            <div className="min-w-0">
+              <div className="flex items-center gap-1">
+                <span className="font-display font-black text-xs text-zinc-900 dark:text-white tracking-tight">medimind.ai</span>
+              </div>
+              <p className="text-[9.5px] text-zinc-500 dark:text-zinc-400 font-mono truncate">Clinical Copilot</p>
+            </div>
+          </div>
+          <span className="text-[9px] font-bold font-mono px-1.5 py-0.5 rounded-full bg-blue-500/20 text-blue-400 border border-blue-400/30 flex items-center gap-0.5 shadow-sm">
+            <Maximize2 size={9} /> Full
+          </span>
+        </button>
       </div>
 
       {/* Nav Sections */}
