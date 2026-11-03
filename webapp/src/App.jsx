@@ -3,6 +3,7 @@ import Sidebar from './components/layout/Sidebar';
 import Topbar from './components/layout/Topbar';
 import CommandPalette from './components/layout/CommandPalette';
 import ToastContainer from './components/common/ToastContainer';
+import AiChatbot from './components/common/AiChatbot';
 
 import CareerBoardView from './components/workstations/CareerBoardView';
 import OpportunitiesView from './components/workstations/OpportunitiesView';
@@ -222,6 +223,9 @@ export default function App() {
 
       {/* Stacked Bottom-Right Toast Notifications */}
       <ToastContainer toasts={toasts} onClose={removeToast} />
+
+      {/* PulseAI Floating Chatbot */}
+      <AiChatbot onToast={addToast} />
     </div>
   );
 }
