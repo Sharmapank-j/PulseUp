@@ -144,7 +144,7 @@ export default function App() {
   };
 
   return (
-    <div className="flex h-screen overflow-hidden bg-zinc-50 dark:bg-[#0B101B] text-zinc-900 dark:text-[#F1F5F9] font-sans antialiased">
+    <div className="flex h-screen h-[100dvh] max-h-[100dvh] w-screen overflow-hidden bg-zinc-50 dark:bg-[#0B101B] text-zinc-900 dark:text-[#F1F5F9] font-sans antialiased overscroll-none">
       {/* Sidebar Navigation (Desktop Persistent + Mobile Drawer) */}
       <Sidebar
         activeScreen={activeScreen}
@@ -164,7 +164,7 @@ export default function App() {
       />
 
       {/* Main Viewport */}
-      <div className="flex-1 flex flex-col min-w-0 overflow-hidden">
+      <div className="flex-1 flex flex-col min-w-0 min-h-0 h-full max-h-full overflow-hidden">
         {/* Sticky Frosted Topbar */}
         <Topbar
           title={screenTitles[activeScreen] || 'PulseUp Clinical OS'}
@@ -182,10 +182,10 @@ export default function App() {
         />
 
         {/* Scrollable Workspace Body */}
-        <main className={`flex-1 min-w-0 ${
+        <main className={`flex-1 min-w-0 min-h-0 ${
           activeScreen === 'chatbot'
-            ? 'p-0 sm:p-2 md:p-4 max-w-full overflow-hidden flex flex-col'
-            : 'overflow-y-auto p-4 md:p-6 max-w-[1500px] w-full mx-auto'
+            ? 'p-0 sm:p-2 md:p-3 max-w-full h-full overflow-hidden flex flex-col'
+            : 'overflow-y-auto overscroll-contain p-3 sm:p-4 md:p-6 pb-28 sm:pb-32 max-w-[1500px] w-full mx-auto scroll-smooth'
         }`}>
           {activeScreen === 'dashboard' && (
             <CareerBoardView

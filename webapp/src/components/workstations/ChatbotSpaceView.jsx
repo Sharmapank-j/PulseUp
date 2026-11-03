@@ -789,13 +789,13 @@ export default function ChatbotSpaceView({
   );
 
   return (
-    <div className="relative flex flex-col h-full flex-1 w-full rounded-none sm:rounded-3xl overflow-hidden backdrop-blur-2xl bg-zinc-50/80 dark:bg-[#0B101B]/80 border-0 sm:border border-zinc-200 dark:border-white/[0.12] shadow-none sm:shadow-[0_12px_48px_0_rgba(0,0,0,0.15)] dark:sm:shadow-[0_12px_48px_0_rgba(0,0,0,0.35)]">
+    <div className="relative flex flex-col h-full max-h-full flex-1 w-full min-h-0 rounded-none sm:rounded-3xl overflow-hidden backdrop-blur-2xl bg-zinc-50/90 dark:bg-[#0B101B]/90 border-0 sm:border border-zinc-200 dark:border-white/[0.12] shadow-none sm:shadow-[0_12px_48px_0_rgba(0,0,0,0.15)] dark:sm:shadow-[0_12px_48px_0_rgba(0,0,0,0.35)]">
       {/* Glassmorphic Ambient Glow Highlights */}
       <div className="absolute -top-32 -left-32 w-80 h-80 bg-blue-500/10 dark:bg-blue-500/15 rounded-full blur-3xl pointer-events-none" />
       <div className="absolute -bottom-32 -right-32 w-80 h-80 bg-purple-500/10 dark:bg-purple-500/15 rounded-full blur-3xl pointer-events-none" />
 
-      {/* Top Banner / Space Header with Frosted Glass Reflex (Mobile Optimized) */}
-      <div className="relative z-10 flex items-center justify-between px-3 sm:px-6 py-2.5 sm:py-3.5 backdrop-blur-xl bg-white/90 dark:bg-[#121A2D]/80 border-b border-zinc-200 dark:border-white/[0.08] flex-shrink-0">
+      {/* Top Banner / Space Header with Frosted Glass Reflex (Mobile Optimized - Sticky and Locked) */}
+      <div className="sticky top-0 z-30 flex items-center justify-between px-3 sm:px-6 py-2.5 sm:py-3.5 backdrop-blur-2xl bg-white/95 dark:bg-[#121A2D]/95 border-b border-zinc-200 dark:border-white/[0.08] flex-shrink-0 shadow-sm">
         <div className="flex items-center gap-2 sm:gap-3 min-w-0">
           {/* Return to PulseUp Ecosystem Navigation Button */}
           {onReturnToEcosystem && (
@@ -882,7 +882,7 @@ export default function ChatbotSpaceView({
       </div>
 
       {/* Workspace Body */}
-      <div className="relative z-10 flex-1 flex min-h-0 overflow-hidden">
+      <div className="relative z-10 flex-1 flex min-h-0 h-full overflow-hidden">
         {/* Desktop Left Rail (lg only) */}
         <div className="hidden lg:flex w-72 backdrop-blur-xl bg-zinc-50/90 dark:bg-[#0D1424]/60 border-r border-zinc-200 dark:border-white/[0.08] p-3.5 flex-col gap-4 overflow-y-auto flex-shrink-0">
           {renderSidebarContent()}
@@ -898,9 +898,9 @@ export default function ChatbotSpaceView({
         )}
 
         {/* Chat Stream View */}
-        <div className="flex-1 flex flex-col min-w-0 backdrop-blur-md bg-white/50 dark:bg-[#080D1A]/50 relative h-full">
+        <div className="flex-1 flex flex-col min-w-0 min-h-0 h-full backdrop-blur-md bg-white/50 dark:bg-[#080D1A]/50 relative overflow-hidden">
           {/* Scrollable Message List */}
-          <div className="flex-1 overflow-y-auto p-3 sm:p-5 md:p-6 space-y-3.5">
+          <div className="flex-1 min-h-0 overflow-y-auto overscroll-contain p-3 sm:p-5 md:p-6 space-y-3.5 scroll-smooth">
             {messages.map(msg => {
               const isUser = msg.role === 'user';
               return (
@@ -971,8 +971,8 @@ export default function ChatbotSpaceView({
             <div ref={messagesEndRef} />
           </div>
 
-          {/* Prompt Composer & Quick Inquiries Bar (Auto-fit for Mobile) */}
-          <div className="p-2.5 sm:p-3.5 md:p-4 border-t border-zinc-200 dark:border-white/15 backdrop-blur-xl bg-white/90 dark:bg-[#0B101B]/80 flex-shrink-0">
+          {/* Prompt Composer & Quick Inquiries Bar (Auto-fit for Mobile - Docked & Persistent) */}
+          <div className="sticky bottom-0 z-30 p-2.5 sm:p-3.5 md:p-4 border-t border-zinc-200 dark:border-white/15 backdrop-blur-2xl bg-white/95 dark:bg-[#0B101B]/95 flex-shrink-0 shadow-md">
             {/* Quick Chips Horizontal Scroll */}
             <div className="flex items-center gap-1.5 overflow-x-auto pb-2 mb-1.5 no-scrollbar">
               <span className="text-[9.5px] font-mono text-zinc-600 dark:text-zinc-400 uppercase flex-shrink-0 font-bold px-1">

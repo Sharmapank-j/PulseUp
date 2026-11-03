@@ -305,7 +305,7 @@ export default function AiChatbot({ onToast, onOpenSpace, messages: propMessages
 
       {/* ── Glassmorphic Chat Panel (Responsive Auto-Fit for Android & Desktop) ── */}
       <div
-        className={`fixed bottom-20 sm:bottom-24 right-2.5 sm:right-5 z-50 w-[calc(100vw-20px)] sm:w-[390px] h-[calc(100dvh-100px)] sm:h-[560px] max-h-[580px] flex flex-col rounded-3xl overflow-hidden backdrop-blur-2xl bg-white/95 dark:bg-[#0E1526]/95 border border-zinc-200/90 dark:border-white/20 shadow-[0_16px_48px_rgba(0,0,0,0.15)] dark:shadow-[0_16px_48px_rgba(0,0,0,0.5)] text-zinc-900 dark:text-zinc-100 transition-all duration-300 ease-out ${
+        className={`fixed inset-x-2.5 bottom-20 top-14 sm:inset-x-auto sm:top-auto sm:bottom-24 sm:right-6 sm:w-[410px] sm:h-[580px] sm:max-h-[calc(100dvh-120px)] z-50 flex flex-col rounded-3xl overflow-hidden backdrop-blur-2xl bg-white/95 dark:bg-[#0E1526]/95 border border-zinc-200/90 dark:border-white/20 shadow-[0_16px_48px_rgba(0,0,0,0.15)] dark:shadow-[0_16px_48px_rgba(0,0,0,0.5)] text-zinc-900 dark:text-zinc-100 transition-all duration-300 ease-out ${
           isOpen ? 'opacity-100 translate-y-0 pointer-events-auto' : 'opacity-0 translate-y-5 pointer-events-none'
         }`}
       >
@@ -313,8 +313,8 @@ export default function AiChatbot({ onToast, onOpenSpace, messages: propMessages
         <div className="absolute -top-20 -left-20 w-48 h-48 bg-blue-500/10 dark:bg-blue-500/20 rounded-full blur-2xl pointer-events-none" />
         <div className="absolute -bottom-20 -right-20 w-48 h-48 bg-purple-500/10 dark:bg-purple-500/20 rounded-full blur-2xl pointer-events-none" />
 
-        {/* Header */}
-        <div className="relative z-10 flex items-center justify-between px-4 py-3.5 border-b border-zinc-200 dark:border-white/10 backdrop-blur-xl bg-zinc-50/80 dark:bg-white/5 flex-shrink-0">
+        {/* Header - Sticky and Permanent */}
+        <div className="sticky top-0 z-30 flex items-center justify-between px-4 py-3.5 border-b border-zinc-200 dark:border-white/10 backdrop-blur-2xl bg-zinc-50/95 dark:bg-[#0E1526]/95 flex-shrink-0 shadow-xs">
           <div className="flex items-center gap-2.5">
             <div className="w-8 h-8 rounded-xl bg-gradient-to-br from-blue-500 via-indigo-600 to-purple-600 p-[1px] shadow-md shadow-blue-500/30 flex items-center justify-center">
               <Sparkles size={16} className="text-white drop-shadow-[0_0_6px_rgba(255,255,255,0.8)]" />
@@ -489,8 +489,8 @@ export default function AiChatbot({ onToast, onOpenSpace, messages: propMessages
           </div>
         )}
 
-        {/* ── Messages stream ── */}
-        <div className="relative z-10 flex-1 overflow-y-auto px-3.5 py-3.5 space-y-3 scroll-smooth">
+        {/* ── Messages stream (Constrained & Scrollable) ── */}
+        <div className="relative z-10 flex-1 min-h-0 overflow-y-auto overscroll-contain px-3.5 py-3.5 space-y-3 scroll-smooth">
           {messages.map(msg => (
             <div key={msg.id} className={`flex gap-2.5 ${msg.role === 'user' ? 'justify-end' : 'justify-start'}`}>
               {msg.role === 'assistant' && (
@@ -560,8 +560,8 @@ export default function AiChatbot({ onToast, onOpenSpace, messages: propMessages
           <div ref={bottomRef} />
         </div>
 
-        {/* ── Glassmorphic Input Bar ── */}
-        <div className="relative z-10 px-3.5 py-3 border-t border-zinc-200 dark:border-white/10 backdrop-blur-xl bg-zinc-50/90 dark:bg-black/30 flex-shrink-0">
+        {/* ── Glassmorphic Input Bar (Sticky and Persistent) ── */}
+        <div className="sticky bottom-0 z-30 px-3.5 py-3 border-t border-zinc-200 dark:border-white/10 backdrop-blur-2xl bg-zinc-50/95 dark:bg-[#0E1526]/95 flex-shrink-0 shadow-md">
           <div className="flex gap-2 items-end">
             <textarea
               ref={inputRef}
