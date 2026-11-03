@@ -508,7 +508,7 @@ export default function OpportunitiesView({ onToast }) {
                               className={`text-[9px] font-semibold ${
                                 si < activeIdx ? 'text-emerald' :
                                 si === activeIdx ? 'text-amber-500' :
-                                'text-zinc-300 dark:text-zinc-600'
+                                'text-zinc-400 dark:text-zinc-600'
                               }`}
                             >
                               {stage}

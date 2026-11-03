@@ -34,6 +34,39 @@ export default function App() {
     initials: 'AS'
   };
 
+  const [lastEcosystemScreen, setLastEcosystemScreen] = useState('dashboard');
+
+  const handleSelectScreen = (screenId) => {
+    if (activeScreen !== 'chatbot' && screenId === 'chatbot') {
+      setLastEcosystemScreen(activeScreen);
+    }
+    setActiveScreen(screenId);
+  };
+
+  // Shared medimind.ai chat history between floating assistant & fullscreen workspace
+  const DEFAULT_MEDIMIND_MESSAGES = [
+    {
+      role: 'assistant',
+      text: `### Welcome to medimind.ai 🩺✨\n\nI am your dedicated **Clinical & Medical Career Copilot** for PulseUp.\n\n**Capabilities & Modes:**\n- **NEET PG & NEXT Strategy**: High-yield subject prioritization and clinical recall drills.\n- **ICMR-STS & Research Grants**: Protocol design, ethics clearance (IEC), and study methodology.\n- **NMC CBME & AETCOM**: SPIKES protocol and reflective logbook entries.\n- **USMLE & Global Track**: Step 1/2 CK study calendars and ECFMG match guidance.\n- **Multi-LLM Engine**: Connected with Google Gemini or your own Custom LLM server.\n\nAsk any clinical or career inquiry below to begin!`,
+      id: 'welcome',
+      timestamp: 'Just now'
+    }
+  ];
+
+  const [medimindMessages, setMedimindMessages] = useState(() => {
+    try {
+      const saved = localStorage.getItem('pulseup_medimind_messages');
+      if (saved) return JSON.parse(saved);
+    } catch (e) { console.error(e); }
+    return DEFAULT_MEDIMIND_MESSAGES;
+  });
+
+  useEffect(() => {
+    try {
+      localStorage.setItem('pulseup_medimind_messages', JSON.stringify(medimindMessages));
+    } catch (e) { console.error(e); }
+  }, [medimindMessages]);
+
   const [userProfile, setUserProfile] = useState(() => {
     try {
       const saved = localStorage.getItem('pulseup_profile');
@@ -115,12 +148,12 @@ export default function App() {
       {/* Sidebar Navigation (Desktop Persistent + Mobile Drawer) */}
       <Sidebar
         activeScreen={activeScreen}
-        onSelectScreen={setActiveScreen}
+        onSelectScreen={handleSelectScreen}
         credits={credits}
         isMobileOpen={isMobileMenuOpen}
         onCloseMobile={() => setIsMobileMenuOpen(false)}
         userProfile={userProfile}
-        onOpenProfile={() => setActiveScreen('identity')}
+        onOpenProfile={() => handleSelectScreen('identity')}
         onOpenCredits={() =>
           addToast({
             type: 'info',
@@ -137,33 +170,14 @@ export default function App() {
           title={screenTitles[activeScreen] || 'PulseUp Clinical OS'}
           onOpenSearch={() => setIsSearchOpen(true)}
           isDarkMode={isDarkMode}
-          onSelectScreen={setActiveScreen}
           onToggleDarkMode={() => {
             setIsDarkMode(!isDarkMode);
             addToast({
               type: 'info',
               title: isDarkMode ? 'Light Theme Activated' : 'Dark Theme Activated',
-              message: isDarkMode ? 'Switched to clean zinc daytime palette.' : 'Switched to clinical dark ward palette.',
+              message: isDarkMode ? 'Switched to clean daytime clinical palette.' : 'Switched to dark ward palette.',
             });
           }}
-          isRedShift={isRedShift}
-          onToggleRedShift={() => {
-            setIsRedShift(!isRedShift);
-            addToast({
-              type: 'info',
-              title: !isRedShift ? '🔴 Night Call Mode Active' : '☀️ Standard Mode Restored',
-              message: !isRedShift
-                ? 'Monochrome red-shift palette enabled for dark call-rooms and melatonin protection.'
-                : 'Default clinical contrast restored.',
-            });
-          }}
-          onShowNmcStatus={() =>
-            addToast({
-              type: 'success',
-              title: 'NMC Live Node Status',
-              message: 'Connected to National Medical Commission & ABDM Registry. Latency: 24ms.',
-            })
-          }
           onToggleMobileMenu={() => setIsMobileMenuOpen(prev => !prev)}
         />
 
@@ -175,15 +189,19 @@ export default function App() {
         }`}>
           {activeScreen === 'dashboard' && (
             <CareerBoardView
-              onNavigate={setActiveScreen}
+              onNavigate={handleSelectScreen}
               isDarkMode={isDarkMode}
               onToast={addToast}
             />
           )}
           {activeScreen === 'chatbot' && (
             <ChatbotSpaceView
+              messages={medimindMessages}
+              setMessages={setMedimindMessages}
               onToast={addToast}
               onAddCredits={handleAddCredits}
+              onReturnToEcosystem={() => handleSelectScreen(lastEcosystemScreen || 'dashboard')}
+              ecosystemScreenName={screenTitles[lastEcosystemScreen] || 'Career Board'}
             />
           )}
           {activeScreen === 'opportunities' && (
@@ -231,15 +249,20 @@ export default function App() {
       <CommandPalette
         isOpen={isSearchOpen}
         onClose={setIsSearchOpen}
-        onSelectScreen={setActiveScreen}
+        onSelectScreen={handleSelectScreen}
       />
 
       {/* Stacked Bottom-Right Toast Notifications */}
       <ToastContainer toasts={toasts} onClose={removeToast} />
 
-      {/* PulseAI Floating Chatbot (Hidden when already inside medimind.ai fullscreen space) */}
+      {/* PulseUp Floating medimind.ai Assistant (Active only in PulseUp Ecosystem; automatically hidden inside the Fullscreen medimind.ai Workspace) */}
       {activeScreen !== 'chatbot' && (
-        <AiChatbot onToast={addToast} onOpenSpace={() => setActiveScreen('chatbot')} />
+        <AiChatbot
+          messages={medimindMessages}
+          setMessages={setMedimindMessages}
+          onToast={addToast}
+          onOpenSpace={() => handleSelectScreen('chatbot')}
+        />
       )}
     </div>
   );

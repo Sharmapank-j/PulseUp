@@ -341,11 +341,11 @@ export default function CareerBoardView({ onNavigate, isDarkMode, onToast }) {
           <div>
             <h4 className="font-bold text-xs text-zinc-900 dark:text-zinc-100 mb-0.5">Daily Pulse Credits</h4>
             <p className="text-[11px] text-zinc-500 dark:text-[#94A3B8] mb-1.5">136 / 200 PC earned today</p>
-            <div className="space-y-0.5 text-[10px] text-zinc-400">
+            <div className="space-y-0.5 text-[10px] text-zinc-600 dark:text-zinc-400">
               <p>✅ Med-Q Sprint <span className="text-emerald font-semibold ml-1">+50 PC</span></p>
               <p>✅ AETCOM SPIKES Sim <span className="text-emerald font-semibold ml-1">+50 PC</span></p>
               <p>✅ Research Bounty Review <span className="text-emerald font-semibold ml-1">+36 PC</span></p>
-              <p className="text-zinc-300 dark:text-zinc-500">⏳ Peer Review Slot <span className="ml-1">+64 PC pending</span></p>
+              <p className="text-zinc-500 dark:text-zinc-500">⏳ Peer Review Slot <span className="ml-1 text-zinc-500 dark:text-zinc-400">+64 PC pending</span></p>
             </div>
           </div>
         </div>

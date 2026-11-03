@@ -47,29 +47,29 @@ function renderMarkdown(text) {
     const bullet = line.match(/^(\s*[-*•])\s+(.+)/);
     if (bullet) return (
       <div key={i} className="flex gap-2 text-xs leading-relaxed my-0.5">
-        <span className="text-emerald-400 mt-0.5 flex-shrink-0 drop-shadow-[0_0_4px_rgba(52,211,153,0.5)]">•</span>
-        <span dangerouslySetInnerHTML={{ __html: inlineFmt(bullet[2]) }} />
+        <span className="text-emerald-600 dark:text-emerald-400 mt-0.5 flex-shrink-0 drop-shadow-sm font-bold">•</span>
+        <span className="text-zinc-800 dark:text-zinc-200" dangerouslySetInnerHTML={{ __html: inlineFmt(bullet[2]) }} />
       </div>
     );
     const num = line.match(/^(\d+)\.\s+(.+)/);
     if (num) return (
       <div key={i} className="flex gap-2 text-xs leading-relaxed my-0.5">
-        <span className="text-blue-400 font-mono flex-shrink-0 w-4">{num[1]}.</span>
-        <span dangerouslySetInnerHTML={{ __html: inlineFmt(num[2]) }} />
+        <span className="text-blue-600 dark:text-blue-400 font-mono font-bold flex-shrink-0 w-4">{num[1]}.</span>
+        <span className="text-zinc-800 dark:text-zinc-200" dangerouslySetInnerHTML={{ __html: inlineFmt(num[2]) }} />
       </div>
     );
-    if (line.startsWith('### ')) return <p key={i} className="font-bold text-xs text-zinc-100 mt-2">{line.slice(4)}</p>;
-    if (line.startsWith('## '))  return <p key={i} className="font-bold text-xs text-blue-300 mt-2 border-b border-white/10 pb-0.5">{line.slice(3)}</p>;
-    if (line.startsWith('# '))   return <p key={i} className="font-bold text-xs text-emerald-400 mt-2">{line.slice(2)}</p>;
+    if (line.startsWith('### ')) return <p key={i} className="font-bold text-xs text-zinc-900 dark:text-zinc-100 mt-2">{line.slice(4)}</p>;
+    if (line.startsWith('## '))  return <p key={i} className="font-bold text-xs text-blue-700 dark:text-blue-300 mt-2 border-b border-zinc-200 dark:border-white/10 pb-0.5">{line.slice(3)}</p>;
+    if (line.startsWith('# '))   return <p key={i} className="font-bold text-xs text-emerald-700 dark:text-emerald-400 mt-2">{line.slice(2)}</p>;
     if (line.trim() === '')      return <div key={i} className="h-1.5" />;
-    return <p key={i} className="text-xs leading-relaxed" dangerouslySetInnerHTML={{ __html: inlineFmt(line) }} />;
+    return <p key={i} className="text-xs leading-relaxed text-zinc-800 dark:text-zinc-200" dangerouslySetInnerHTML={{ __html: inlineFmt(line) }} />;
   }).filter(Boolean);
 }
 
 function inlineFmt(text) {
   return text
-    .replace(/\*\*(.+?)\*\*/g, '<strong class="text-zinc-100 font-semibold">$1</strong>')
-    .replace(/`(.+?)`/g, '<code class="bg-black/40 text-emerald-300 px-1 rounded text-[10px] font-mono border border-white/10">$1</code>');
+    .replace(/\*\*(.+?)\*\*/g, '<strong class="text-zinc-900 dark:text-zinc-100 font-bold">$1</strong>')
+    .replace(/`(.+?)`/g, '<code class="bg-zinc-100 dark:bg-black/40 text-emerald-700 dark:text-emerald-300 px-1 rounded text-[10px] font-mono border border-zinc-300 dark:border-white/10">$1</code>');
 }
 
 const STARTERS = [
@@ -97,7 +97,7 @@ const LS = {
   set: (k, v) => { try { localStorage.setItem(k, JSON.stringify(v)); } catch {} },
 };
 
-export default function AiChatbot({ onToast, onOpenSpace }) {
+export default function AiChatbot({ onToast, onOpenSpace, messages: propMessages, setMessages: propSetMessages }) {
   const [isOpen, setIsOpen] = useState(false);
   const [showCfg, setShowCfg] = useState(false);
 
@@ -113,12 +113,15 @@ export default function AiChatbot({ onToast, onOpenSpace }) {
   const [customModD, setCustomModD] = useState('');
   const [showSecret, setShowSecret] = useState(false);
 
-  // Chat state
-  const [messages, setMessages] = useState([{
+  // Shared Chat state with local fallback
+  const [localMessages, setLocalMessages] = useState([{
     role: 'assistant',
     text: "Hi! I'm **medimind.ai** 👋 — your clinical career copilot.\n\nI can assist with NEET PG drills, AETCOM ethics cases, ICMR grants, and USMLE pathways.\n\n*Tap ⚙️ to configure Gemini / Custom LLM, or pick a starter below:*",
     id: 'welcome',
   }]);
+
+  const messages = propMessages || localMessages;
+  const setMessages = propSetMessages || setLocalMessages;
   const [input, setInput] = useState('');
   const [loading, setLoading] = useState(false);
   const [copiedId, setCopiedId] = useState(null);
@@ -302,24 +305,24 @@ export default function AiChatbot({ onToast, onOpenSpace }) {
 
       {/* ── Glassmorphic Chat Panel (Responsive Auto-Fit for Android & Desktop) ── */}
       <div
-        className={`fixed bottom-20 sm:bottom-24 right-2.5 sm:right-5 z-50 w-[calc(100vw-20px)] sm:w-[390px] h-[calc(100dvh-100px)] sm:h-[560px] max-h-[580px] flex flex-col rounded-3xl overflow-hidden backdrop-blur-2xl bg-zinc-900/95 border border-white/20 shadow-[0_16px_48px_rgba(0,0,0,0.5)] transition-all duration-300 ease-out ${
+        className={`fixed bottom-20 sm:bottom-24 right-2.5 sm:right-5 z-50 w-[calc(100vw-20px)] sm:w-[390px] h-[calc(100dvh-100px)] sm:h-[560px] max-h-[580px] flex flex-col rounded-3xl overflow-hidden backdrop-blur-2xl bg-white/95 dark:bg-[#0E1526]/95 border border-zinc-200/90 dark:border-white/20 shadow-[0_16px_48px_rgba(0,0,0,0.15)] dark:shadow-[0_16px_48px_rgba(0,0,0,0.5)] text-zinc-900 dark:text-zinc-100 transition-all duration-300 ease-out ${
           isOpen ? 'opacity-100 translate-y-0 pointer-events-auto' : 'opacity-0 translate-y-5 pointer-events-none'
         }`}
       >
         {/* Subtle ambient lighting */}
-        <div className="absolute -top-20 -left-20 w-48 h-48 bg-blue-500/20 rounded-full blur-2xl pointer-events-none" />
-        <div className="absolute -bottom-20 -right-20 w-48 h-48 bg-purple-500/20 rounded-full blur-2xl pointer-events-none" />
+        <div className="absolute -top-20 -left-20 w-48 h-48 bg-blue-500/10 dark:bg-blue-500/20 rounded-full blur-2xl pointer-events-none" />
+        <div className="absolute -bottom-20 -right-20 w-48 h-48 bg-purple-500/10 dark:bg-purple-500/20 rounded-full blur-2xl pointer-events-none" />
 
         {/* Header */}
-        <div className="relative z-10 flex items-center justify-between px-4 py-3.5 border-b border-white/10 backdrop-blur-xl bg-white/5 flex-shrink-0">
+        <div className="relative z-10 flex items-center justify-between px-4 py-3.5 border-b border-zinc-200 dark:border-white/10 backdrop-blur-xl bg-zinc-50/80 dark:bg-white/5 flex-shrink-0">
           <div className="flex items-center gap-2.5">
             <div className="w-8 h-8 rounded-xl bg-gradient-to-br from-blue-500 via-indigo-600 to-purple-600 p-[1px] shadow-md shadow-blue-500/30 flex items-center justify-center">
               <Sparkles size={16} className="text-white drop-shadow-[0_0_6px_rgba(255,255,255,0.8)]" />
             </div>
             <div>
-              <h3 className="font-display font-black text-sm text-white flex items-center gap-1.5 tracking-tight">
+              <h3 className="font-display font-black text-sm text-zinc-900 dark:text-white flex items-center gap-1.5 tracking-tight">
                 medimind.ai
-                <span className="text-[9px] font-mono font-bold px-1.5 py-0.2 rounded-full bg-blue-500/25 text-blue-300 border border-blue-400/30">
+                <span className="text-[9px] font-mono font-bold px-1.5 py-0.2 rounded-full bg-blue-500/25 text-blue-600 dark:text-blue-300 border border-blue-400/30">
                   AI
                 </span>
               </h3>
@@ -336,7 +339,7 @@ export default function AiChatbot({ onToast, onOpenSpace }) {
                   setIsOpen(false);
                 }}
                 title="Open in Fullscreen Space"
-                className="p-1.5 rounded-lg text-blue-400 hover:text-blue-300 hover:bg-blue-500/10 transition-colors flex items-center gap-0.5 text-xs font-semibold"
+                className="p-1.5 rounded-lg text-blue-600 dark:text-blue-400 hover:text-blue-700 dark:hover:text-blue-300 hover:bg-blue-500/10 transition-colors flex items-center gap-0.5 text-xs font-semibold"
               >
                 <Maximize2 size={13} />
                 <span className="text-[10px] font-mono font-bold hidden sm:inline">Full</span>
@@ -352,7 +355,7 @@ export default function AiChatbot({ onToast, onOpenSpace }) {
                 setCustomModD(customModel);
               }}
               title="Provider Settings"
-              className={`p-1.5 rounded-lg transition-colors ${showCfg ? 'bg-white/15 text-white' : 'text-zinc-400 hover:bg-white/10 hover:text-white'}`}
+              className={`p-1.5 rounded-lg transition-colors ${showCfg ? 'bg-zinc-200 dark:bg-white/15 text-zinc-900 dark:text-white' : 'text-zinc-500 hover:bg-zinc-100 hover:text-zinc-900 dark:text-zinc-400 dark:hover:bg-white/10 dark:hover:text-white'}`}
             >
               <Settings size={14} />
             </button>
@@ -360,14 +363,14 @@ export default function AiChatbot({ onToast, onOpenSpace }) {
             <button
               onClick={clearChat}
               title="Clear chat"
-              className="p-1.5 rounded-lg text-zinc-400 hover:bg-white/10 hover:text-white transition-colors"
+              className="p-1.5 rounded-lg text-zinc-500 hover:bg-zinc-100 hover:text-zinc-900 dark:text-zinc-400 dark:hover:bg-white/10 dark:hover:text-white transition-colors"
             >
               <Trash2 size={14} />
             </button>
 
             <button
               onClick={() => setIsOpen(false)}
-              className="p-1.5 rounded-lg text-zinc-400 hover:bg-white/10 hover:text-white transition-colors"
+              className="p-1.5 rounded-lg text-zinc-500 hover:bg-zinc-100 hover:text-zinc-900 dark:text-zinc-400 dark:hover:bg-white/10 dark:hover:text-white transition-colors"
             >
               <X size={15} />
             </button>
@@ -376,8 +379,8 @@ export default function AiChatbot({ onToast, onOpenSpace }) {
 
         {/* ── Settings Panel (Collapsible Glass) ── */}
         {showCfg && (
-          <div className="relative z-10 border-b border-white/10 backdrop-blur-xl bg-black/40 flex-shrink-0 overflow-y-auto" style={{ maxHeight: '280px' }}>
-            <div className="flex border-b border-white/10">
+          <div className="relative z-10 border-b border-zinc-200 dark:border-white/10 backdrop-blur-xl bg-zinc-50/95 dark:bg-black/50 flex-shrink-0 overflow-y-auto text-zinc-800 dark:text-zinc-200" style={{ maxHeight: '280px' }}>
+            <div className="flex border-b border-zinc-200 dark:border-white/10">
               {[
                 { id: 'gemini', label: 'Gemini', icon: <Zap size={11} /> },
                 { id: 'custom', label: 'Custom LLM', icon: <Server size={11} /> },
@@ -387,8 +390,8 @@ export default function AiChatbot({ onToast, onOpenSpace }) {
                   onClick={() => setProvider(tab.id)}
                   className={`flex-1 flex items-center justify-center gap-1.5 py-2 text-[11px] font-semibold transition-colors ${
                     provider === tab.id
-                      ? 'text-blue-400 border-b-2 border-blue-400 bg-white/5'
-                      : 'text-zinc-400 hover:text-zinc-200'
+                      ? 'text-blue-600 dark:text-blue-400 border-b-2 border-blue-500 bg-blue-500/10'
+                      : 'text-zinc-500 hover:text-zinc-800 dark:text-zinc-400 dark:hover:text-zinc-200'
                   }`}
                 >
                   {tab.icon} {tab.label}
@@ -399,9 +402,9 @@ export default function AiChatbot({ onToast, onOpenSpace }) {
             {/* Gemini tab */}
             {provider === 'gemini' && (
               <div className="p-3 space-y-2">
-                <p className="text-[10px] text-zinc-400">
+                <p className="text-[10px] text-zinc-600 dark:text-zinc-400">
                   Get a free key from{' '}
-                  <a href="https://aistudio.google.com" target="_blank" rel="noreferrer" className="text-blue-400 underline">aistudio.google.com</a>.
+                  <a href="https://aistudio.google.com" target="_blank" rel="noreferrer" className="text-blue-600 dark:text-blue-400 underline font-medium">aistudio.google.com</a>.
                 </p>
                 <div className="relative">
                   <input
@@ -410,9 +413,9 @@ export default function AiChatbot({ onToast, onOpenSpace }) {
                     onChange={e => setGeminiDraft(e.target.value)}
                     onKeyDown={e => e.key === 'Enter' && saveGemini()}
                     placeholder="AIza..."
-                    className="w-full bg-white/5 border border-white/15 text-xs text-zinc-100 placeholder-zinc-500 rounded-xl px-3 py-1.5 pr-8 focus:outline-none focus:ring-1 focus:ring-blue-500 font-mono"
+                    className="w-full bg-white dark:bg-white/5 border border-zinc-300 dark:border-white/15 text-xs text-zinc-900 dark:text-zinc-100 placeholder-zinc-400 dark:placeholder-zinc-500 rounded-xl px-3 py-1.5 pr-8 focus:outline-none focus:ring-1 focus:ring-blue-500 font-mono"
                   />
-                  <button onClick={() => setShowSecret(s => !s)} className="absolute right-2.5 top-1/2 -translate-y-1/2 text-zinc-400">
+                  <button onClick={() => setShowSecret(s => !s)} className="absolute right-2.5 top-1/2 -translate-y-1/2 text-zinc-400 hover:text-zinc-600 dark:hover:text-zinc-200">
                     {showSecret ? <EyeOff size={12} /> : <Eye size={12} />}
                   </button>
                 </div>
@@ -421,7 +424,7 @@ export default function AiChatbot({ onToast, onOpenSpace }) {
                     Save Key
                   </button>
                   {geminiKey && (
-                    <button onClick={clearProviders} className="px-3 py-1.5 bg-white/10 hover:bg-white/15 text-zinc-300 text-xs font-bold rounded-xl transition-colors">
+                    <button onClick={clearProviders} className="px-3 py-1.5 bg-zinc-200 hover:bg-zinc-300 dark:bg-white/10 dark:hover:bg-white/15 text-zinc-700 dark:text-zinc-300 text-xs font-bold rounded-xl transition-colors">
                       Remove
                     </button>
                   )}
@@ -432,41 +435,41 @@ export default function AiChatbot({ onToast, onOpenSpace }) {
             {/* Custom LLM tab */}
             {provider === 'custom' && (
               <div className="p-3 space-y-2">
-                <p className="text-[10px] text-zinc-400 flex items-center gap-1">
-                  <Cpu size={10} className="text-purple-400" />
+                <p className="text-[10px] text-zinc-600 dark:text-zinc-400 flex items-center gap-1">
+                  <Cpu size={10} className="text-purple-500 dark:text-purple-400" />
                   OpenAI-compatible server (Ollama, vLLM, LM Studio, VPS)
                 </p>
                 <div>
-                  <label className="text-[9.5px] text-zinc-400 font-semibold uppercase">Base URL</label>
+                  <label className="text-[9.5px] text-zinc-600 dark:text-zinc-400 font-semibold uppercase">Base URL</label>
                   <input
                     type="text"
                     value={customUrlD}
                     onChange={e => setCustomUrlD(e.target.value)}
                     placeholder="https://your-server.com or http://localhost:11434"
-                    className="w-full mt-0.5 bg-white/5 border border-white/15 text-xs text-zinc-100 placeholder-zinc-500 rounded-xl px-3 py-1.5 focus:outline-none focus:ring-1 focus:ring-purple-500 font-mono"
+                    className="w-full mt-0.5 bg-white dark:bg-white/5 border border-zinc-300 dark:border-white/15 text-xs text-zinc-900 dark:text-zinc-100 placeholder-zinc-400 dark:placeholder-zinc-500 rounded-xl px-3 py-1.5 focus:outline-none focus:ring-1 focus:ring-purple-500 font-mono"
                   />
                 </div>
                 <div>
-                  <label className="text-[9.5px] text-zinc-400 font-semibold uppercase">Model Name</label>
+                  <label className="text-[9.5px] text-zinc-600 dark:text-zinc-400 font-semibold uppercase">Model Name</label>
                   <input
                     type="text"
                     value={customModD}
                     onChange={e => setCustomModD(e.target.value)}
                     placeholder="llama3, mistral, gpt-4o"
-                    className="w-full mt-0.5 bg-white/5 border border-white/15 text-xs text-zinc-100 placeholder-zinc-500 rounded-xl px-3 py-1.5 focus:outline-none focus:ring-1 focus:ring-purple-500 font-mono"
+                    className="w-full mt-0.5 bg-white dark:bg-white/5 border border-zinc-300 dark:border-white/15 text-xs text-zinc-900 dark:text-zinc-100 placeholder-zinc-400 dark:placeholder-zinc-500 rounded-xl px-3 py-1.5 focus:outline-none focus:ring-1 focus:ring-purple-500 font-mono"
                   />
                 </div>
                 <div>
-                  <label className="text-[9.5px] text-zinc-400 font-semibold uppercase">Bearer Token (optional)</label>
+                  <label className="text-[9.5px] text-zinc-600 dark:text-zinc-400 font-semibold uppercase">Bearer Token (optional)</label>
                   <div className="relative mt-0.5">
                     <input
                       type={showSecret ? 'text' : 'password'}
                       value={customKeyD}
                       onChange={e => setCustomKeyD(e.target.value)}
                       placeholder="sk-... or leave blank"
-                      className="w-full bg-white/5 border border-white/15 text-xs text-zinc-100 placeholder-zinc-500 rounded-xl px-3 py-1.5 pr-8 focus:outline-none focus:ring-1 focus:ring-purple-500 font-mono"
+                      className="w-full bg-white dark:bg-white/5 border border-zinc-300 dark:border-white/15 text-xs text-zinc-900 dark:text-zinc-100 placeholder-zinc-400 dark:placeholder-zinc-500 rounded-xl px-3 py-1.5 pr-8 focus:outline-none focus:ring-1 focus:ring-purple-500 font-mono"
                     />
-                    <button onClick={() => setShowSecret(s => !s)} className="absolute right-2.5 top-1/2 -translate-y-1/2 text-zinc-400">
+                    <button onClick={() => setShowSecret(s => !s)} className="absolute right-2.5 top-1/2 -translate-y-1/2 text-zinc-400 hover:text-zinc-600 dark:hover:text-zinc-200">
                       {showSecret ? <EyeOff size={12} /> : <Eye size={12} />}
                     </button>
                   </div>
@@ -476,7 +479,7 @@ export default function AiChatbot({ onToast, onOpenSpace }) {
                     Save Custom Model
                   </button>
                   {customUrl && (
-                    <button onClick={clearProviders} className="px-3 py-1.5 bg-white/10 hover:bg-white/15 text-zinc-300 text-xs font-bold rounded-xl transition-colors">
+                    <button onClick={clearProviders} className="px-3 py-1.5 bg-zinc-200 hover:bg-zinc-300 dark:bg-white/10 dark:hover:bg-white/15 text-zinc-700 dark:text-zinc-300 text-xs font-bold rounded-xl transition-colors">
                       Remove
                     </button>
                   )}
@@ -497,10 +500,10 @@ export default function AiChatbot({ onToast, onOpenSpace }) {
               )}
               <div className={`group relative max-w-[84%] rounded-2xl px-3.5 py-2.5 backdrop-blur-md border ${
                 msg.role === 'user'
-                  ? 'bg-blue-600/90 text-white rounded-br-sm border-blue-400/40 shadow-md shadow-blue-600/20'
+                  ? 'bg-blue-600 text-white rounded-br-sm border-blue-400/40 shadow-md shadow-blue-600/20'
                   : msg.isError
-                  ? 'bg-rose-500/15 border-rose-500/30 text-rose-200 rounded-bl-sm'
-                  : 'bg-white/10 dark:bg-white/[0.05] border-white/15 text-zinc-100 rounded-bl-sm shadow-sm'
+                  ? 'bg-rose-500/15 border-rose-500/30 text-rose-700 dark:text-rose-200 rounded-bl-sm'
+                  : 'bg-zinc-100 dark:bg-[#141C2E]/90 border border-zinc-200/90 dark:border-white/[0.09] text-zinc-900 dark:text-zinc-100 rounded-bl-sm shadow-sm'
               }`}>
                 {msg.role === 'user' ? (
                   <p className="text-xs leading-relaxed">{msg.text}</p>
@@ -510,15 +513,15 @@ export default function AiChatbot({ onToast, onOpenSpace }) {
                 {msg.role === 'assistant' && (
                   <button
                     onClick={() => copyMsg(msg.text, msg.id)}
-                    className="absolute -top-2 -right-2 opacity-0 group-hover:opacity-100 transition-opacity bg-zinc-800/90 border border-white/20 rounded-lg p-1 shadow-sm"
+                    className="absolute -top-2 -right-2 opacity-0 group-hover:opacity-100 transition-opacity bg-white/90 dark:bg-zinc-800/90 border border-zinc-200 dark:border-white/20 rounded-lg p-1 shadow-sm text-zinc-500 hover:text-zinc-800 dark:hover:text-zinc-200"
                   >
-                    {copiedId === msg.id ? <CheckCheck size={11} className="text-emerald-400" /> : <Copy size={11} className="text-zinc-400" />}
+                    {copiedId === msg.id ? <CheckCheck size={11} className="text-emerald-500" /> : <Copy size={11} />}
                   </button>
                 )}
               </div>
               {msg.role === 'user' && (
-                <div className="w-6 h-6 rounded-lg bg-white/15 border border-white/10 flex items-center justify-center flex-shrink-0 mt-0.5">
-                  <User size={12} className="text-zinc-300" />
+                <div className="w-6 h-6 rounded-lg bg-blue-100 dark:bg-white/15 border border-blue-200 dark:border-white/10 flex items-center justify-center flex-shrink-0 mt-0.5 text-blue-700 dark:text-zinc-300">
+                  <User size={12} />
                 </div>
               )}
             </div>
@@ -530,9 +533,9 @@ export default function AiChatbot({ onToast, onOpenSpace }) {
               <div className="w-6 h-6 rounded-lg bg-gradient-to-br from-blue-500 via-indigo-600 to-purple-600 flex items-center justify-center flex-shrink-0 shadow-sm">
                 <Sparkles size={12} className="text-white animate-spin" />
               </div>
-              <div className="bg-white/10 border border-white/15 rounded-2xl rounded-bl-sm px-3.5 py-2.5 flex items-center gap-2 backdrop-blur-md">
-                <Loader2 size={12} className="text-blue-400 animate-spin" />
-                <span className="text-[11px] text-zinc-400">
+              <div className="bg-zinc-100 dark:bg-white/10 border border-zinc-200 dark:border-white/15 rounded-2xl rounded-bl-sm px-3.5 py-2.5 flex items-center gap-2 backdrop-blur-md">
+                <Loader2 size={12} className="text-blue-500 animate-spin" />
+                <span className="text-[11px] text-zinc-600 dark:text-zinc-400">
                   {provider === 'gemini' ? 'Deliberating with Gemini…' : provider === 'custom' ? `Calling ${customModel}…` : 'Formulating guidance…'}
                 </span>
               </div>
@@ -546,7 +549,7 @@ export default function AiChatbot({ onToast, onOpenSpace }) {
                 <button
                   key={i}
                   onClick={() => sendMessage(s)}
-                  className="w-full text-left text-[11px] text-zinc-300 backdrop-blur-sm bg-white/5 hover:bg-white/10 border border-white/10 hover:border-blue-400/30 rounded-xl px-3 py-2 transition-all"
+                  className="w-full text-left text-[11px] text-zinc-700 dark:text-zinc-300 backdrop-blur-sm bg-zinc-100/80 hover:bg-zinc-200/90 dark:bg-white/5 dark:hover:bg-white/10 border border-zinc-200 dark:border-white/10 hover:border-blue-400 rounded-xl px-3 py-2 transition-all shadow-xs"
                 >
                   {s}
                 </button>
@@ -558,7 +561,7 @@ export default function AiChatbot({ onToast, onOpenSpace }) {
         </div>
 
         {/* ── Glassmorphic Input Bar ── */}
-        <div className="relative z-10 px-3.5 py-3 border-t border-white/10 backdrop-blur-xl bg-black/30 flex-shrink-0">
+        <div className="relative z-10 px-3.5 py-3 border-t border-zinc-200 dark:border-white/10 backdrop-blur-xl bg-zinc-50/90 dark:bg-black/30 flex-shrink-0">
           <div className="flex gap-2 items-end">
             <textarea
               ref={inputRef}
@@ -567,7 +570,7 @@ export default function AiChatbot({ onToast, onOpenSpace }) {
               onChange={e => setInput(e.target.value)}
               onKeyDown={handleKeyDown}
               placeholder="Ask medimind.ai about NEET PG, grants, ethics…"
-              className="flex-1 bg-white/10 border border-white/15 text-xs text-white placeholder-zinc-500 rounded-xl px-3 py-2.5 focus:outline-none focus:ring-1 focus:ring-blue-400 resize-none leading-relaxed backdrop-blur-md"
+              className="flex-1 bg-white dark:bg-white/10 border border-zinc-300 dark:border-white/15 text-xs text-zinc-900 dark:text-white placeholder-zinc-400 dark:placeholder-zinc-500 rounded-xl px-3 py-2.5 focus:outline-none focus:ring-1 focus:ring-blue-500 resize-none leading-relaxed backdrop-blur-md"
               style={{ maxHeight: '90px' }}
             />
             <button
@@ -578,7 +581,7 @@ export default function AiChatbot({ onToast, onOpenSpace }) {
               <Send size={15} className="text-white" />
             </button>
           </div>
-          <div className="flex items-center justify-between text-[9px] text-zinc-500 mt-1.5 px-1 font-mono">
+          <div className="flex items-center justify-between text-[9px] text-zinc-500 dark:text-zinc-400 mt-1.5 px-1 font-mono">
             <span>
               {provider === 'gemini' ? 'Gemini 2.0 Flash' : provider === 'custom' ? `Custom: ${customModel}` : 'Scripted Mode'}
             </span>
@@ -588,7 +591,7 @@ export default function AiChatbot({ onToast, onOpenSpace }) {
                   onOpenSpace();
                   setIsOpen(false);
                 }}
-                className="text-blue-400 hover:underline flex items-center gap-0.5"
+                className="text-blue-600 dark:text-blue-400 hover:underline flex items-center gap-0.5 font-medium"
               >
                 Expand to Fullscreen <Maximize2 size={9} />
               </button>
