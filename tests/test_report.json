@@ -1,5 +1,5 @@
 {
-  "timestamp": "2026-11-04T20:09:42.761Z",
+  "timestamp": "2026-11-04T20:34:47.182Z",
   "targetDirectory": "C:\\Users\\pr218\\OneDrive\\Documents\\projects Antigravity\\PulseUp",
   "stats": {
     "total": 46,
@@ -18,19 +18,19 @@
           "id": "T1-DOC-001",
           "name": "Core directory layout matches specification",
           "status": "PASS",
-          "durationMs": 1
+          "durationMs": 2
         },
         {
           "id": "T1-DOC-002",
           "name": "README.md exists and meets minimum documentation payload threshold",
           "status": "PASS",
-          "durationMs": 0
+          "durationMs": 1
         },
         {
           "id": "T1-DOC-003",
           "name": "README.md contains 2-sentence PulseUp career OS overview",
           "status": "PASS",
-          "durationMs": 1
+          "durationMs": 0
         },
         {
           "id": "T1-DOC-004",
@@ -42,7 +42,7 @@
           "id": "T1-DOC-005",
           "name": "README.md contains explanation of research database deliverables",
           "status": "PASS",
-          "durationMs": 0
+          "durationMs": 1
         },
         {
           "id": "T1-DOC-006",
@@ -67,13 +67,13 @@
           "id": "T1-PROTO-002",
           "name": "Offline self-containment: zero external scripts and only Google Fonts CDN allowed",
           "status": "PASS",
-          "durationMs": 1
+          "durationMs": 0
         },
         {
           "id": "T1-PROTO-003",
           "name": "Google Fonts CDN imports Inter, Plus Jakarta Sans, and JetBrains Mono",
           "status": "PASS",
-          "durationMs": 0
+          "durationMs": 1
         },
         {
           "id": "T1-PROTO-004",
@@ -103,7 +103,7 @@
           "id": "T1-PROTO-008",
           "name": "Screen 2: Research & Publishing Hub elements present",
           "status": "PASS",
-          "durationMs": 1
+          "durationMs": 0
         },
         {
           "id": "T1-PROTO-009",
@@ -121,7 +121,7 @@
           "id": "T1-PROTO-011",
           "name": "Screen 5: Async Mentorship Triage elements present",
           "status": "PASS",
-          "durationMs": 0
+          "durationMs": 1
         },
         {
           "id": "T1-PROTO-012",
@@ -133,7 +133,7 @@
           "id": "T1-PROTO-013",
           "name": "Screen 7: Bharat Opportunities Engine elements present",
           "status": "PASS",
-          "durationMs": 1
+          "durationMs": 0
         },
         {
           "id": "T1-PROTO-014",
@@ -145,13 +145,13 @@
           "id": "T1-PROTO-015",
           "name": "Command search overlay (Cmd+K / Ctrl+K) contains all 8 screen links",
           "status": "PASS",
-          "durationMs": 0
+          "durationMs": 1
         },
         {
           "id": "T1-PROTO-016",
           "name": "Toast notification engine exists in DOM and CSS",
           "status": "PASS",
-          "durationMs": 1
+          "durationMs": 0
         },
         {
           "id": "T1-PROTO-017",
@@ -224,7 +224,7 @@
           "id": "T1-DATA-009",
           "name": "All record IDs are unique strings without collisions",
           "status": "PASS",
-          "durationMs": 0
+          "durationMs": 1
         },
         {
           "id": "T1-DATA-010",
@@ -267,13 +267,13 @@
           "id": "T2-EDGE-005",
           "name": "Font fallbacks defined in CSS prevent blank screens if external CDN is blocked",
           "status": "PASS",
-          "durationMs": 1
+          "durationMs": 0
         },
         {
           "id": "T3-COMB-001",
           "name": "Sidebar navigation and Command Bar targets align 1:1 with screen containers",
           "status": "PASS",
-          "durationMs": 0
+          "durationMs": 1
         },
         {
           "id": "T3-COMB-002",
@@ -298,13 +298,13 @@
           "id": "T4-E2E-001",
           "name": "Persona 1 Journey (Dr. Aarav Sharma - 3rd Year MBBS Student @ MAMC Delhi)",
           "status": "PASS",
-          "durationMs": 0
+          "durationMs": 1
         },
         {
           "id": "T4-E2E-002",
           "name": "Persona 2 Journey (Dr. Priya Nair - Compulsory Rotating Medical Intern)",
           "status": "PASS",
-          "durationMs": 1
+          "durationMs": 0
         },
         {
           "id": "T4-E2E-003",

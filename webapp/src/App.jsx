@@ -5,6 +5,11 @@ import CommandPalette from './components/layout/CommandPalette';
 import ToastContainer from './components/common/ToastContainer';
 import AiChatbot from './components/common/AiChatbot';
 import ErrorBoundary from './components/common/ErrorBoundary';
+import {
+  chatSessionStorage,
+  PULSEUP_CHAT_SESSION_EVENT,
+  INITIAL_DEFAULT_SESSIONS
+} from './services/aiService';
 
 import CareerBoardView from './components/workstations/CareerBoardView';
 import OpportunitiesView from './components/workstations/OpportunitiesView';
@@ -67,29 +72,71 @@ export default function App() {
     setActiveScreen(screenId);
   };
 
-  // Shared medimind.ai chat history between floating assistant & fullscreen workspace
-  const DEFAULT_MEDIMIND_MESSAGES = [
-    {
-      role: 'assistant',
-      text: `### Welcome to medimind.ai 🩺✨\n\nI am your dedicated **Clinical & Medical Career Copilot** for PulseUp.\n\n**Capabilities & Modes:**\n- **NEET PG & NEXT Strategy**: High-yield subject prioritization and clinical recall drills.\n- **ICMR-STS & Research Grants**: Protocol design, ethics clearance (IEC), and study methodology.\n- **NMC CBME & AETCOM**: SPIKES protocol and reflective logbook entries.\n- **USMLE & Global Track**: Step 1/2 CK study calendars and ECFMG match guidance.\n- **Multi-LLM Engine**: Connected with Google Gemini or your own Custom LLM server.\n\nAsk any clinical or career inquiry below to begin!`,
-      id: 'welcome',
-      timestamp: 'Just now'
-    }
-  ];
+  // ── Multi-Threaded Preserved Chat Sessions ──────────────────────────────
+  const [chatSessions, setChatSessions] = useState(() => chatSessionStorage.getAllSessions());
+  const [activeSessionId, setActiveSessionId] = useState(() => chatSessionStorage.getActiveSessionId());
 
-  const [medimindMessages, setMedimindMessages] = useState(() => {
-    try {
-      const saved = localStorage.getItem('pulseup_medimind_messages');
-      if (saved) return JSON.parse(saved);
-    } catch (e) { console.error(e); }
-    return DEFAULT_MEDIMIND_MESSAGES;
-  });
-
+  // Real-time synchronization across app windows / tabs / events
   useEffect(() => {
-    try {
-      localStorage.setItem('pulseup_medimind_messages', JSON.stringify(medimindMessages));
-    } catch (e) { console.error(e); }
-  }, [medimindMessages]);
+    const handleSessionSync = () => {
+      setChatSessions(chatSessionStorage.getAllSessions());
+      setActiveSessionId(chatSessionStorage.getActiveSessionId());
+    };
+    window.addEventListener(PULSEUP_CHAT_SESSION_EVENT, handleSessionSync);
+    return () => window.removeEventListener(PULSEUP_CHAT_SESSION_EVENT, handleSessionSync);
+  }, []);
+
+  const activeSession = chatSessions.find(s => s.id === activeSessionId) || chatSessions[0] || INITIAL_DEFAULT_SESSIONS[0];
+  const medimindMessages = activeSession?.messages || [];
+
+  const setMedimindMessages = (updater) => {
+    setChatSessions(prev => {
+      const currentActiveId = chatSessionStorage.getActiveSessionId();
+      const target = prev.find(s => s.id === currentActiveId) || prev[0];
+      const newMessages = typeof updater === 'function' ? updater(target?.messages || []) : updater;
+      const updated = prev.map(s => s.id === target.id ? { ...s, messages: newMessages, updatedAt: new Date().toISOString() } : s);
+      chatSessionStorage.saveAllSessions(updated);
+      return updated;
+    });
+  };
+
+  const handleSelectSession = (sessionId) => {
+    setActiveSessionId(sessionId);
+    chatSessionStorage.setActiveSessionId(sessionId);
+  };
+
+  const handleCreateSession = (opts = {}) => {
+    const newSession = chatSessionStorage.createSession(opts);
+    setChatSessions(chatSessionStorage.getAllSessions());
+    setActiveSessionId(newSession.id);
+    addToast({
+      type: 'success',
+      title: 'New Conversation Created',
+      message: `Started workspace: "${newSession.title}"`
+    });
+    return newSession;
+  };
+
+  const handleDeleteSession = (sessionId) => {
+    chatSessionStorage.deleteSession(sessionId);
+    setChatSessions(chatSessionStorage.getAllSessions());
+    setActiveSessionId(chatSessionStorage.getActiveSessionId());
+    addToast({
+      type: 'info',
+      title: 'Conversation Deleted',
+      message: 'Chat thread removed from local storage.'
+    });
+  };
+
+  const handleRenameSession = (sessionId, newTitle) => {
+    chatSessionStorage.renameSession(sessionId, newTitle);
+    setChatSessions(chatSessionStorage.getAllSessions());
+  };
+
+  const handleTogglePinSession = (sessionId) => {
+    chatSessionStorage.togglePinSession(sessionId);
+    setChatSessions(chatSessionStorage.getAllSessions());
+  };
 
   const [userProfile, setUserProfile] = useState(() => {
     try {
@@ -258,6 +305,13 @@ export default function App() {
               <ChatbotSpaceView
                 messages={medimindMessages}
                 setMessages={setMedimindMessages}
+                chatSessions={chatSessions}
+                activeSessionId={activeSessionId}
+                onSelectSession={handleSelectSession}
+                onCreateSession={handleCreateSession}
+                onDeleteSession={handleDeleteSession}
+                onRenameSession={handleRenameSession}
+                onTogglePinSession={handleTogglePinSession}
                 onToast={addToast}
                 onAddCredits={handleAddCredits}
                 onReturnToEcosystem={() => handleSelectScreen(lastEcosystemScreen || 'dashboard')}
@@ -331,6 +385,11 @@ export default function App() {
         <AiChatbot
           messages={medimindMessages}
           setMessages={setMedimindMessages}
+          chatSessions={chatSessions}
+          activeSessionId={activeSessionId}
+          onSelectSession={handleSelectSession}
+          onCreateSession={handleCreateSession}
+          onDeleteSession={handleDeleteSession}
           onToast={addToast}
           onOpenSpace={() => handleSelectScreen('chatbot')}
         />

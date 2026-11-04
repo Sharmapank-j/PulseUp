@@ -24,6 +24,9 @@ import {
   Check,
   AlertCircle,
   Cloud,
+  Plus,
+  Pin,
+  RotateCcw,
 } from 'lucide-react';
 import {
   CLOUD_PRESETS,
@@ -35,6 +38,10 @@ import {
   aiStorage,
   cleanApiKey,
   PULSEUP_AI_CONFIG_EVENT,
+  chatSessionStorage,
+  PULSEUP_CHAT_SESSION_EVENT,
+  generatePrototypeResponse,
+  simulateStreamResponse,
 } from '../../services/aiService';
 
 // ─── System prompt tuned for PulseUp medical career context ───────────────
@@ -109,9 +116,20 @@ function scriptedResponse(userMsg) {
 
 const LS = aiStorage;
 
-export default function AiChatbot({ onToast, onOpenSpace, messages: propMessages, setMessages: propSetMessages }) {
+export default function AiChatbot({
+  onToast,
+  onOpenSpace,
+  messages: propMessages,
+  setMessages: propSetMessages,
+  chatSessions = [],
+  activeSessionId,
+  onSelectSession,
+  onCreateSession,
+  onDeleteSession,
+}) {
   const [isOpen, setIsOpen] = useState(false);
   const [showCfg, setShowCfg] = useState(false);
+  const [showSessionPicker, setShowSessionPicker] = useState(false);
 
   // Providers & Cloud Config
   const [provider, setProvider] = useState(() => aiStorage.get('pulseup_ai_provider', 'none'));
@@ -344,23 +362,39 @@ export default function AiChatbot({ onToast, onOpenSpace, messages: propMessages
     if (!userText || loading) return;
     setInput('');
 
-    const userMsg = { role: 'user', text: userText, id: 'u-' + Date.now() };
-    setMessages(prev => [...prev, userMsg]);
+    const userMsg = {
+      role: 'user',
+      text: userText,
+      id: 'u-' + Date.now(),
+      timestamp: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })
+    };
+    const nextMsgs = [...messages, userMsg];
+    setMessages(nextMsgs);
     setLoading(true);
 
     try {
-      let reply = '';
-
       if (provider === 'gemini' && geminiKey) {
-        reply = await callGeminiApi({
+        const reply = await callGeminiApi({
           key: geminiKey,
           model: geminiModel,
           messages,
           userText,
           systemPrompt: SYSTEM_INSTRUCTION,
         });
+        const botMsg = {
+          role: 'assistant',
+          text: reply,
+          id: 'a-' + Date.now(),
+          timestamp: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })
+        };
+        const finalMsgs = [...nextMsgs, botMsg];
+        setMessages(finalMsgs);
+        if (activeSessionId) {
+          chatSessionStorage.updateSessionMessages(activeSessionId, finalMsgs);
+        }
+        setLoading(false);
       } else if (provider === 'custom' && customUrl) {
-        reply = await callCloudLlmApi({
+        const reply = await callCloudLlmApi({
           url: customUrl,
           key: customKey,
           model: customModel,
@@ -368,28 +402,83 @@ export default function AiChatbot({ onToast, onOpenSpace, messages: propMessages
           userText,
           systemPrompt: SYSTEM_INSTRUCTION,
         });
+        const botMsg = {
+          role: 'assistant',
+          text: reply,
+          id: 'a-' + Date.now(),
+          timestamp: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })
+        };
+        const finalMsgs = [...nextMsgs, botMsg];
+        setMessages(finalMsgs);
+        if (activeSessionId) {
+          chatSessionStorage.updateSessionMessages(activeSessionId, finalMsgs);
+        }
+        setLoading(false);
       } else {
-        await new Promise(r => setTimeout(r, 600 + Math.random() * 500));
-        reply = scriptedResponse(userText);
-      }
+        // Prototype Clinical AI Engine with simulated stream typing
+        const fullPrototypeReply = generatePrototypeResponse(userText, 'general');
+        const botId = 'a-' + Date.now();
+        const placeholderMsg = {
+          role: 'assistant',
+          text: '',
+          id: botId,
+          isStreaming: true,
+          timestamp: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })
+        };
+        setMessages([...nextMsgs, placeholderMsg]);
 
-      setMessages(prev => [...prev, { role: 'assistant', text: reply, id: 'a-' + Date.now() }]);
+        simulateStreamResponse(
+          fullPrototypeReply,
+          (chunk) => {
+            setMessages(prev => prev.map(m => m.id === botId ? { ...m, text: chunk } : m));
+          },
+          () => {
+            setMessages(prev => {
+              const completed = prev.map(m => m.id === botId ? { ...m, isStreaming: false } : m);
+              if (activeSessionId) {
+                chatSessionStorage.updateSessionMessages(activeSessionId, completed);
+              }
+              return completed;
+            });
+            setLoading(false);
+          },
+          12
+        );
+      }
     } catch (err) {
       console.error('medimind.ai error:', err);
-      setMessages(prev => [...prev, {
+      const errMsg = {
         role: 'assistant',
         text: `**⚠️ Connection / Inference Error:**\n\n${err?.message || 'Something went wrong.'}\n\n*Tap ⚙️ above to test connection, check API credentials, or switch cloud providers.*`,
         id: 'err-' + Date.now(),
         isError: true,
-      }]);
+        timestamp: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })
+      };
+      setMessages(prev => {
+        const withErr = [...prev, errMsg];
+        if (activeSessionId) {
+          chatSessionStorage.updateSessionMessages(activeSessionId, withErr);
+        }
+        return withErr;
+      });
       onToast?.({
         type: 'error',
         title: 'AI Communication Error',
         message: (err?.message || 'Failed to communicate with provider').slice(0, 100),
       });
-    } finally {
       setLoading(false);
     }
+  };
+
+  const handleRegenerate = () => {
+    if (loading) return;
+    const lastUserMsg = [...messages].reverse().find(m => m.role === 'user');
+    if (!lastUserMsg) return;
+    const lastBotIdx = [...messages].map(m => m.role).lastIndexOf('assistant');
+    if (lastBotIdx !== -1) {
+      setMessages(prev => prev.slice(0, lastBotIdx));
+    }
+    sendMessage(lastUserMsg.text);
   };
 
   const handleKeyDown = (e) => {
@@ -446,23 +535,44 @@ export default function AiChatbot({ onToast, onOpenSpace, messages: propMessages
         <div className="absolute -bottom-20 -right-20 w-48 h-48 bg-purple-500/10 dark:bg-purple-500/20 rounded-full blur-2xl pointer-events-none" />
 
         {/* Header - Sticky and Permanent */}
-        <div className="sticky top-0 z-30 flex items-center justify-between px-4 py-3.5 border-b border-zinc-200 dark:border-white/10 backdrop-blur-2xl bg-zinc-50/95 dark:bg-[#0E1526]/95 flex-shrink-0 shadow-xs">
-          <div className="flex items-center gap-2.5">
-            <div className="w-8 h-8 rounded-xl bg-gradient-to-br from-blue-500 via-indigo-600 to-purple-600 p-[1px] shadow-md shadow-blue-500/30 flex items-center justify-center">
+        <div className="sticky top-0 z-30 flex items-center justify-between px-3.5 sm:px-4 py-3 border-b border-zinc-200 dark:border-white/10 backdrop-blur-2xl bg-zinc-50/95 dark:bg-[#0E1526]/95 flex-shrink-0 shadow-xs">
+          <div className="flex items-center gap-2 min-w-0">
+            <div className="w-8 h-8 rounded-xl bg-gradient-to-br from-blue-500 via-indigo-600 to-purple-600 p-[1px] shadow-md shadow-blue-500/30 flex items-center justify-center flex-shrink-0">
               <Sparkles size={16} className="text-white drop-shadow-[0_0_6px_rgba(255,255,255,0.8)]" />
             </div>
-            <div>
-              <h3 className="font-display font-black text-sm text-zinc-900 dark:text-white flex items-center gap-1.5 tracking-tight">
-                medimind.ai
-                <span className="text-[9px] font-mono font-bold px-1.5 py-0.2 rounded-full bg-blue-500/25 text-blue-600 dark:text-blue-300 border border-blue-400/30">
-                  AI
-                </span>
-              </h3>
-              <p className={`text-[10px] font-mono ${providerColor}`}>{providerLabel}</p>
+            <div className="min-w-0">
+              <div className="flex items-center gap-1.5">
+                <h3 className="font-display font-black text-sm text-zinc-900 dark:text-white flex items-center gap-1 tracking-tight">
+                  medimind.ai
+                </h3>
+                {activeSessionId && (
+                  <button
+                    onClick={() => setShowSessionPicker(p => !p)}
+                    className="flex items-center gap-1 px-1.5 py-0.5 rounded-full bg-zinc-200/70 hover:bg-zinc-300 dark:bg-white/10 dark:hover:bg-white/15 text-[9px] font-medium text-zinc-700 dark:text-zinc-300 max-w-[110px] truncate"
+                    title="Switch Conversation Thread"
+                  >
+                    <span className="truncate">{(chatSessions || []).find(s => s.id === activeSessionId)?.title || 'Thread'}</span>
+                    <ChevronDown size={10} className="opacity-60 flex-shrink-0" />
+                  </button>
+                )}
+              </div>
+              <p className={`text-[9.5px] font-mono ${providerColor}`}>{providerLabel}</p>
             </div>
           </div>
 
-          <div className="flex items-center gap-1">
+          <div className="flex items-center gap-1 flex-shrink-0">
+            {/* Quick New Chat Button */}
+            <button
+              onClick={() => {
+                onCreateSession?.('general');
+                setShowSessionPicker(false);
+              }}
+              title="New Consultation Thread"
+              className="p-1.5 rounded-lg text-blue-600 dark:text-blue-400 hover:bg-blue-500/10 transition-colors flex items-center gap-0.5 text-xs font-semibold"
+            >
+              <Plus size={14} />
+            </button>
+
             {/* Open in Fullscreen Space Button */}
             {onOpenSpace && (
               <button
@@ -508,6 +618,47 @@ export default function AiChatbot({ onToast, onOpenSpace, messages: propMessages
             </button>
           </div>
         </div>
+
+        {/* ── Preserved Chat Threads Dropdown ── */}
+        {showSessionPicker && (
+          <div className="relative z-20 border-b border-zinc-200 dark:border-white/10 bg-zinc-50 dark:bg-[#0B101E] p-2.5 max-h-48 overflow-y-auto space-y-1 shadow-md">
+            <div className="flex items-center justify-between px-1 text-[10px] font-bold text-zinc-400 uppercase tracking-wider mb-1">
+              <span>Preserved Consultations</span>
+              <button
+                onClick={() => {
+                  onCreateSession?.('general');
+                  setShowSessionPicker(false);
+                }}
+                className="text-blue-500 hover:underline flex items-center gap-0.5 text-[10px] font-bold"
+              >
+                <Plus size={10} /> New
+              </button>
+            </div>
+            {(chatSessions || []).map(s => (
+              <div
+                key={s.id}
+                className={`w-full px-2 py-1.5 rounded-lg text-xs flex items-center justify-between transition-colors ${
+                  s.id === activeSessionId
+                    ? 'bg-blue-500/15 text-blue-600 dark:text-blue-400 font-bold'
+                    : 'hover:bg-zinc-200/60 dark:hover:bg-white/5 text-zinc-700 dark:text-zinc-300'
+                }`}
+              >
+                <button
+                  onClick={() => {
+                    onSelectSession?.(s.id);
+                    setShowSessionPicker(false);
+                  }}
+                  className="truncate flex-1 text-left"
+                >
+                  {s.title}
+                </button>
+                <span className="text-[9px] opacity-60 font-mono ml-2 flex-shrink-0">
+                  {s.messages?.length || 0} msgs
+                </span>
+              </div>
+            ))}
+          </div>
+        )}
 
         {/* ── Settings Panel (Collapsible Glass) ── */}
         {showCfg && (
@@ -805,15 +956,31 @@ export default function AiChatbot({ onToast, onOpenSpace, messages: propMessages
                 {msg.role === 'user' ? (
                   <p className="text-xs leading-relaxed">{msg.text}</p>
                 ) : (
-                  <div className="space-y-0.5">{renderMarkdown(msg.text)}</div>
+                  <div className="space-y-0.5">
+                    {renderMarkdown(msg.text)}
+                    {msg.isStreaming && (
+                      <span className="inline-block w-1.5 h-3.5 bg-blue-500 animate-pulse ml-0.5 align-middle rounded-xs" />
+                    )}
+                  </div>
                 )}
                 {msg.role === 'assistant' && (
-                  <button
-                    onClick={() => copyMsg(msg.text, msg.id)}
-                    className="absolute -top-2 -right-2 opacity-0 group-hover:opacity-100 transition-opacity bg-white/90 dark:bg-zinc-800/90 border border-zinc-200 dark:border-white/20 rounded-lg p-1 shadow-sm text-zinc-500 hover:text-zinc-800 dark:hover:text-zinc-200"
-                  >
-                    {copiedId === msg.id ? <CheckCheck size={11} className="text-emerald-500" /> : <Copy size={11} />}
-                  </button>
+                  <div className="absolute -top-2 -right-2 opacity-0 group-hover:opacity-100 transition-opacity flex items-center gap-0.5 bg-white/90 dark:bg-zinc-800/90 border border-zinc-200 dark:border-white/20 rounded-lg p-0.5 shadow-sm">
+                    <button
+                      onClick={handleRegenerate}
+                      disabled={loading}
+                      className="p-1 rounded text-zinc-500 hover:text-blue-500 transition-colors"
+                      title="Regenerate deliberation"
+                    >
+                      <RotateCcw size={10} />
+                    </button>
+                    <button
+                      onClick={() => copyMsg(msg.text, msg.id)}
+                      className="p-1 rounded text-zinc-500 hover:text-zinc-800 dark:hover:text-zinc-200 transition-colors"
+                      title="Copy text"
+                    >
+                      {copiedId === msg.id ? <CheckCheck size={11} className="text-emerald-500" /> : <Copy size={11} />}
+                    </button>
+                  </div>
                 )}
               </div>
               {msg.role === 'user' && (
@@ -880,7 +1047,13 @@ export default function AiChatbot({ onToast, onOpenSpace, messages: propMessages
           </div>
           <div className="flex items-center justify-between text-[9px] text-zinc-500 dark:text-zinc-400 mt-1.5 px-1 font-mono">
             <span>
-              {provider === 'gemini' ? 'Gemini 2.0 Flash' : provider === 'custom' ? `Custom: ${customModel}` : 'Scripted Mode'}
+              {input.length > 0
+                ? `${input.length} chars (~${Math.round(input.length / 4)} tokens)`
+                : provider === 'gemini'
+                ? 'Gemini 2.0 Flash'
+                : provider === 'custom'
+                ? `Custom: ${customModel}`
+                : 'Prototype Engine'}
             </span>
             {onOpenSpace && (
               <button
