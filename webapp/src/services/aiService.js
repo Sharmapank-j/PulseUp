@@ -116,6 +116,24 @@ export const CLOUD_PRESETS = [
     keyDoc: 'Requires OLLAMA_ORIGINS="*"',
   },
   {
+    id: 'tunnel',
+    name: 'HTTPS Tunnel / Bridge',
+    badge: 'Cloudflared / untun / bridge',
+    accent: 'text-cyan-500 dark:text-cyan-400',
+    border: 'border-cyan-500/30',
+    bg: 'bg-cyan-500/10',
+    defaultUrl: 'https://localhost:11435/v1',
+    defaultModel: 'llama3',
+    models: [
+      { id: 'llama3', label: 'Llama 3' },
+      { id: 'mistral', label: 'Mistral 7B' },
+      { id: 'qwen2.5', label: 'Qwen 2.5' },
+    ],
+    keyPlaceholder: 'Bearer token or blank',
+    keyUrl: '',
+    keyDoc: 'Bypasses browser mixed content on HTTPS',
+  },
+  {
     id: 'custom',
     name: 'Custom Endpoint',
     badge: 'Custom OpenAI-Compatible',
@@ -235,13 +253,25 @@ export function diagnoseAiError(err, status = 0, targetUrl = '') {
 
   const isHttps = typeof window !== 'undefined' && window.location?.protocol === 'https:';
   const isHttpTarget = targetUrl && targetUrl.startsWith('http://');
+  const isNetworkFailure = status === 0 && (rawMsg.includes('Failed to fetch') || err?.name === 'TypeError' || rawMsg.includes('NetworkError'));
 
   // Case 1: Browser Mixed Content Block (HTTPS page fetching HTTP local/remote server)
-  if (isHttps && isHttpTarget) {
+  if (isNetworkFailure && isHttps && isHttpTarget) {
+    const isLocalhost = targetUrl && (targetUrl.includes('localhost') || targetUrl.includes('127.0.0.1'));
+    if (isLocalhost) {
+      return {
+        title: 'Mixed Content Blocked by Browser (HTTPS → HTTP Localhost)',
+        message: 'Your browser blocks insecure HTTP requests to localhost from HTTPS sites (https://pulseupdemo.netlify.app).\n\nQuick Infrastructure Fixes:\n1) Run PulseUp locally: `npm run dev` (opens http://localhost:3000, 0 mixed-content restrictions)\n2) Free HTTPS Tunnel: Run `npx untun tunnel http://localhost:11434` or `npm run bridge:tunnel`\n3) Browser Permission: Click padlock/tune icon in address bar → Site settings → set Insecure content to "Allow".',
+        code: 'ERR_MIXED_CONTENT_LOCAL',
+        isMixedContent: true,
+        isLocal: true,
+        serverDetail,
+      };
+    }
     return {
-      title: 'Mixed Content Blocked by Browser (HTTPS → HTTP)',
-      message: 'Your browser blocks insecure HTTP requests from HTTPS sites (https://pulseupdemo.netlify.app). To connect to local models: 1) Run PulseUp locally on http://localhost:5173, 2) Expose your local model via HTTPS (e.g. cloudflared tunnel or ngrok), or 3) Allow "Insecure content" in your browser site permissions.',
-      code: 'ERR_MIXED_CONTENT',
+      title: 'Mixed Content Blocked by Browser (HTTPS → HTTP Remote)',
+      message: 'Direct HTTP requests from HTTPS sites are restricted by browser security policies. PulseUp routes remote HTTP servers through its secure Netlify AI Proxy Gateway. If this still fails, verify your server is running and accessible.',
+      code: 'ERR_MIXED_CONTENT_REMOTE',
       isMixedContent: true,
       serverDetail,
     };
@@ -420,6 +450,55 @@ export function buildOpenAiMessages(messages, userText, systemPrompt) {
   return msgs;
 }
 
+// ── Smart AI Request Dispatcher with Gateway Proxy Fallback ─────────────────
+/**
+ * Smart AI Request Dispatcher with Gateway Proxy Fallback
+ * Resolves browser Mixed Content (HTTPS -> HTTP) and CORS preflight blocks.
+ */
+export async function dispatchAiRequest({ endpoint, headers, body, signal }) {
+  const isHttpsPage = typeof window !== 'undefined' && window.location?.protocol === 'https:';
+  const isLocal = /^(https?:\/\/)?(localhost|127\.0\.0\.1|0\.0\.0\.0)(:\d+)?/i.test(endpoint);
+  const isRemoteHttp = isHttpsPage && endpoint.startsWith('http://') && !isLocal;
+
+  // Case 1: Remote HTTP on an HTTPS page MUST go through the serverless proxy
+  // because browsers unconditionally block insecure HTTP subresources from HTTPS origins
+  if (isRemoteHttp) {
+    return await fetch('/api/proxy', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ endpoint, method: 'POST', headers, body }),
+      signal,
+    });
+  }
+
+  // Case 2: Attempt direct fetch
+  try {
+    return await fetch(endpoint, {
+      method: 'POST',
+      headers,
+      body: JSON.stringify(body),
+      signal,
+    });
+  } catch (directErr) {
+    // If direct fetch fails on a remote target (CORS/network block) while on Netlify,
+    // seamlessly retry through the backend serverless proxy (/api/proxy)
+    if (!isLocal && typeof window !== 'undefined' && window.location?.origin) {
+      try {
+        const proxyRes = await fetch('/api/proxy', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ endpoint, method: 'POST', headers, body }),
+          signal,
+        });
+        if (proxyRes.ok) {
+          return proxyRes;
+        }
+      } catch {}
+    }
+    throw directErr;
+  }
+}
+
 // ── Connection Verification / Ping Tests ────────────────────────────────────
 /**
  * Test Google Gemini connection with a 1-token prompt
@@ -437,13 +516,13 @@ export async function testGeminiConnection(key, model = 'gemini-2.0-flash') {
   const timeoutId = setTimeout(() => controller.abort(), 12000);
 
   try {
-    const res = await fetch(endpoint, {
-      method: 'POST',
+    const res = await dispatchAiRequest({
+      endpoint,
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({
+      body: {
         contents: [{ role: 'user', parts: [{ text: 'ping' }] }],
         generationConfig: { maxOutputTokens: 2 },
-      }),
+      },
       signal: controller.signal,
     });
     clearTimeout(timeoutId);
@@ -494,10 +573,10 @@ export async function testCloudConnection(rawUrl, key, model = 'llama-3.3-70b-ve
       };
 
   try {
-    const res = await fetch(endpoint, {
-      method: 'POST',
+    const res = await dispatchAiRequest({
+      endpoint,
       headers,
-      body: JSON.stringify(requestBody),
+      body: requestBody,
       signal: controller.signal,
     });
     clearTimeout(timeoutId);
@@ -538,10 +617,10 @@ export async function callGeminiApi({ key, model = 'gemini-2.0-flash', messages,
   const timeoutId = setTimeout(() => controller.abort(), 35000);
 
   try {
-    const res = await fetch(endpoint, {
-      method: 'POST',
+    const res = await dispatchAiRequest({
+      endpoint,
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify(body),
+      body,
       signal: controller.signal,
     });
     clearTimeout(timeoutId);
@@ -592,10 +671,10 @@ export async function callCloudLlmApi({ url, key, model, messages, userText, sys
   const timeoutId = setTimeout(() => controller.abort(), 45000);
 
   try {
-    const res = await fetch(endpoint, {
-      method: 'POST',
+    const res = await dispatchAiRequest({
+      endpoint,
       headers,
-      body: JSON.stringify(requestBody),
+      body: requestBody,
       signal: controller.signal,
     });
     clearTimeout(timeoutId);

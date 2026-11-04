@@ -1194,16 +1194,39 @@ export default function ChatbotSpaceView({
                       </div>
 
                       {isLocal && (
-                        <div className="p-2.5 rounded-xl bg-purple-500/10 border border-purple-500/25 text-[10px] text-zinc-700 dark:text-zinc-300 space-y-1.5 leading-relaxed">
-                          <div className="font-bold flex items-center gap-1.5 text-purple-700 dark:text-purple-300">
-                            <Terminal size={12} /> Local Server Setup Guide
+                        <div className="p-2.5 rounded-xl bg-purple-500/10 border border-purple-500/25 text-[10px] text-zinc-700 dark:text-zinc-300 space-y-2 leading-relaxed">
+                          <div className="font-bold flex items-center justify-between text-purple-700 dark:text-purple-300">
+                            <span className="flex items-center gap-1.5"><Terminal size={12} /> HTTP vs HTTPS Browser Gateway</span>
+                            <span className="text-[8.5px] px-1.5 py-0.5 rounded bg-purple-500/20 font-mono font-bold">Infrastructure</span>
                           </div>
-                          <p>
-                            <strong>1. CORS permission:</strong> Ollama requires running with <code className="bg-purple-500/20 px-1 py-0.5 rounded font-mono text-[9px]">OLLAMA_ORIGINS=&quot;*&quot; ollama serve</code> or toggle <em>Enable CORS</em> in LM Studio server settings.
+                          <p className="text-[9.5px]">
+                            When using PulseUp over HTTPS (<code className="bg-purple-500/20 px-1 py-0.5 rounded font-mono text-[9px]">pulseupdemo.netlify.app</code>), browsers enforce mixed-content security for <code className="bg-purple-500/20 px-1 py-0.5 rounded font-mono text-[9px]">http://localhost</code>. Connect using any option below:
                           </p>
-                          <p>
-                            <strong>2. Mixed content:</strong> On HTTPS deployments (Netlify), browsers block HTTP localhost. For direct local access, run PulseUp locally (<code className="bg-purple-500/20 px-1 py-0.5 rounded font-mono text-[9px]">npm run dev</code>) or use an HTTPS tunnel (<code className="bg-purple-500/20 px-1 py-0.5 rounded font-mono text-[9px]">cloudflared tunnel --url http://localhost:11434</code>).
-                          </p>
+                          <div className="space-y-1.5 text-[9.5px]">
+                            <div className="p-1.5 rounded-lg bg-white/70 dark:bg-black/30 border border-purple-500/20">
+                              <span className="font-bold text-zinc-900 dark:text-zinc-100">Option 1: Instant HTTPS Tunnel (Recommended)</span>
+                              <div className="mt-0.5 font-mono text-[9px] text-purple-600 dark:text-purple-300 select-all font-semibold">
+                                npx untun tunnel http://localhost:11434
+                              </div>
+                              <span className="text-[8px] text-zinc-500 dark:text-zinc-400 block mt-0.5">Paste the generated https:// URL into Base Endpoint URL above.</span>
+                            </div>
+                            <div className="p-1.5 rounded-lg bg-white/70 dark:bg-black/30 border border-purple-500/20">
+                              <span className="font-bold text-zinc-900 dark:text-zinc-100">Option 2: Run PulseUp Locally via HTTP</span>
+                              <div className="mt-0.5 font-mono text-[9px] text-purple-600 dark:text-purple-300 select-all font-semibold">
+                                npm run dev
+                              </div>
+                              <span className="text-[8px] text-zinc-500 dark:text-zinc-400 block mt-0.5">Runs on http://localhost:3000 with zero mixed-content restrictions.</span>
+                            </div>
+                            <div className="p-1.5 rounded-lg bg-white/70 dark:bg-black/30 border border-purple-500/20">
+                              <span className="font-bold text-zinc-900 dark:text-zinc-100">Option 3: Browser Site Permission</span>
+                              <span className="text-[8.5px] text-zinc-600 dark:text-zinc-300 block mt-0.5">
+                                In browser address bar, click padlock/tune icon → <em>Site settings</em> → set <em>Insecure content</em> to <strong>Allow</strong>.
+                              </span>
+                            </div>
+                          </div>
+                          <div className="text-[8.5px] text-zinc-400 dark:text-zinc-500 pt-0.5 border-t border-purple-500/15">
+                            <em>Remote HTTP endpoints are automatically routed through PulseUp's secure Netlify AI Proxy Gateway.</em>
+                          </div>
                         </div>
                       )}
 

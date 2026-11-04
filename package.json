@@ -6,6 +6,8 @@
   "scripts": {
     "build": "npm --prefix webapp install && npm --prefix webapp run build && node -e \"const fs=require('fs'); fs.cpSync('webapp/dist', 'dist', {recursive: true});\"",
     "dev": "npm --prefix webapp run dev",
-    "test": "node tests/test_runner.js"
+    "test": "node tests/test_runner.js",
+    "bridge": "node scripts/local_bridge.js",
+    "bridge:tunnel": "node scripts/local_bridge.js --tunnel"
   }
 }

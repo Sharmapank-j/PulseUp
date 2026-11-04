@@ -2,7 +2,15 @@
   base = "webapp"
   publish = "dist"
   command = "npm run build"
+  functions = "netlify/functions"
 
+# AI Gateway Serverless Reverse Proxy (bypasses browser mixed content & CORS)
+[[redirects]]
+  from = "/api/proxy"
+  to = "/.netlify/functions/ai-proxy"
+  status = 200
+
+# SPA Fallback
 [[redirects]]
   from = "/*"
   to = "/index.html"
