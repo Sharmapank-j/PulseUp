@@ -917,11 +917,11 @@ export default function AiChatbot({
                 {(cloudPreset === 'ollama' || (customUrlD && (customUrlD.includes('localhost') || customUrlD.includes('127.0.0.1')))) && (
                   <div className="p-2.5 rounded-xl bg-purple-500/10 border border-purple-500/25 text-[10px] text-zinc-700 dark:text-zinc-300 space-y-2 leading-relaxed">
                     <div className="font-bold flex items-center justify-between text-purple-700 dark:text-purple-300">
-                      <span className="flex items-center gap-1.5"><Terminal size={12} /> HTTP vs HTTPS Browser Gateway</span>
-                      <span className="text-[8.5px] px-1.5 py-0.5 rounded bg-purple-500/20 font-mono font-bold">Infrastructure</span>
+                      <span className="flex items-center gap-1.5"><Terminal size={12} /> Local / Self-Hosted Endpoint Setup</span>
+                      <span className="text-[8.5px] px-1.5 py-0.5 rounded bg-purple-500/20 font-mono font-bold">Local Engine</span>
                     </div>
                     <p className="text-[9.5px]">
-                      When using PulseUp over HTTPS (<code className="bg-purple-500/20 px-1 py-0.5 rounded font-mono text-[9px]">pulseupdemo.netlify.app</code>), browsers block insecure HTTP requests to <code className="bg-purple-500/20 px-1 py-0.5 rounded font-mono text-[9px]">http://localhost</code>. Connect using:
+                      When accessing PulseUp over HTTPS, modern browsers enforce security policies preventing web pages from reaching unencrypted local HTTP addresses (<code className="bg-purple-500/20 px-1 py-0.5 rounded font-mono text-[9px]">http://localhost</code>). Connect your local model using:
                     </p>
                     <div className="space-y-1.5 text-[9.5px]">
                       <div className="p-1.5 rounded-lg bg-white/70 dark:bg-black/30 border border-purple-500/20">
@@ -944,9 +944,6 @@ export default function AiChatbot({
                           Click padlock/tune icon in address bar → <em>Site settings</em> → set <em>Insecure content</em> to <strong>Allow</strong>.
                         </span>
                       </div>
-                    </div>
-                    <div className="text-[8.5px] text-zinc-400 dark:text-zinc-500 pt-0.5 border-t border-purple-500/15">
-                      <em>Remote HTTP endpoints are automatically routed through PulseUp's secure Netlify AI Proxy Gateway.</em>
                     </div>
                   </div>
                 )}

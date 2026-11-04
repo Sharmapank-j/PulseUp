@@ -1,12 +1,12 @@
 {
-  "timestamp": "2026-11-04T22:22:21.688Z",
+  "timestamp": "2026-11-04T22:39:20.400Z",
   "targetDirectory": "C:\\Users\\pr218\\OneDrive\\Documents\\projects Antigravity\\PulseUp",
   "stats": {
     "total": 46,
     "passed": 46,
     "failed": 0,
     "skipped": 0,
-    "durationMs": 56
+    "durationMs": 25
   },
   "suites": [
     {
@@ -18,7 +18,7 @@
           "id": "T1-DOC-001",
           "name": "Core directory layout matches specification",
           "status": "PASS",
-          "durationMs": 3
+          "durationMs": 1
         },
         {
           "id": "T1-DOC-002",
@@ -36,7 +36,7 @@
           "id": "T1-DOC-004",
           "name": "README.md contains explicit browser launch instructions for prototype/index.html",
           "status": "PASS",
-          "durationMs": 1
+          "durationMs": 0
         },
         {
           "id": "T1-DOC-005",
@@ -61,7 +61,7 @@
           "id": "T1-PROTO-001",
           "name": "Prototype HTML file exists and exceeds 15KB payload threshold",
           "status": "PASS",
-          "durationMs": 3
+          "durationMs": 1
         },
         {
           "id": "T1-PROTO-002",
@@ -85,7 +85,7 @@
           "id": "T1-PROTO-005",
           "name": "Clinical dark design system hex color tokens implemented accurately",
           "status": "PASS",
-          "durationMs": 11
+          "durationMs": 6
         },
         {
           "id": "T1-PROTO-006",
@@ -115,7 +115,7 @@
           "id": "T1-PROTO-010",
           "name": "Screen 4: AETCOM Bioethics Hub elements present",
           "status": "PASS",
-          "durationMs": 1
+          "durationMs": 0
         },
         {
           "id": "T1-PROTO-011",
@@ -127,13 +127,13 @@
           "id": "T1-PROTO-012",
           "name": "Screen 6: Campus Pulse & Med-Q elements present",
           "status": "PASS",
-          "durationMs": 0
+          "durationMs": 1
         },
         {
           "id": "T1-PROTO-013",
           "name": "Screen 7: Bharat Opportunities Engine elements present",
           "status": "PASS",
-          "durationMs": 1
+          "durationMs": 0
         },
         {
           "id": "T1-PROTO-014",
@@ -145,25 +145,25 @@
           "id": "T1-PROTO-015",
           "name": "Command search overlay (Cmd+K / Ctrl+K) contains all 8 screen links",
           "status": "PASS",
-          "durationMs": 1
+          "durationMs": 0
         },
         {
           "id": "T1-PROTO-016",
           "name": "Toast notification engine exists in DOM and CSS",
           "status": "PASS",
-          "durationMs": 0
+          "durationMs": 1
         },
         {
           "id": "T1-PROTO-017",
           "name": "Inline JavaScript parses and compiles cleanly without syntax errors",
           "status": "PASS",
-          "durationMs": 2
+          "durationMs": 1
         },
         {
           "id": "T1-PROTO-018",
           "name": "Static safety audit: script avoids unsafe eval() and document.write()",
           "status": "PASS",
-          "durationMs": 1
+          "durationMs": 0
         }
       ]
     },
@@ -176,13 +176,13 @@
           "id": "T1-DATA-001",
           "name": "medical_events_database.md exists and covers Categories A through E",
           "status": "PASS",
-          "durationMs": 3
+          "durationMs": 1
         },
         {
           "id": "T1-DATA-002",
           "name": "seed_data.json exists and parses cleanly as a top-level JSON array",
           "status": "PASS",
-          "durationMs": 2
+          "durationMs": 1
         },
         {
           "id": "T1-DATA-003",
@@ -200,7 +200,7 @@
           "id": "T1-DATA-005",
           "name": "pulse_credits_suggested is strictly a positive finite number across all entries",
           "status": "PASS",
-          "durationMs": 1
+          "durationMs": 0
         },
         {
           "id": "T1-DATA-006",
@@ -212,7 +212,7 @@
           "id": "T1-DATA-007",
           "name": "USMLE entries specify eligibility criteria for Indian MBBS students/graduates",
           "status": "PASS",
-          "durationMs": 1
+          "durationMs": 0
         },
         {
           "id": "T1-DATA-008",
@@ -243,13 +243,13 @@
           "id": "T2-EDGE-001",
           "name": "Cross-platform keyboard shortcut listens for both ctrlKey and metaKey",
           "status": "PASS",
-          "durationMs": 0
+          "durationMs": 1
         },
         {
           "id": "T2-EDGE-002",
           "name": "Countdown timer handles zero boundary and negative underflow prevention",
           "status": "PASS",
-          "durationMs": 1
+          "durationMs": 0
         },
         {
           "id": "T2-EDGE-003",
@@ -261,7 +261,7 @@
           "id": "T2-EDGE-004",
           "name": "Toast notification cleans up running timers before spawning new notifications",
           "status": "PASS",
-          "durationMs": 0
+          "durationMs": 1
         },
         {
           "id": "T2-EDGE-005",
@@ -279,7 +279,7 @@
           "id": "T3-COMB-002",
           "name": "Workbench view switching logic cleanly isolates sub-panels",
           "status": "PASS",
-          "durationMs": 1
+          "durationMs": 0
         },
         {
           "id": "T3-COMB-003",
@@ -298,13 +298,13 @@
           "id": "T4-E2E-001",
           "name": "Persona 1 Journey (Dr. Aarav Sharma - 3rd Year MBBS Student @ MAMC Delhi)",
           "status": "PASS",
-          "durationMs": 0
+          "durationMs": 1
         },
         {
           "id": "T4-E2E-002",
           "name": "Persona 2 Journey (Dr. Priya Nair - Compulsory Rotating Medical Intern)",
           "status": "PASS",
-          "durationMs": 1
+          "durationMs": 0
         },
         {
           "id": "T4-E2E-003",

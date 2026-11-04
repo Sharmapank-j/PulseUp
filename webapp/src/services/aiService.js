@@ -301,7 +301,7 @@ export function diagnoseAiError(err, status = 0, targetUrl = '') {
     if (isLocalhost) {
       return {
         title: 'Mixed Content Blocked by Browser (HTTPS → HTTP Localhost)',
-        message: 'Your browser blocks insecure HTTP requests to localhost from HTTPS sites (https://pulseupdemo.netlify.app).\n\nQuick Infrastructure Fixes:\n1) Run PulseUp locally: `npm run dev` (opens http://localhost:3000, 0 mixed-content restrictions)\n2) Free HTTPS Tunnel: Run `npx untun tunnel http://localhost:11434` or `npm run bridge:tunnel`\n3) Browser Permission: Click padlock/tune icon in address bar → Site settings → set Insecure content to "Allow".',
+        message: 'Your browser blocks unencrypted HTTP requests to localhost from HTTPS pages.\n\nQuick Solutions:\n1) Run PulseUp locally: `npm run dev` (opens http://localhost:3000, zero mixed-content restrictions)\n2) Free HTTPS Tunnel: Run `npx untun tunnel http://localhost:11434` or `npm run bridge:tunnel`\n3) Browser Permission: Click padlock/tune icon in address bar → Site settings → set Insecure content to "Allow".',
         code: 'ERR_MIXED_CONTENT_LOCAL',
         isMixedContent: true,
         isLocal: true,
@@ -309,8 +309,8 @@ export function diagnoseAiError(err, status = 0, targetUrl = '') {
       };
     }
     return {
-      title: 'Mixed Content Blocked by Browser (HTTPS → HTTP Remote)',
-      message: 'Direct HTTP requests from HTTPS sites are restricted by browser security policies. PulseUp routes remote HTTP servers through its secure Netlify AI Proxy Gateway. If this still fails, verify your server is running and accessible.',
+      title: 'Insecure HTTP Blocked by Browser (HTTPS → HTTP)',
+      message: 'Direct unencrypted HTTP requests from HTTPS sites are restricted by browser security policies. To connect directly from your browser to your custom endpoint, use an HTTPS URL (e.g. https://your-server.com) or an SSL/TLS tunnel.',
       code: 'ERR_MIXED_CONTENT_REMOTE',
       isMixedContent: true,
       serverDetail,
@@ -490,59 +490,20 @@ export function buildOpenAiMessages(messages, userText, systemPrompt) {
   return msgs;
 }
 
-// ── Smart AI Request Dispatcher with Gateway Proxy Fallback ─────────────────
+// ── Direct Client-to-Provider AI Request Dispatcher ─────────────────────────
 /**
- * Smart AI Request Dispatcher with Gateway Proxy Fallback
- * Resolves browser Mixed Content (HTTPS -> HTTP) and CORS preflight blocks.
+ * Direct Client-to-Provider AI Request Dispatcher
+ * Directly executes requests from the user's browser to the AI provider endpoint
+ * using the credentials and configuration supplied by the user.
+ * Operates purely client-side without relying on or borrowing third-party hosting serverless proxies.
  */
 export async function dispatchAiRequest({ endpoint, headers, body, signal }) {
-  const isHttpsPage = typeof window !== 'undefined' && window.location?.protocol === 'https:';
-  const isLocal = /^(https?:\/\/)?(localhost|127\.0\.0\.1|0\.0\.0\.0)(:\d+)?/i.test(endpoint);
-  const isRemoteHttp = isHttpsPage && endpoint.startsWith('http://') && !isLocal;
-
-  // Case 1: Remote HTTP on an HTTPS page MUST go through the serverless proxy
-  // because browsers unconditionally block insecure HTTP subresources from HTTPS origins
-  if (isRemoteHttp) {
-    return await fetch('/api/proxy', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ endpoint, method: 'POST', headers, body }),
-      signal,
-    });
-  }
-
-  // Case 2: Attempt direct fetch
-  try {
-    return await fetch(endpoint, {
-      method: 'POST',
-      headers,
-      body: typeof body === 'string' ? body : JSON.stringify(body),
-      signal,
-    });
-  } catch (directErr) {
-    // If direct fetch fails on a remote target (CORS/network block, browser shields),
-    // seamlessly retry through the backend gateway proxy (/api/proxy)
-    if (!isLocal && typeof window !== 'undefined' && window.location?.origin) {
-      try {
-        const proxyRes = await fetch('/api/proxy', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ endpoint, method: 'POST', headers, body }),
-          signal,
-        });
-        // Return proxyRes if upstream responded (even with 4xx error payloads so error details are parsed)
-        if (proxyRes.status !== 404 && proxyRes.status !== 502) {
-          return proxyRes;
-        }
-        if (proxyRes.ok) {
-          return proxyRes;
-        }
-      } catch (proxyErr) {
-        console.warn('Proxy fallback failed:', proxyErr);
-      }
-    }
-    throw directErr;
-  }
+  return await fetch(endpoint, {
+    method: 'POST',
+    headers,
+    body: typeof body === 'string' ? body : JSON.stringify(body),
+    signal,
+  });
 }
 
 // ── Connection Verification / Ping Tests ────────────────────────────────────
