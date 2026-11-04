@@ -35,8 +35,20 @@ import {
   Menu,
   Sun,
   Moon,
-  PanelLeft
+  PanelLeft,
+  Cloud,
 } from 'lucide-react';
+import {
+  CLOUD_PRESETS,
+  GEMINI_MODELS,
+  testGeminiConnection,
+  testCloudConnection,
+  callGeminiApi,
+  callCloudLlmApi,
+  aiStorage,
+  cleanApiKey,
+  PULSEUP_AI_CONFIG_EVENT,
+} from '../../services/aiService';
 
 const SYSTEM_INSTRUCTION_BASE = `You are medimind.ai, the embedded AI clinical copilot for PulseUp — a career operating system for Indian medical students, interns, and residents.
 Your clinical scope encompasses:
@@ -172,21 +184,7 @@ function renderMarkdown(text) {
   }).filter(Boolean);
 }
 
-const LS = {
-  get: (k, def) => {
-    try {
-      const v = localStorage.getItem(k);
-      return v !== null ? JSON.parse(v) : def;
-    } catch {
-      return def;
-    }
-  },
-  set: (k, v) => {
-    try {
-      localStorage.setItem(k, JSON.stringify(v));
-    } catch {}
-  }
-};
+const LS = aiStorage;
 
 export default function ChatbotSpaceView({
   messages: propMessages,
@@ -200,25 +198,52 @@ export default function ChatbotSpaceView({
   onToggleMobileMenu
 }) {
   // Provider Settings State
-  const [provider, setProvider] = useState(() => LS.get('pulseup_ai_provider', 'none'));
-  const [geminiKey, setGeminiKey] = useState(() => LS.get('pulseup_gemini_key', ''));
+  const [provider, setProvider] = useState(() => aiStorage.get('pulseup_ai_provider', 'none'));
+  const [geminiKey, setGeminiKey] = useState(() => aiStorage.get('pulseup_gemini_key', ''));
+  const [geminiModel, setGeminiModel] = useState(() => aiStorage.get('pulseup_gemini_model', 'gemini-2.0-flash'));
   const [geminiDraft, setGeminiDraft] = useState('');
-  const [customUrl, setCustomUrl] = useState(() => LS.get('pulseup_custom_url', ''));
-  const [customKey, setCustomKey] = useState(() => LS.get('pulseup_custom_key', ''));
-  const [customModel, setCustomModel] = useState(() => LS.get('pulseup_custom_model', 'llama3'));
+
+  const [customUrl, setCustomUrl] = useState(() => aiStorage.get('pulseup_custom_url', ''));
+  const [customKey, setCustomKey] = useState(() => aiStorage.get('pulseup_custom_key', ''));
+  const [customModel, setCustomModel] = useState(() => aiStorage.get('pulseup_custom_model', 'llama-3.3-70b-versatile'));
+  const [cloudPreset, setCloudPreset] = useState(() => aiStorage.get('pulseup_cloud_preset', 'groq'));
+
   const [customUrlDraft, setCustomUrlDraft] = useState('');
   const [customKeyDraft, setCustomKeyDraft] = useState('');
   const [customModelDraft, setCustomModelDraft] = useState('');
   const [showKey, setShowKey] = useState(false);
   const [isConfigOpen, setIsConfigOpen] = useState(false);
 
-  // Ping Test State
+  // Ping Test State: { loading, success, latency, error, title }
   const [pingStatus, setPingStatus] = useState(null);
 
   // Active Clinical Mode & Rail Toggle
   const [activeMode, setActiveMode] = useState('general');
   const [isFullscreen, setIsFullscreen] = useState(false);
   const [isRailOpen, setIsRailOpen] = useState(true);
+
+  // Sync draft states when settings change
+  useEffect(() => {
+    setGeminiDraft(geminiKey);
+    setCustomUrlDraft(customUrl || 'https://api.groq.com/openai/v1');
+    setCustomKeyDraft(customKey);
+    setCustomModelDraft(customModel || 'llama-3.3-70b-versatile');
+  }, [geminiKey, customUrl, customKey, customModel]);
+
+  // Synchronize across components when AI config changes
+  useEffect(() => {
+    const handleSync = () => {
+      setProvider(aiStorage.get('pulseup_ai_provider', 'none'));
+      setGeminiKey(aiStorage.get('pulseup_gemini_key', ''));
+      setGeminiModel(aiStorage.get('pulseup_gemini_model', 'gemini-2.0-flash'));
+      setCustomUrl(aiStorage.get('pulseup_custom_url', ''));
+      setCustomKey(aiStorage.get('pulseup_custom_key', ''));
+      setCustomModel(aiStorage.get('pulseup_custom_model', 'llama-3.3-70b-versatile'));
+      setCloudPreset(aiStorage.get('pulseup_cloud_preset', 'groq'));
+    };
+    window.addEventListener(PULSEUP_AI_CONFIG_EVENT, handleSync);
+    return () => window.removeEventListener(PULSEUP_AI_CONFIG_EVENT, handleSync);
+  }, []);
 
   const toggleFullscreen = () => {
     try {
@@ -244,7 +269,7 @@ export default function ChatbotSpaceView({
   const [localMessages, setLocalMessages] = useState(() => [
     {
       role: 'assistant',
-      text: `### Welcome to medimind.ai Fullscreen Space 🩺✨\n\nI am your dedicated **Clinical & Medical Career Copilot**, tailored specifically for Indian MBBS students, interns, and postgrad residents.\n\n**Capabilities & Modes:**\n- **NEET PG & NEXT Strategy**: High-yield subject prioritization, clinical recall analysis, and grand test drills.\n- **ICMR-STS & Research Grants**: Protocol design, ethics clearance (IEC), sample size calculation, and CRediT authorship.\n- **NMC CBME & AETCOM**: SPIKES protocol, informed consent, difficult patient encounters, and reflective logbook entries.\n- **USMLE & Global Fellowships**: Step 1/2 CK study calendars, ECFMG certification, and elective matching.\n- **Multi-LLM Engine**: Works with **Google Gemini**, your own **Custom LLM Server** (Ollama, vLLM, LM Studio, VPS), or offline high-yield clinical drills.\n\nSelect a clinical mode or tap any prompt starter below to begin!`,
+      text: `### Welcome to medimind.ai Fullscreen Space 🩺✨\n\nI am your dedicated **Clinical & Medical Career Copilot**, tailored specifically for Indian MBBS students, interns, and postgrad residents.\n\n**Capabilities & Modes:**\n- **NEET PG & NEXT Strategy**: High-yield subject prioritization, clinical recall analysis, and grand test drills.\n- **ICMR-STS & Research Grants**: Protocol design, ethics clearance (IEC), sample size calculation, and CRediT authorship.\n- **NMC CBME & AETCOM**: SPIKES protocol, informed consent, difficult patient encounters, and reflective logbook entries.\n- **USMLE & Global Fellowships**: Step 1/2 CK study calendars, ECFMG certification, and elective matching.\n- **Multi-LLM Engine**: Works with **Google Gemini**, **Cloud-Served LLMs** (Groq, OpenRouter, DeepSeek, OpenAI), or offline high-yield clinical drills.\n\nSelect a clinical mode or tap any prompt starter below to begin!`,
       id: 'welcome',
       timestamp: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })
     }
@@ -262,43 +287,48 @@ export default function ChatbotSpaceView({
   const textareaRef = useRef(null);
 
   useEffect(() => {
-    setGeminiDraft(geminiKey);
-    setCustomUrlDraft(customUrl);
-    setCustomKeyDraft(customKey);
-    setCustomModelDraft(customModel);
-  }, [geminiKey, customUrl, customKey, customModel]);
-
-  useEffect(() => {
     // Scroll strictly within the messages container to avoid moving the Android viewport
     if (messagesScrollRef.current) {
       messagesScrollRef.current.scrollTop = messagesScrollRef.current.scrollHeight;
     }
   }, [messages, loading]);
 
+  const handleSelectCloudPreset = (presetId) => {
+    setCloudPreset(presetId);
+    const p = CLOUD_PRESETS.find(x => x.id === presetId);
+    if (p && p.defaultUrl) {
+      setCustomUrlDraft(p.defaultUrl);
+      setCustomModelDraft(p.defaultModel);
+    }
+    setPingStatus(null);
+  };
+
   const handleSaveGemini = () => {
-    const k = geminiDraft.trim();
-    if (!k.startsWith('AIza')) {
+    const k = cleanApiKey(geminiDraft);
+    if (!k) {
       onToast?.({
         type: 'error',
-        title: 'Invalid Gemini Key',
-        message: 'Gemini API keys start with "AIza". Obtain yours free at aistudio.google.com'
+        title: 'Missing Key',
+        message: 'Please provide a valid Gemini API key.'
       });
       return;
     }
     setGeminiKey(k);
-    LS.set('pulseup_gemini_key', k);
+    aiStorage.set('pulseup_gemini_key', k);
+    aiStorage.set('pulseup_gemini_model', geminiModel);
     setProvider('gemini');
-    LS.set('pulseup_ai_provider', 'gemini');
+    aiStorage.set('pulseup_ai_provider', 'gemini');
+    aiStorage.notifyUpdate();
     setIsConfigOpen(false);
     onToast?.({
       type: 'success',
-      title: 'Gemini 2.0 Flash Activated',
-      message: 'medimind.ai is now powered by Google Gemini high-speed clinical inference.'
+      title: 'Gemini Cloud Activated',
+      message: `medimind.ai powered by ${geminiModel} ✨`
     });
   };
 
   const handleSaveCustom = () => {
-    const url = customUrlDraft.trim().replace(/\/$/, '');
+    const url = (customUrlDraft || '').trim();
     if (!url.startsWith('http://') && !url.startsWith('https://')) {
       onToast?.({
         type: 'error',
@@ -307,77 +337,86 @@ export default function ChatbotSpaceView({
       });
       return;
     }
-    const model = customModelDraft.trim() || 'llama3';
+    const model = (customModelDraft || '').trim() || 'llama-3.3-70b-versatile';
+    const key = cleanApiKey(customKeyDraft);
     setCustomUrl(url);
-    LS.set('pulseup_custom_url', url);
-    setCustomKey(customKeyDraft.trim());
-    LS.set('pulseup_custom_key', customKeyDraft.trim());
+    aiStorage.set('pulseup_custom_url', url);
+    setCustomKey(key);
+    aiStorage.set('pulseup_custom_key', key);
     setCustomModel(model);
-    LS.set('pulseup_custom_model', model);
+    aiStorage.set('pulseup_custom_model', model);
+    aiStorage.set('pulseup_cloud_preset', cloudPreset);
     setProvider('custom');
-    LS.set('pulseup_ai_provider', 'custom');
+    aiStorage.set('pulseup_ai_provider', 'custom');
+    aiStorage.notifyUpdate();
     setIsConfigOpen(false);
     onToast?.({
       type: 'success',
-      title: 'Custom Model Connected',
+      title: 'Cloud LLM Connected',
       message: `Active provider: ${model} @ ${url}`
     });
   };
 
-  const handleTestConnection = async () => {
-    const url = (customUrlDraft || customUrl).trim().replace(/\/$/, '');
+  const handleTestGemini = async () => {
+    const k = cleanApiKey(geminiDraft || geminiKey);
+    if (!k) {
+      onToast?.({ type: 'error', title: 'Missing Key', message: 'Enter a Gemini API key first' });
+      return;
+    }
+    setPingStatus({ loading: true });
+    const res = await testGeminiConnection(k, geminiModel);
+    setPingStatus({ loading: false, ...res });
+    if (res.success) {
+      onToast?.({
+        type: 'success',
+        title: 'Gemini Cloud Verified',
+        message: `Endpoint responded in ${res.latency}ms!`
+      });
+    } else {
+      onToast?.({
+        type: 'error',
+        title: res.title || 'Gemini Test Failed',
+        message: res.error
+      });
+    }
+  };
+
+  const handleTestCloudConnection = async () => {
+    const url = (customUrlDraft || customUrl).trim();
     if (!url) {
       onToast?.({ type: 'error', title: 'Missing URL', message: 'Enter a Base URL first' });
       return;
     }
     setPingStatus({ loading: true });
-    const startTime = Date.now();
-    try {
-      const endpoint = `${url}/v1/chat/completions`;
-      const headers = { 'Content-Type': 'application/json' };
-      const key = customKeyDraft || customKey;
-      if (key) headers['Authorization'] = `Bearer ${key}`;
-
-      const res = await fetch(endpoint, {
-        method: 'POST',
-        headers,
-        body: JSON.stringify({
-          model: customModelDraft || customModel || 'llama3',
-          messages: [{ role: 'user', content: 'ping' }],
-          max_tokens: 5
-        })
+    const res = await testCloudConnection(
+      url,
+      customKeyDraft || customKey,
+      customModelDraft || customModel
+    );
+    setPingStatus({ loading: false, ...res });
+    if (res.success) {
+      onToast?.({
+        type: 'success',
+        title: 'Cloud LLM Verified',
+        message: `Connected to ${res.model} in ${res.latency}ms!`
       });
-
-      const latency = Date.now() - startTime;
-      if (res.ok) {
-        setPingStatus({ loading: false, success: true, latency });
-        onToast?.({
-          type: 'success',
-          title: 'Connection Successful',
-          message: `Endpoint responded in ${latency}ms!`
-        });
-      } else {
-        const errText = await res.text().catch(() => '');
-        setPingStatus({ loading: false, success: false, error: `HTTP ${res.status}: ${errText.slice(0, 100)}` });
-        onToast?.({
-          type: 'error',
-          title: 'Connection Failed',
-          message: `Server returned status ${res.status}`
-        });
-      }
-    } catch (err) {
-      setPingStatus({ loading: false, success: false, error: err.message });
+    } else {
       onToast?.({
         type: 'error',
-        title: 'Connection Error',
-        message: err.message || 'Could not connect to custom server. Check CORS / URL.'
+        title: res.title || 'Connection Failed',
+        message: res.error
       });
     }
   };
 
   const handleResetProvider = () => {
     setProvider('none');
-    LS.set('pulseup_ai_provider', 'none');
+    aiStorage.set('pulseup_ai_provider', 'none');
+    aiStorage.set('pulseup_gemini_key', '');
+    aiStorage.set('pulseup_custom_url', '');
+    aiStorage.set('pulseup_custom_key', '');
+    aiStorage.notifyUpdate();
+    setPingStatus(null);
     onToast?.({
       type: 'info',
       title: 'Scripted Mode Active',
@@ -457,72 +496,22 @@ export default function ChatbotSpaceView({
       let replyText = '';
 
       if (provider === 'gemini' && geminiKey) {
-        const endpoint = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key=${geminiKey}`;
-        const historyContents = messages
-          .filter(m => m.role === 'user' || m.role === 'assistant')
-          .map(m => ({
-            role: m.role === 'assistant' ? 'model' : 'user',
-            parts: [{ text: m.text }]
-          }));
-
-        const body = {
-          system_instruction: { parts: [{ text: systemPromptWithMode }] },
-          contents: [
-            ...historyContents,
-            { role: 'user', parts: [{ text: userText }] }
-          ],
-          generationConfig: { temperature: 0.7, maxOutputTokens: 1500 }
-        };
-
-        const res = await fetch(endpoint, {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify(body)
+        replyText = await callGeminiApi({
+          key: geminiKey,
+          model: geminiModel,
+          messages,
+          userText,
+          systemPrompt: systemPromptWithMode,
         });
-
-        if (!res.ok) {
-          const errData = await res.json().catch(() => ({}));
-          throw new Error(errData?.error?.message || `HTTP Error ${res.status}`);
-        }
-        const data = await res.json();
-        replyText = data?.candidates?.[0]?.content?.parts?.[0]?.text || '(Empty response from Gemini)';
-
       } else if (provider === 'custom' && customUrl) {
-        const endpoint = `${customUrl}/v1/chat/completions`;
-        const headers = { 'Content-Type': 'application/json' };
-        if (customKey) headers['Authorization'] = `Bearer ${customKey}`;
-
-        const history = messages
-          .filter(m => m.role === 'user' || m.role === 'assistant')
-          .map(m => ({
-            role: m.role === 'assistant' ? 'assistant' : 'user',
-            content: m.text
-          }));
-
-        const body = {
-          model: customModel || 'llama3',
-          messages: [
-            { role: 'system', content: systemPromptWithMode },
-            ...history,
-            { role: 'user', content: userText }
-          ],
-          temperature: 0.7,
-          max_tokens: 1500
-        };
-
-        const res = await fetch(endpoint, {
-          method: 'POST',
-          headers,
-          body: JSON.stringify(body)
+        replyText = await callCloudLlmApi({
+          url: customUrl,
+          key: customKey,
+          model: customModel,
+          messages,
+          userText,
+          systemPrompt: systemPromptWithMode,
         });
-
-        if (!res.ok) {
-          const errText = await res.text().catch(() => '');
-          throw new Error(`Server returned HTTP ${res.status}: ${errText.slice(0, 150)}`);
-        }
-        const data = await res.json();
-        replyText = data?.choices?.[0]?.message?.content || data?.choices?.[0]?.text || '(No text in completion)';
-
       } else {
         await new Promise(r => setTimeout(r, 600 + Math.random() * 400));
         replyText = getSmartScriptedResponse(userText);
@@ -550,7 +539,7 @@ export default function ChatbotSpaceView({
         ...prev,
         {
           role: 'assistant',
-          text: `**⚠️ Error Communicating with AI Provider:**\n\n${err.message}\n\n*Suggestions:*\n- If using **Gemini**, verify your API key in the provider configuration settings.\n- If using a **Custom LLM**, check that your server has CORS enabled and the base URL is reachable.`,
+          text: `**⚠️ Error Communicating with AI Provider:**\n\n${err?.message || 'Something went wrong.'}\n\n*Tap Setup (⚙️) above to test connection, check API credentials, or switch cloud providers.*`,
           id: 'err-' + Date.now(),
           isError: true,
           timestamp: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })
@@ -558,8 +547,8 @@ export default function ChatbotSpaceView({
       ]);
       onToast?.({
         type: 'error',
-        title: 'Inference Error',
-        message: err.message
+        title: 'AI Communication Error',
+        message: (err?.message || 'Failed to communicate with provider').slice(0, 120),
       });
     } finally {
       setLoading(false);
@@ -599,7 +588,12 @@ export default function ChatbotSpaceView({
         </div>
         <div className="space-y-1.5">
           <button
-            onClick={() => { setProvider('gemini'); LS.set('pulseup_ai_provider', 'gemini'); }}
+            onClick={() => {
+              setProvider('gemini');
+              aiStorage.set('pulseup_ai_provider', 'gemini');
+              aiStorage.notifyUpdate();
+              setPingStatus(null);
+            }}
             className={`w-full flex items-center justify-between p-2 rounded-xl text-xs font-semibold backdrop-blur-sm transition-all duration-200 border ${
               provider === 'gemini'
                 ? 'bg-gradient-to-r from-blue-600 to-indigo-600 text-white border-blue-400/40 shadow-sm'
@@ -608,13 +602,18 @@ export default function ChatbotSpaceView({
           >
             <div className="flex items-center gap-2">
               <Zap size={14} className={provider === 'gemini' ? 'text-amber-300' : 'text-blue-500 dark:text-blue-400'} />
-              <span>Google Gemini</span>
+              <span>Google Gemini Cloud</span>
             </div>
             {geminiKey ? <span className="text-[9px] opacity-90 font-mono">Linked ✓</span> : <span className="text-[9px] opacity-60">No key</span>}
           </button>
 
           <button
-            onClick={() => { setProvider('custom'); LS.set('pulseup_ai_provider', 'custom'); }}
+            onClick={() => {
+              setProvider('custom');
+              aiStorage.set('pulseup_ai_provider', 'custom');
+              aiStorage.notifyUpdate();
+              setPingStatus(null);
+            }}
             className={`w-full flex items-center justify-between p-2 rounded-xl text-xs font-semibold backdrop-blur-sm transition-all duration-200 border ${
               provider === 'custom'
                 ? 'bg-gradient-to-r from-purple-600 to-pink-600 text-white border-purple-400/40 shadow-sm'
@@ -622,8 +621,8 @@ export default function ChatbotSpaceView({
             }`}
           >
             <div className="flex items-center gap-2">
-              <Server size={14} className={provider === 'custom' ? 'text-white' : 'text-purple-500 dark:text-purple-400'} />
-              <span>Custom LLM Server</span>
+              <Cloud size={14} className={provider === 'custom' ? 'text-white' : 'text-purple-500 dark:text-purple-400'} />
+              <span>Cloud LLM (Groq / OpenRouter)</span>
             </div>
             {customUrl ? <span className="text-[9px] opacity-90 font-mono">Linked ✓</span> : <span className="text-[9px] opacity-60">Set URL</span>}
           </button>
@@ -649,72 +648,179 @@ export default function ChatbotSpaceView({
       <div className="backdrop-blur-xl bg-white/90 dark:bg-[#151F33]/85 p-3.5 rounded-2xl border border-zinc-200 dark:border-blue-400/30 shadow-sm space-y-3">
         <h4 className="font-bold text-xs text-zinc-900 dark:text-zinc-100 flex items-center gap-1.5 border-b border-zinc-200 dark:border-white/10 pb-1.5">
           <Sliders size={13} className="text-blue-500 dark:text-blue-400" />
-          Credentials & Endpoint
+          Credentials & Cloud Setup
         </h4>
 
         {provider === 'gemini' ? (
-          <div className="space-y-2">
-            <p className="text-[10px] text-zinc-600 dark:text-zinc-400 leading-relaxed">
-              Gemini API key from{' '}
-              <a href="https://aistudio.google.com" target="_blank" rel="noreferrer" className="text-blue-600 dark:text-blue-400 underline inline-flex items-center gap-0.5 font-semibold">
-                Google AI Studio <ExternalLink size={9} />
-              </a>
-            </p>
-            <div className="relative">
-              <input
-                type={showKey ? 'text' : 'password'}
-                value={geminiDraft}
-                onChange={e => setGeminiDraft(e.target.value)}
-                placeholder="AIzaSy..."
-                className="w-full bg-white dark:bg-black/30 border border-zinc-300 dark:border-white/10 text-xs rounded-xl px-2.5 py-1.5 pr-8 font-mono text-zinc-900 dark:text-zinc-100 focus:outline-none focus:ring-1 focus:ring-blue-500"
-              />
-              <button
-                type="button"
-                onClick={() => setShowKey(!showKey)}
-                className="absolute right-2.5 top-1/2 -translate-y-1/2 text-zinc-400 hover:text-zinc-600 dark:hover:text-zinc-200"
+          <div className="space-y-2.5">
+            <div className="flex items-center justify-between text-[10px]">
+              <span className="text-zinc-500 dark:text-zinc-400">Google AI Studio</span>
+              <a
+                href="https://aistudio.google.com"
+                target="_blank"
+                rel="noreferrer"
+                className="text-blue-600 dark:text-blue-400 underline inline-flex items-center gap-0.5 font-semibold"
               >
-                {showKey ? <EyeOff size={13} /> : <Eye size={13} />}
-              </button>
+                Get Free API Key <ExternalLink size={9} />
+              </a>
             </div>
-            <button
-              onClick={handleSaveGemini}
-              className="w-full py-1.5 bg-gradient-to-r from-blue-600 to-indigo-600 text-white font-bold text-xs rounded-xl shadow-sm transition-all"
-            >
-              Save Gemini Key
-            </button>
+
+            <div>
+              <label className="text-[9.5px] text-zinc-500 dark:text-zinc-400 font-bold uppercase tracking-wider block mb-1">
+                Gemini Model
+              </label>
+              <select
+                value={geminiModel}
+                onChange={e => setGeminiModel(e.target.value)}
+                className="w-full bg-white dark:bg-black/30 border border-zinc-300 dark:border-white/15 text-xs rounded-xl px-2.5 py-1.5 font-mono text-zinc-900 dark:text-zinc-100 focus:outline-none focus:ring-1 focus:ring-blue-500"
+              >
+                {GEMINI_MODELS.map(m => (
+                  <option key={m.id} value={m.id} className="bg-white dark:bg-zinc-900 text-zinc-900 dark:text-zinc-100">
+                    {m.label}
+                  </option>
+                ))}
+              </select>
+            </div>
+
+            <div>
+              <label className="text-[9.5px] text-zinc-500 dark:text-zinc-400 font-bold uppercase tracking-wider block mb-1">
+                API Key
+              </label>
+              <div className="relative">
+                <input
+                  type={showKey ? 'text' : 'password'}
+                  value={geminiDraft}
+                  onChange={e => setGeminiDraft(e.target.value)}
+                  placeholder="AIzaSy..."
+                  className="w-full bg-white dark:bg-black/30 border border-zinc-300 dark:border-white/10 text-xs rounded-xl px-2.5 py-1.5 pr-8 font-mono text-zinc-900 dark:text-zinc-100 focus:outline-none focus:ring-1 focus:ring-blue-500"
+                />
+                <button
+                  type="button"
+                  onClick={() => setShowKey(!showKey)}
+                  className="absolute right-2.5 top-1/2 -translate-y-1/2 text-zinc-400 hover:text-zinc-600 dark:hover:text-zinc-200"
+                >
+                  {showKey ? <EyeOff size={13} /> : <Eye size={13} />}
+                </button>
+              </div>
+            </div>
+
+            {pingStatus && (
+              <div className={`p-2 rounded-xl text-[10px] font-mono border flex items-center justify-between ${
+                pingStatus.success
+                  ? 'bg-emerald-500/15 text-emerald-700 dark:text-emerald-300 border-emerald-500/30'
+                  : 'bg-rose-500/15 text-rose-700 dark:text-rose-300 border-rose-500/30'
+              }`}>
+                <span className="truncate">
+                  {pingStatus.success ? `✓ Verified (${pingStatus.latency}ms)` : `✕ ${pingStatus.error}`}
+                </span>
+                {pingStatus.success && <span className="text-[9px] font-bold text-emerald-500">Live</span>}
+              </div>
+            )}
+
+            <div className="flex gap-2 pt-1">
+              <button
+                onClick={handleSaveGemini}
+                className="flex-1 py-1.5 bg-gradient-to-r from-blue-600 to-indigo-600 text-white font-bold text-xs rounded-xl shadow-sm transition-all hover:brightness-105"
+              >
+                Save Key
+              </button>
+              <button
+                onClick={handleTestGemini}
+                disabled={pingStatus?.loading}
+                className="px-3 py-1.5 bg-zinc-100 hover:bg-zinc-200 dark:bg-white/[0.08] dark:hover:bg-white/[0.12] text-xs font-semibold rounded-xl text-zinc-800 dark:text-zinc-200 border border-zinc-200 dark:border-white/10 flex items-center gap-1"
+              >
+                {pingStatus?.loading ? <RefreshCw size={12} className="animate-spin text-blue-500" /> : 'Ping'}
+              </button>
+              {geminiKey && (
+                <button
+                  onClick={handleResetProvider}
+                  className="px-2.5 py-1.5 bg-rose-500/10 hover:bg-rose-500/20 text-rose-600 dark:text-rose-400 text-xs font-bold rounded-xl transition-colors"
+                >
+                  Reset
+                </button>
+              )}
+            </div>
           </div>
         ) : provider === 'custom' ? (
-          <div className="space-y-2">
+          <div className="space-y-2.5">
+            {/* 1-Click Cloud Provider Presets */}
             <div>
-              <label className="text-[9.5px] font-bold text-zinc-600 dark:text-zinc-400 uppercase">Base URL</label>
+              <label className="text-[9.5px] font-bold text-zinc-600 dark:text-zinc-400 uppercase tracking-wider block mb-1">
+                Cloud Presets
+              </label>
+              <div className="grid grid-cols-3 gap-1">
+                {CLOUD_PRESETS.map(cp => {
+                  const isSel = cloudPreset === cp.id;
+                  return (
+                    <button
+                      key={cp.id}
+                      type="button"
+                      onClick={() => handleSelectCloudPreset(cp.id)}
+                      className={`p-1 rounded-lg border text-left transition-all ${
+                        isSel
+                          ? `${cp.bg} ${cp.border} font-bold text-zinc-900 dark:text-white shadow-xs`
+                          : 'bg-white dark:bg-white/5 border-zinc-200 dark:border-white/10 text-zinc-600 dark:text-zinc-400 hover:bg-zinc-100 dark:hover:bg-white/10'
+                      }`}
+                    >
+                      <p className="text-[10px] truncate leading-tight font-semibold">{cp.name}</p>
+                      <p className="text-[8px] truncate opacity-75">{cp.badge.split('/')[0]}</p>
+                    </button>
+                  );
+                })}
+              </div>
+            </div>
+
+            <div>
+              <div className="flex items-center justify-between mb-1">
+                <label className="text-[9.5px] font-bold text-zinc-600 dark:text-zinc-400 uppercase tracking-wider">
+                  Base Endpoint URL
+                </label>
+                {CLOUD_PRESETS.find(p => p.id === cloudPreset)?.keyUrl && (
+                  <a
+                    href={CLOUD_PRESETS.find(p => p.id === cloudPreset).keyUrl}
+                    target="_blank"
+                    rel="noreferrer"
+                    className="text-[9.5px] text-blue-500 dark:text-blue-400 hover:underline flex items-center gap-0.5"
+                  >
+                    Get Key <ExternalLink size={8} />
+                  </a>
+                )}
+              </div>
               <input
                 type="text"
                 value={customUrlDraft}
                 onChange={e => setCustomUrlDraft(e.target.value)}
-                placeholder="https://your-server.com or http://localhost:11434"
-                className="w-full mt-0.5 bg-white dark:bg-black/30 border border-zinc-300 dark:border-white/10 text-xs rounded-xl px-2.5 py-1.5 font-mono text-zinc-900 dark:text-zinc-100 focus:outline-none focus:ring-1 focus:ring-purple-500"
+                placeholder="https://api.groq.com/openai/v1 or https://openrouter.ai/api/v1"
+                className="w-full bg-white dark:bg-black/30 border border-zinc-300 dark:border-white/10 text-xs rounded-xl px-2.5 py-1.5 font-mono text-zinc-900 dark:text-zinc-100 focus:outline-none focus:ring-1 focus:ring-purple-500"
               />
+              <p className="text-[8.5px] text-zinc-400 mt-0.5 font-mono">
+                Auto-resolves /v1 and /chat/completions endpoints
+              </p>
             </div>
 
             <div>
-              <label className="text-[9.5px] font-bold text-zinc-600 dark:text-zinc-400 uppercase">Model Identifier</label>
+              <label className="text-[9.5px] font-bold text-zinc-600 dark:text-zinc-400 uppercase tracking-wider block mb-1">
+                Model Identifier
+              </label>
               <input
                 type="text"
                 value={customModelDraft}
                 onChange={e => setCustomModelDraft(e.target.value)}
-                placeholder="llama3.3, mistral, gpt-4o"
-                className="w-full mt-0.5 bg-white dark:bg-black/30 border border-zinc-300 dark:border-white/10 text-xs rounded-xl px-2.5 py-1.5 font-mono text-zinc-900 dark:text-zinc-100 focus:outline-none focus:ring-1 focus:ring-purple-500"
+                placeholder="llama-3.3-70b-versatile, deepseek-chat, gpt-4o-mini"
+                className="w-full bg-white dark:bg-black/30 border border-zinc-300 dark:border-white/10 text-xs rounded-xl px-2.5 py-1.5 font-mono text-zinc-900 dark:text-zinc-100 focus:outline-none focus:ring-1 focus:ring-purple-500"
               />
             </div>
 
             <div>
-              <label className="text-[9.5px] font-bold text-zinc-600 dark:text-zinc-400 uppercase">Token (Optional)</label>
-              <div className="relative mt-0.5">
+              <label className="text-[9.5px] font-bold text-zinc-600 dark:text-zinc-400 uppercase tracking-wider block mb-1">
+                API Key / Bearer Token
+              </label>
+              <div className="relative">
                 <input
                   type={showKey ? 'text' : 'password'}
                   value={customKeyDraft}
                   onChange={e => setCustomKeyDraft(e.target.value)}
-                  placeholder="sk-... or leave blank"
+                  placeholder={CLOUD_PRESETS.find(p => p.id === cloudPreset)?.keyPlaceholder || 'sk-... or leave blank'}
                   className="w-full bg-white dark:bg-black/30 border border-zinc-300 dark:border-white/10 text-xs rounded-xl px-2.5 py-1.5 pr-8 font-mono text-zinc-900 dark:text-zinc-100 focus:outline-none focus:ring-1 focus:ring-purple-500"
                 />
                 <button
@@ -727,35 +833,46 @@ export default function ChatbotSpaceView({
               </div>
             </div>
 
-            <div className="flex gap-2 pt-1">
-              <button
-                onClick={handleSaveCustom}
-                className="flex-1 py-1.5 bg-gradient-to-r from-purple-600 to-pink-600 text-white font-bold text-xs rounded-xl shadow-sm transition-all"
-              >
-                Save
-              </button>
-              <button
-                onClick={handleTestConnection}
-                disabled={pingStatus?.loading}
-                className="px-3 py-1.5 bg-zinc-100 hover:bg-zinc-200 dark:bg-white/[0.08] dark:hover:bg-white/[0.12] text-xs font-semibold rounded-xl text-zinc-800 dark:text-zinc-200 border border-zinc-200 dark:border-white/10"
-              >
-                {pingStatus?.loading ? <RefreshCw size={13} className="animate-spin text-purple-500 dark:text-purple-400" /> : 'Ping'}
-              </button>
-            </div>
-
             {pingStatus && (
-              <div className={`p-2 rounded-xl text-[10px] font-mono border ${
+              <div className={`p-2 rounded-xl text-[10px] font-mono border flex items-center justify-between ${
                 pingStatus.success
                   ? 'bg-emerald-500/15 text-emerald-700 dark:text-emerald-300 border-emerald-500/30'
                   : 'bg-rose-500/15 text-rose-700 dark:text-rose-300 border-rose-500/30'
               }`}>
-                {pingStatus.success ? `Connected! ${pingStatus.latency}ms` : `Failed: ${pingStatus.error}`}
+                <span className="truncate">
+                  {pingStatus.success ? `✓ Connected (${pingStatus.latency}ms)` : `✕ ${pingStatus.error}`}
+                </span>
+                {pingStatus.success && <span className="text-[9px] font-bold text-emerald-500">Live</span>}
               </div>
             )}
+
+            <div className="flex gap-2 pt-1">
+              <button
+                onClick={handleSaveCustom}
+                className="flex-1 py-1.5 bg-gradient-to-r from-purple-600 to-pink-600 text-white font-bold text-xs rounded-xl shadow-sm transition-all hover:brightness-105"
+              >
+                Save
+              </button>
+              <button
+                onClick={handleTestCloudConnection}
+                disabled={pingStatus?.loading}
+                className="px-3 py-1.5 bg-zinc-100 hover:bg-zinc-200 dark:bg-white/[0.08] dark:hover:bg-white/[0.12] text-xs font-semibold rounded-xl text-zinc-800 dark:text-zinc-200 border border-zinc-200 dark:border-white/10 flex items-center gap-1"
+              >
+                {pingStatus?.loading ? <RefreshCw size={13} className="animate-spin text-purple-500 dark:text-purple-400" /> : 'Ping'}
+              </button>
+              {customUrl && (
+                <button
+                  onClick={handleResetProvider}
+                  className="px-2.5 py-1.5 bg-rose-500/10 hover:bg-rose-500/20 text-rose-600 dark:text-rose-400 text-xs font-bold rounded-xl transition-colors"
+                >
+                  Reset
+                </button>
+              )}
+            </div>
           </div>
         ) : (
           <div className="text-[11px] text-zinc-600 dark:text-zinc-400">
-            Running in <strong>Scripted Mode</strong>. Switch to Gemini or Custom LLM above.
+            Running in <strong>Scripted Mode</strong>. Switch to Gemini or Cloud LLM above.
           </div>
         )}
       </div>
@@ -855,7 +972,13 @@ export default function ChatbotSpaceView({
                   : 'bg-emerald-50 dark:bg-emerald-500/15 text-emerald-700 dark:text-emerald-400 border-emerald-200 dark:border-emerald-400/30'
               }`}>
                 <span className="w-1.5 h-1.5 rounded-full bg-current flex-shrink-0"></span>
-                <span className="truncate">{provider === 'gemini' ? 'Gemini 2.0' : provider === 'custom' ? customModel : 'Scripted'}</span>
+                <span className="truncate">
+                  {provider === 'gemini'
+                    ? geminiModel.replace('gemini-', 'Gemini ')
+                    : provider === 'custom'
+                    ? customModel
+                    : 'Scripted Offline'}
+                </span>
               </span>
 
               <span className="text-[9px] font-mono font-semibold px-1.5 py-0.2 rounded-full bg-blue-500/10 text-blue-600 dark:text-blue-400 border border-blue-400/20 hidden md:inline-flex items-center gap-1">
