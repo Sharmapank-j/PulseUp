@@ -1,5 +1,5 @@
 import React from 'react';
-import { Search, Sun, Moon, Menu, ShieldCheck, Activity } from 'lucide-react';
+import { Search, Sun, Moon, Menu } from 'lucide-react';
 
 export default function Topbar({
   title,
@@ -70,16 +70,8 @@ export default function Topbar({
         </kbd>
       </button>
 
-      {/* Actions: NMC Node, Duty Status, Dark Mode Toggle */}
+      {/* Actions: Duty Status, Dark Mode Toggle */}
       <div className="flex items-center gap-1.5 md:gap-2 flex-shrink-0">
-        {/* NMC Node Live Indicator */}
-        <div className="hidden lg:flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-blue-500/[0.08] dark:bg-blue-500/[0.12] border border-blue-500/25 text-blue-600 dark:text-blue-400 text-[10px] font-mono font-bold">
-          <ShieldCheck size={12} className="text-blue-500" />
-          <span>NMC-NODE</span>
-          <span className="w-1 h-1 rounded-full bg-blue-500"></span>
-          <span className="text-[9px] opacity-75">MAMC</span>
-        </div>
-
         {/* Resident Duty Shift Badge */}
         <div className={`hidden sm:flex items-center gap-1.5 px-2.5 py-1 rounded-full border text-[10px] font-mono font-bold ${activeDuty.color}`}>
           <span className="w-1.5 h-1.5 rounded-full bg-current"></span>

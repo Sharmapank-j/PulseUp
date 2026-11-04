@@ -88,12 +88,14 @@ export default function CampusView({ onToast, onAddCredits }) {
     }
   ];
 
-  // Live Countdown decrement
+  // Live Countdown decrement with multi-unit cascade
   useEffect(() => {
     const timer = setInterval(() => {
       setCountdown(prev => {
         if (prev.s > 0) return { ...prev, s: prev.s - 1 };
-        if (prev.m > 0) return { ...prev, m: 59, s: 59 };
+        if (prev.m > 0) return { ...prev, m: prev.m - 1, s: 59 };
+        if (prev.h > 0) return { ...prev, h: prev.h - 1, m: 59, s: 59 };
+        if (prev.d > 0) return { ...prev, d: prev.d - 1, h: 23, m: 59, s: 59 };
         return prev;
       });
     }, 1000);

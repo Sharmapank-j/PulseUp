@@ -22,8 +22,13 @@ export default function AetcomView({ onToast, onAddCredits }) {
 
   const handleJournalSubmit = (e) => {
     e.preventDefault();
-    if (journalText.trim().length < 50) {
-      onToast({ type: 'error', title: 'Entry Too Short', message: 'NMC CBME requires minimum 50 words for a valid reflective entry.' });
+    const wordCount = journalText.trim().split(/\s+/).filter(Boolean).length;
+    if (wordCount < 50) {
+      onToast({
+        type: 'error',
+        title: 'Entry Too Short',
+        message: `Entry contains only ${wordCount} words. NMC CBME requires minimum 50 words for a valid reflective entry.`
+      });
       return;
     }
     const sim = (Math.random() * 3.8 + 2.1).toFixed(1);

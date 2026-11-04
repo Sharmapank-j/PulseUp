@@ -50,6 +50,19 @@ export default function PassportView({ onToast, credits, userProfile, onUpdatePr
     abdmId: userProfile?.abdmId || 'aarav.sharma@hpid.abdm'
   });
 
+  // Synchronize form when external userProfile updates
+  useEffect(() => {
+    if (userProfile) {
+      setProfileForm({
+        name: userProfile.name || 'Dr. Aarav Sharma',
+        role: userProfile.role || 'JR-2 Resident · MAMC',
+        college: userProfile.college || 'Maulana Azad Medical College (MAMC), New Delhi',
+        nmcNumber: userProfile.nmcNumber || 'DMC/R/142981',
+        abdmId: userProfile.abdmId || 'aarav.sharma@hpid.abdm'
+      });
+    }
+  }, [userProfile]);
+
   const handleAddProcedure = (e) => {
     e.preventDefault();
     if (!newProcName.trim()) return;

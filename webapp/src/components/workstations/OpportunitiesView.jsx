@@ -71,6 +71,11 @@ export default function OpportunitiesView({ onToast }) {
     });
   }, [selectedCategory, searchQuery]);
 
+  // Reset pagination index whenever category filter or search query changes
+  useEffect(() => {
+    setCurrentPage(1);
+  }, [selectedCategory, searchQuery]);
+
   // Pagination calculations
   const totalPages = Math.ceil(filteredData.length / pageSize) || 1;
   const paginatedData = useMemo(() => {

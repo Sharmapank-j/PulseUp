@@ -15,7 +15,24 @@ import KpiCard from '../common/KpiCard';
 import CareerScoreRadar from '../charts/CareerScoreRadar';
 import OpportunityBarChart from '../charts/OpportunityBarChart';
 
-export default function CareerBoardView({ onNavigate, isDarkMode, onToast, dutyStatus = 'on_duty' }) {
+export default function CareerBoardView({ onNavigate, isDarkMode, onToast, dutyStatus = 'on_duty', userProfile }) {
+  const doctorName = userProfile?.name || 'Dr. Aarav Sharma';
+  const doctorRole = userProfile?.role || 'Senior Residency Command Cockpit';
+  const doctorCollege = userProfile?.college || 'Maulana Azad Medical College, New Delhi';
+  const nmcNumber = userProfile?.nmcNumber || 'NMC Reg #2023-DL-9841';
+
+  const currentHour = new Date().getHours();
+  const timeGreeting = currentHour < 12 ? 'Good morning' : currentHour < 17 ? 'Good afternoon' : 'Good evening';
+
+  const dutyLabels = {
+    on_duty: 'Ward Duty (08:00–14:00)',
+    night_call: 'Night Call (20:00–08:00)',
+    in_ot: 'In OT / Procedures',
+    research: 'Research Block',
+    off_call: 'Post-Duty Rest',
+  };
+  const activeDutyLabel = dutyLabels[dutyStatus] || dutyLabels.on_duty;
+
   const scorePercent = 785 / 1000;
   const radius = 32;
   const circumference = 2 * Math.PI * radius;
@@ -40,23 +57,23 @@ export default function CareerBoardView({ onNavigate, isDarkMode, onToast, dutyS
 
               <span className="inline-flex items-center gap-1 px-2.5 py-1 rounded-full bg-blue-500/10 border border-blue-500/20 text-blue-700 dark:text-blue-300 text-[10.5px] font-mono font-semibold">
                 <ShieldCheck size={12} className="text-blue-500" />
-                <span>NMC Reg #2023-DL-9841</span>
+                <span>{nmcNumber}</span>
               </span>
 
               <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full bg-zinc-200/80 dark:bg-white/[0.08] text-zinc-600 dark:text-zinc-300 text-[10px] font-mono">
                 <Clock size={11} />
-                <span>08:00–14:00 Morning Duty</span>
+                <span>{activeDutyLabel}</span>
               </span>
             </div>
 
             {/* Doctor Greeting & Headline */}
             <div>
               <h2 className="font-display font-black text-2xl sm:text-3xl text-zinc-900 dark:text-white tracking-tight flex items-center gap-2">
-                <span>Good evening, Dr. Aarav Sharma</span>
+                <span>{timeGreeting}, {doctorName}</span>
                 <span className="text-xl">🩺</span>
               </h2>
               <p className="text-xs sm:text-sm text-zinc-600 dark:text-zinc-300 mt-1 leading-relaxed">
-                Senior Residency Command Cockpit • Maulana Azad Medical College, New Delhi
+                {doctorRole} • {doctorCollege}
               </p>
             </div>
 

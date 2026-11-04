@@ -385,7 +385,7 @@ if (icmrSts) {
 }
 
 // USMLE check
-const usmleItems = seedData.filter(item => item.name.includes('USMLE') || item.id.startsWith('CERT_1'));
+const usmleItems = seedData.filter(item => item.name.includes('USMLE'));
 assert(usmleItems.length >= 2, 'FUZZ-V8-004', `USMLE records exist (Step 1, Step 2 CK, Step 3) (actual: ${usmleItems.length})`);
 usmleItems.forEach(uItem => {
   const combinedText = `${uItem.eligibility} ${uItem.notes}`;

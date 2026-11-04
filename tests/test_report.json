@@ -1,12 +1,12 @@
 {
-  "timestamp": "2026-11-04T21:23:09.239Z",
+  "timestamp": "2026-11-04T21:36:00.547Z",
   "targetDirectory": "C:\\Users\\pr218\\OneDrive\\Documents\\projects Antigravity\\PulseUp",
   "stats": {
     "total": 46,
     "passed": 46,
     "failed": 0,
     "skipped": 0,
-    "durationMs": 36
+    "durationMs": 40
   },
   "suites": [
     {
@@ -61,7 +61,7 @@
           "id": "T1-PROTO-001",
           "name": "Prototype HTML file exists and exceeds 15KB payload threshold",
           "status": "PASS",
-          "durationMs": 1
+          "durationMs": 2
         },
         {
           "id": "T1-PROTO-002",
@@ -79,19 +79,19 @@
           "id": "T1-PROTO-004",
           "name": "CSS font-family rules declare and apply all 3 typography families",
           "status": "PASS",
-          "durationMs": 0
+          "durationMs": 1
         },
         {
           "id": "T1-PROTO-005",
           "name": "Clinical dark design system hex color tokens implemented accurately",
           "status": "PASS",
-          "durationMs": 7
+          "durationMs": 8
         },
         {
           "id": "T1-PROTO-006",
           "name": "Layout dimensions conform to specification (220px sidebar, 52px topbar, 12px card radius)",
           "status": "PASS",
-          "durationMs": 1
+          "durationMs": 0
         },
         {
           "id": "T1-PROTO-007",
@@ -103,13 +103,13 @@
           "id": "T1-PROTO-008",
           "name": "Screen 2: Research & Publishing Hub elements present",
           "status": "PASS",
-          "durationMs": 0
+          "durationMs": 1
         },
         {
           "id": "T1-PROTO-009",
           "name": "Screen 3: Goal Spaces Workbench elements present",
           "status": "PASS",
-          "durationMs": 1
+          "durationMs": 0
         },
         {
           "id": "T1-PROTO-010",
@@ -139,19 +139,19 @@
           "id": "T1-PROTO-014",
           "name": "Screen 8: Verified Medical Passport elements present",
           "status": "PASS",
-          "durationMs": 1
+          "durationMs": 0
         },
         {
           "id": "T1-PROTO-015",
           "name": "Command search overlay (Cmd+K / Ctrl+K) contains all 8 screen links",
           "status": "PASS",
-          "durationMs": 0
+          "durationMs": 1
         },
         {
           "id": "T1-PROTO-016",
           "name": "Toast notification engine exists in DOM and CSS",
           "status": "PASS",
-          "durationMs": 1
+          "durationMs": 0
         },
         {
           "id": "T1-PROTO-017",
@@ -163,7 +163,7 @@
           "id": "T1-PROTO-018",
           "name": "Static safety audit: script avoids unsafe eval() and document.write()",
           "status": "PASS",
-          "durationMs": 0
+          "durationMs": 1
         }
       ]
     },
@@ -206,13 +206,13 @@
           "id": "T1-DATA-006",
           "name": "ICMR-STS entry exists and specifies verified INR 10,000/month stipend amount",
           "status": "PASS",
-          "durationMs": 0
+          "durationMs": 1
         },
         {
           "id": "T1-DATA-007",
           "name": "USMLE entries specify eligibility criteria for Indian MBBS students/graduates",
           "status": "PASS",
-          "durationMs": 1
+          "durationMs": 0
         },
         {
           "id": "T1-DATA-008",
@@ -243,13 +243,13 @@
           "id": "T2-EDGE-001",
           "name": "Cross-platform keyboard shortcut listens for both ctrlKey and metaKey",
           "status": "PASS",
-          "durationMs": 1
+          "durationMs": 0
         },
         {
           "id": "T2-EDGE-002",
           "name": "Countdown timer handles zero boundary and negative underflow prevention",
           "status": "PASS",
-          "durationMs": 0
+          "durationMs": 1
         },
         {
           "id": "T2-EDGE-003",
@@ -273,7 +273,7 @@
           "id": "T3-COMB-001",
           "name": "Sidebar navigation and Command Bar targets align 1:1 with screen containers",
           "status": "PASS",
-          "durationMs": 0
+          "durationMs": 1
         },
         {
           "id": "T3-COMB-002",
@@ -310,13 +310,13 @@
           "id": "T4-E2E-003",
           "name": "Persona 3 Journey (Dr. Rohan Verma - Junior Resident MD Medicine)",
           "status": "PASS",
-          "durationMs": 1
+          "durationMs": 0
         },
         {
           "id": "T4-E2E-004",
           "name": "Persona 4 Journey: Comprehensive Forensic Auditor Integrity Pass",
           "status": "PASS",
-          "durationMs": 0
+          "durationMs": 1
         }
       ]
     }

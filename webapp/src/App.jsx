@@ -24,7 +24,6 @@ import ChatbotSpaceView from './components/workstations/ChatbotSpaceView';
 export default function App() {
   const [activeScreen, setActiveScreen] = useState('dashboard');
   const [isDarkMode, setIsDarkMode] = useState(true);
-  const [isRedShift, setIsRedShift] = useState(false);
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const [toasts, setToasts] = useState([]);
   const [isSearchOpen, setIsSearchOpen] = useState(false);
@@ -41,7 +40,25 @@ export default function App() {
   };
 
   const [lastEcosystemScreen, setLastEcosystemScreen] = useState('dashboard');
-  const [dutyStatus, setDutyStatus] = useState('on_duty');
+
+  // Persistent Resident Duty Shift Status
+  const [dutyStatus, setDutyStatus] = useState(() => {
+    try {
+      const saved = localStorage.getItem('pulseup_duty_status');
+      if (saved) return saved;
+    } catch (e) {
+      console.error(e);
+    }
+    return 'on_duty';
+  });
+
+  useEffect(() => {
+    try {
+      localStorage.setItem('pulseup_duty_status', dutyStatus);
+    } catch (e) {
+      console.error(e);
+    }
+  }, [dutyStatus]);
 
   const dutyCycle = ['on_duty', 'night_call', 'in_ot', 'research', 'off_call'];
   const dutyDescriptions = {
@@ -176,15 +193,6 @@ export default function App() {
     }
   }, [isDarkMode]);
 
-  // Sync red-shift night call mode class with body
-  useEffect(() => {
-    if (isRedShift) {
-      document.body.classList.add('redshift-mode');
-    } else {
-      document.body.classList.remove('redshift-mode');
-    }
-  }, [isRedShift]);
-
   const addToast = (toastObj) => {
     const id = Date.now() + Math.random();
     const newToast = { id, ...toastObj };
@@ -299,6 +307,8 @@ export default function App() {
                 onNavigate={handleSelectScreen}
                 isDarkMode={isDarkMode}
                 onToast={addToast}
+                dutyStatus={dutyStatus}
+                userProfile={userProfile}
               />
             )}
             {activeScreen === 'chatbot' && (

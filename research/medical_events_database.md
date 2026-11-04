@@ -95,6 +95,23 @@ The catalog spans five distinct categories critical to Indian medical trajectory
 
 ## Category A: Medical College Fests
 
+| ID | Fest Name | Host Institution | Timing | Registration Fee | Pulse Credits |
+| :--- | :--- | :--- | :--- | :--- | :---: |
+| `FEST_01` | AIIMS Pulse (New Delhi) | AIIMS Students' Union, New Delhi | September | ₹500 - ₹2,500 | 100 PC |
+| `FEST_02` | AFMC Silhouettes (Pune) | Armed Forces Medical College | Feb - Mar | ₹800 - ₹1,500 | 90 PC |
+| `FEST_03` | CMC Pegasus (Vellore) | Christian Medical College Vellore | Jul - Aug | ₹400 - ₹1,200 | 90 PC |
+| `FEST_04` | KMC Verve & Utsav (Manipal) | Kasturba Medical College / MAHE | Apr / Oct | ₹500 - ₹1,200 | 80 PC |
+| `FEST_05` | JIPMER Spandan (Puducherry) | JIPMER Students' Association | Aug - Sep | ₹500 - ₹1,500 | 95 PC |
+| `FEST_06` | MAMC Synapse (New Delhi) | Maulana Azad Medical College | Oct - Nov | ₹400 - ₹1,000 | 85 PC |
+| `FEST_07` | St. John's Autumn Muse | St. John's Medical College | Aug - Sep | ₹300 - ₹800 | 75 PC |
+| `FEST_08` | Grant Medical Aesthetics | Grant GMC & JJ Hospital Mumbai | Feb - Mar | ₹300 - ₹800 | 75 PC |
+| `FEST_09` | KGMU Rhapsody / Riyazat | King George's Medical University | Feb / Nov | ₹500 - ₹1,200 | 80 PC |
+| `FEST_10` | KMC Mangalore Helicon | KMC Mangalore / MAHE | Oct - Nov | ₹400 - ₹1,000 | 70 PC |
+| `FEST_11` | BJGMC Asclepius & Vedant | BJ Government Medical College Pune | Sep - Oct | ₹400 - ₹1,000 | 85 PC |
+| `FEST_12` | IMS BHU Elixir (Varanasi) | IMS Banaras Hindu University | Feb - Mar | ₹500 - ₹1,000 | 75 PC |
+| `FEST_13` | LHMC Splash (New Delhi) | Lady Hardinge Medical College | Mar - Apr | ₹300 - ₹700 | 70 PC |
+| `FEST_14` | MMC Revivals (Chennai) | Madras Medical College | Sep - Oct | ₹400 - ₹800 | 80 PC |
+
 ### FEST_01: AIIMS Pulse (New Delhi)
 - **ID:** `FEST_01`
 - **Organizer:** AIIMS Students' Union, All India Institute of Medical Sciences, New Delhi
@@ -342,6 +359,21 @@ The catalog spans five distinct categories critical to Indian medical trajectory
 
 ## Category B: National Quizzes & Competitions
 
+| ID | Competition / Quiz Name | Organizing Body | Typical Timing | Entry Fee | Pulse Credits |
+| :--- | :--- | :--- | :--- | :--- | :---: |
+| `QUIZ_01` | IAP National Undergraduate Pediatric Quiz | Indian Academy of Pediatrics | Jul - Jan | Free | 150 PC |
+| `QUIZ_02` | NNF National Neonatal Quiz | National Neonatology Forum | Aug - Dec | Free | 150 PC |
+| `QUIZ_03` | Torrent TYSA Surgical Awards | Torrent Pharma & ASI | Sep - Jan | Free | 300 PC |
+| `QUIZ_04` | CSI Young Investigator Award | Cardiological Society of India | December | Free | 400 PC |
+| `QUIZ_05` | AIIMS MicroCon Medical Microbiology Quiz | Dept of Microbiology, AIIMS New Delhi | Aug - Sep | ₹200 | 120 PC |
+| `QUIZ_06` | FOGSI Dr. Usha Krishna Quiz in OBGYN | FOGSI India | Oct - Jan | Free | 160 PC |
+| `QUIZ_07` | Hematology Olympiad UG Quiz | Indian Society of Hematology & Blood Transfusion | September | Free | 140 PC |
+| `QUIZ_08` | ISA National Anesthesia PG Quiz | Indian Society of Anaesthesiologists | Oct - Nov | Free | 180 PC |
+| `QUIZ_09` | RSSDI Diabetes National Quiz | Research Society for the Study of Diabetes in India | November | Free | 150 PC |
+| `QUIZ_10` | ISN India Nephrology Quiz | Indian Society of Nephrology | December | Free | 170 PC |
+| `QUIZ_11` | IADVL National Quiz in Dermatology (IGNQ) | IADVL National Academy | Jul - Jan | Free | 160 PC |
+| `QUIZ_12` | Neurological Society of India (NSI) Quiz | Neurological Society of India | December | Free | 200 PC |
+
 ### QUIZ_01: IAP National Undergraduate Pediatric Quiz
 - **ID:** `QUIZ_01`
 - **Organizer:** Indian Academy of Pediatrics (IAP)
@@ -504,6 +536,31 @@ The catalog spans five distinct categories critical to Indian medical trajectory
 ---
 
 ## Category C: Clinical Certifications & Licensing Pathways
+
+| ID | Certification / Exam Name | Issuing Authority | Scope | Fee (INR) | Pulse Credits |
+| :--- | :--- | :--- | :--- | :--- | :---: |
+| `CERT_01` | Basic Life Support (BLS) Provider | American Heart Association (AHA) | Emergency Resuscitation | ₹4,000 | 120 PC |
+| `CERT_02` | Advanced Cardiovascular Life Support (ACLS) | American Heart Association (AHA) | Resuscitation & Arrhythmias | ₹8,500 | 250 PC |
+| `CERT_03` | Advanced Trauma Life Support (ATLS) | American College of Surgeons (ACS) | Surgical Trauma Management | ₹22,000 | 350 PC |
+| `CERT_04` | Pediatric Advanced Life Support (PALS) | American Heart Association (AHA) | Pediatric Critical Care | ₹9,000 | 220 PC |
+| `CERT_05` | Neonatal Resuscitation Program (NRP) | AAP & Indian Academy of Pediatrics | Delivery Room Resuscitation | ₹3,500 | 180 PC |
+| `CERT_06` | Fundamental Critical Care Support (FCCS) | Society of Critical Care Medicine (SCCM) | ICU & Ventilation Care | ₹12,000 | 280 PC |
+| `CERT_07` | Point-of-Care Ultrasound (POCUS) | Society of Emergency Medicine India (SEMI) | Emergency Bedside Sonography | ₹15,000 | 300 PC |
+| `CERT_08` | Advanced Trauma Care for Nurses & Medics | Society of Trauma Nurses | Trauma Nursing & Paramedics | ₹7,500 | 150 PC |
+| `CERT_09` | NIH Good Clinical Practice (GCP) Certification | National Institutes of Health (NIH) | Clinical Research Compliance | Free | 140 PC |
+| `CERT_10` | USMLE Step 1 | NBME & FSMB (ECFMG / Intealth) | US Medical Licensure (Foundations) | ₹92,000 | 500 PC |
+| `CERT_11` | USMLE Step 2 CK (Clinical Knowledge) | NBME & FSMB (ECFMG / Intealth) | US Clinical Knowledge Licensure | ₹98,000 | 500 PC |
+| `CERT_12` | USMLE Step 3 | FSMB & NBME | Independent US Clinical Practice | ₹82,000 | 450 PC |
+| `CERT_13` | PLAB 1 | General Medical Council (GMC UK) | UK Medical Knowledge Assessment | ₹26,500 | 400 PC |
+| `CERT_14` | PLAB 2 (Clinical Examination / OSCE) | General Medical Council (GMC UK) | UK Practical Clinical OSCE | ₹98,000 | 450 PC |
+| `CERT_15` | AMC MCQ Examination (CAT) | Australian Medical Council (AMC) | Australian Medical Licensure | ₹1,75,000 | 450 PC |
+| `CERT_16` | DHA General Practitioner Licensing Exam | Dubai Health Authority (DHA) | UAE / Dubai Clinical License | ₹28,000 | 300 PC |
+| `CERT_17` | HAAD / DoH Abu Dhabi Licensing Exam | Department of Health Abu Dhabi | UAE / Abu Dhabi Clinical License | ₹28,000 | 300 PC |
+| `CERT_18` | National Exit Test (NExT) Step 1 & Step 2 | National Medical Commission (NMC) | Indian Medical Licensure & PG Entry | ₹3,000 | 400 PC |
+| `CERT_19` | DNB PDCET | National Board of Examinations (NBEMS) | Post-Diploma DNB Secondary Seat | ₹4,250 | 350 PC |
+| `CERT_20` | MRCP (UK) Part 1 Examination | Royal Colleges of Physicians UK | UK Internal Medicine Membership | ₹64,000 | 450 PC |
+| `CERT_21` | MRCS Part A (Intercollegiate) | Royal Colleges of Surgeons UK | UK Surgical Royal College Membership | ₹62,000 | 450 PC |
+| `CERT_22` | MRCOG Part 1 Examination | Royal College of Obstetricians & Gynaecologists | UK OBGYN Membership Entry | ₹58,000 | 450 PC |
 
 ### CERT_01: Basic Life Support (BLS) Provider
 - **ID:** `CERT_01`
@@ -810,6 +867,19 @@ The catalog spans five distinct categories critical to Indian medical trajectory
 
 ## Category D: Government Research Grants & Fellowships
 
+| ID | Grant / Fellowship Name | Funding Agency | Target Stage | Stipend / Grant Value | Pulse Credits |
+| :--- | :--- | :--- | :--- | :--- | :---: |
+| `GRANT_01` | ICMR Short Term Studentship (STS) | Indian Council of Medical Research | MBBS Undergraduates | ₹10,000/mo (₹20,000 total) | 350 PC |
+| `GRANT_02` | DST INSPIRE Fellowship | Dept of Science & Technology (DST) | PG & PhD Scholars | ₹37,000/mo + HRA | 450 PC |
+| `GRANT_03` | CSIR Junior Research Fellowship (JRF) | Council of Scientific & Industrial Research | Biomedical Postgraduates | ₹37,000/mo + HRA | 400 PC |
+| `GRANT_04` | Wellcome Trust / DBT India Alliance | Wellcome Trust & DBT India | Early Career Clinician-Scientists | ₹55,000 - ₹1,20,000/mo | 500 PC |
+| `GRANT_05` | Lady Tata Memorial Trust Junior Grant | Lady Tata Memorial Trust | Leukaemia & Cancer Researchers | ₹35,000/mo | 350 PC |
+| `GRANT_06` | Tata Innovation Fellowship | Department of Biotechnology (DBT) | Translational Medical Scientists | ₹25,000/mo incentive + ₹10L grant | 500 PC |
+| `GRANT_07` | SERB National Post-Doctoral Fellowship | Science and Engineering Research Board | MD/MS Post-Doctoral Clinicians | ₹55,000/mo + ₹2L/yr grant | 450 PC |
+| `GRANT_08` | ICMR Post-Doctoral Fellowship (PDF) | Indian Council of Medical Research | Post-MD/MS/PhD Scholars | ₹65,000/mo + ₹3L/yr contingency | 450 PC |
+| `GRANT_09` | Fogarty International Clinical Fellowship | NIH Fogarty International Center | Global Health Researchers | $35,000 - $45,000/yr | 500 PC |
+| `GRANT_10` | Commonwealth Medical Fellowship | Commonwealth Scholarship Commission | Senior Medical Faculty & Specialists | Fully Funded + Stg £1,800/mo | 500 PC |
+
 ### GRANT_01: ICMR Short Term Studentship (STS)
 - **ID:** `GRANT_01`
 - **Funding Agency:** Indian Council of Medical Research (ICMR), Ministry of Health & Family Welfare, Government of India
@@ -947,6 +1017,19 @@ The catalog spans five distinct categories critical to Indian medical trajectory
 ---
 
 ## Category E: Observerships & Clinical Electives
+
+| ID | Observership / Elective Name | Host Institution | Location | Clinical Focus | Pulse Credits |
+| :--- | :--- | :--- | :--- | :--- | :---: |
+| `OBS_01` | TMC Mumbai Clinical Oncology Observership | Tata Memorial Centre | Mumbai | Medical & Surgical Oncology | 250 PC |
+| `OBS_02` | AIIMS New Delhi Trauma Observership | JPN Apex Trauma Centre, AIIMS | New Delhi | Emergency & Polytrauma Care | 250 PC |
+| `OBS_03` | CMC Vellore Ida Scudder Elective | Christian Medical College | Vellore | Tropical Medicine & Mission Health | 220 PC |
+| `OBS_04` | PGIMER Chandigarh Research Observership | PGIMER | Chandigarh | Super-Specialty Internal Medicine | 200 PC |
+| `OBS_05` | NIMHANS Clinical Neurosciences Elective | NIMHANS | Bengaluru | Neurology & Neuropsychiatry | 250 PC |
+| `OBS_06` | SGPGI Lucknow Gastroenterology Observership | SGPGIMS | Lucknow | Hepatology & Endoscopy | 200 PC |
+| `OBS_07` | Narayana Health Pediatric Cardiology Elective | Narayana Institute of Cardiac Sciences | Bengaluru | Congenital Heart Surgery | 220 PC |
+| `OBS_08` | PGIMER Chandigarh Clinical Elective Program | PGIMER | Chandigarh | Advanced Inpatient Subspecialties | 200 PC |
+| `OBS_09` | KMIO Bengaluru Surgical Oncology Observership | Kidwai Memorial Institute of Oncology | Bengaluru | Gynae-Onc & Head-Neck Surgery | 160 PC |
+| `OBS_10` | CMC Ludhiana Rural Health Clinical Elective | Christian Medical College Ludhiana | Ludhiana | Community Medicine & Primary Care | 150 PC |
 
 ### OBS_01: Tata Memorial Centre (TMC), Mumbai - Clinical Observership in Oncology
 - **ID:** `OBS_01`
