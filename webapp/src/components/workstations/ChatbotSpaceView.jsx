@@ -257,6 +257,7 @@ export default function ChatbotSpaceView({
   const [loading, setLoading] = useState(false);
   const [copiedId, setCopiedId] = useState(null);
 
+  const messagesScrollRef = useRef(null);
   const messagesEndRef = useRef(null);
   const textareaRef = useRef(null);
 
@@ -268,7 +269,10 @@ export default function ChatbotSpaceView({
   }, [geminiKey, customUrl, customKey, customModel]);
 
   useEffect(() => {
-    messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
+    // Scroll strictly within the messages container to avoid moving the Android viewport
+    if (messagesScrollRef.current) {
+      messagesScrollRef.current.scrollTop = messagesScrollRef.current.scrollHeight;
+    }
   }, [messages, loading]);
 
   const handleSaveGemini = () => {
@@ -941,7 +945,10 @@ export default function ChatbotSpaceView({
         {/* Chat Stream View */}
         <div className="flex-1 flex flex-col min-w-0 min-h-0 h-full backdrop-blur-md bg-white/50 dark:bg-[#080D1A]/50 relative overflow-hidden">
           {/* Scrollable Message List */}
-          <div className="flex-1 min-h-0 overflow-y-auto overscroll-contain p-3 sm:p-5 md:p-6 space-y-3.5 scroll-smooth">
+          <div
+            ref={messagesScrollRef}
+            className="flex-1 min-h-0 overflow-y-auto overscroll-contain p-3 sm:p-5 md:p-6 space-y-3.5 scroll-smooth"
+          >
             {messages.map(msg => {
               const isUser = msg.role === 'user';
               return (
@@ -1040,7 +1047,7 @@ export default function ChatbotSpaceView({
                   onChange={e => setInput(e.target.value)}
                   onKeyDown={handleKeyDown}
                   placeholder={`Ask medimind.ai (${currentModeObj.label})...`}
-                  className="w-full bg-transparent resize-none outline-none text-xs sm:text-sm text-zinc-900 dark:text-zinc-100 placeholder-zinc-400 leading-relaxed font-sans max-h-28"
+                  className="w-full bg-transparent resize-none outline-none text-[16px] sm:text-sm text-zinc-900 dark:text-zinc-100 placeholder-zinc-400 leading-relaxed font-sans max-h-28"
                 />
                 <div className="flex items-center justify-between pt-1 border-t border-zinc-200/60 dark:border-white/[0.06] text-[9.5px] text-zinc-500 dark:text-zinc-400">
                   <span className="flex items-center gap-1 font-mono">

@@ -134,6 +134,7 @@ export default function AiChatbot({ onToast, onOpenSpace, messages: propMessages
       ? window.innerHeight
       : 800
   );
+  const [viewportTop, setViewportTop] = useState(0);
   const [isMobile, setIsMobile] = useState(() =>
     typeof window !== 'undefined' ? window.innerWidth < 640 : false
   );
@@ -144,8 +145,10 @@ export default function AiChatbot({ onToast, onOpenSpace, messages: propMessages
       setIsMobile(mobile);
       if (window.visualViewport) {
         setViewportHeight(window.visualViewport.height);
+        setViewportTop(window.visualViewport.offsetTop || 0);
       } else {
         setViewportHeight(window.innerHeight);
+        setViewportTop(0);
       }
     };
 
@@ -164,15 +167,33 @@ export default function AiChatbot({ onToast, onOpenSpace, messages: propMessages
     };
   }, []);
 
+  // Lock document scroll on mobile while chat is open to prevent page drift
+  useEffect(() => {
+    if (!isOpen || !isMobile) return;
+    const originalOverflow = document.body.style.overflow;
+    document.body.style.overflow = 'hidden';
+    window.scrollTo(0, 0);
+    return () => {
+      document.body.style.overflow = originalOverflow;
+    };
+  }, [isOpen, isMobile]);
+
+  const messagesScrollRef = useRef(null);
   const bottomRef = useRef(null);
   const inputRef = useRef(null);
 
   useEffect(() => {
     if (isOpen) {
-      bottomRef.current?.scrollIntoView({ behavior: 'smooth' });
-      setTimeout(() => inputRef.current?.focus(), 150);
+      // Scroll strictly within message list container without triggering global window scroll
+      if (messagesScrollRef.current) {
+        messagesScrollRef.current.scrollTop = messagesScrollRef.current.scrollHeight;
+      }
+      // Only auto-focus on desktop; on mobile, auto-focusing forces the Android keyboard to pop up immediately
+      if (!isMobile) {
+        setTimeout(() => inputRef.current?.focus(), 120);
+      }
     }
-  }, [isOpen, messages]);
+  }, [isOpen, messages.length, isMobile]);
 
   const saveGemini = () => {
     const k = geminiDraft.trim();
@@ -345,9 +366,13 @@ export default function AiChatbot({ onToast, onOpenSpace, messages: propMessages
 
       {/* ── Glassmorphic Chat Panel (True Screen-Adaptive Auto-Fit for Mobile & Desktop) ── */}
       <div
-        style={isMobile ? { height: `${viewportHeight}px`, maxHeight: `${viewportHeight}px` } : undefined}
-        className={`fixed inset-0 sm:inset-auto sm:bottom-24 sm:right-6 sm:w-[430px] md:sm:w-[460px] sm:h-[620px] sm:max-h-[calc(100dvh-120px)] z-50 flex flex-col rounded-none sm:rounded-3xl overflow-hidden backdrop-blur-2xl bg-white/95 dark:bg-[#0E1526]/95 border-0 sm:border border-zinc-200/90 dark:border-white/20 shadow-none sm:shadow-[0_16px_48px_rgba(0,0,0,0.15)] dark:sm:shadow-[0_16px_48px_rgba(0,0,0,0.5)] text-zinc-900 dark:text-zinc-100 transition-all duration-300 ease-out ${
-          isOpen ? 'opacity-100 translate-y-0 pointer-events-auto' : 'opacity-0 translate-y-5 pointer-events-none'
+        style={isMobile ? {
+          top: `${viewportTop}px`,
+          height: `${viewportHeight}px`,
+          maxHeight: `${viewportHeight}px`,
+        } : undefined}
+        className={`fixed inset-x-0 sm:inset-x-auto sm:top-auto sm:bottom-24 sm:right-6 sm:w-[430px] md:sm:w-[460px] sm:h-[620px] sm:max-h-[calc(100dvh-120px)] z-50 flex flex-col rounded-none sm:rounded-3xl overflow-hidden backdrop-blur-2xl bg-white/95 dark:bg-[#0E1526]/95 border-0 sm:border border-zinc-200/90 dark:border-white/20 shadow-none sm:shadow-[0_16px_48px_rgba(0,0,0,0.15)] dark:sm:shadow-[0_16px_48px_rgba(0,0,0,0.5)] text-zinc-900 dark:text-zinc-100 transition-[opacity,transform] duration-200 ease-out ${
+          isOpen ? 'opacity-100 translate-y-0 pointer-events-auto' : 'opacity-0 translate-y-4 pointer-events-none'
         }`}
       >
         {/* Subtle ambient lighting */}
@@ -531,7 +556,10 @@ export default function AiChatbot({ onToast, onOpenSpace, messages: propMessages
         )}
 
         {/* ── Messages stream (Constrained & Scrollable) ── */}
-        <div className="relative z-10 flex-1 min-h-0 overflow-y-auto overscroll-contain px-3.5 py-3.5 space-y-3 scroll-smooth">
+        <div
+          ref={messagesScrollRef}
+          className="relative z-10 flex-1 min-h-0 overflow-y-auto overscroll-contain px-3.5 py-3.5 space-y-3 scroll-smooth"
+        >
           {messages.map(msg => (
             <div key={msg.id} className={`flex gap-2.5 ${msg.role === 'user' ? 'justify-end' : 'justify-start'}`}>
               {msg.role === 'assistant' && (
@@ -611,7 +639,7 @@ export default function AiChatbot({ onToast, onOpenSpace, messages: propMessages
               onChange={e => setInput(e.target.value)}
               onKeyDown={handleKeyDown}
               placeholder="Ask medimind.ai about NEET PG, grants, ethics…"
-              className="flex-1 bg-white dark:bg-white/10 border border-zinc-300 dark:border-white/15 text-xs text-zinc-900 dark:text-white placeholder-zinc-400 dark:placeholder-zinc-500 rounded-xl px-3 py-2.5 focus:outline-none focus:ring-1 focus:ring-blue-500 resize-none leading-relaxed backdrop-blur-md"
+              className="flex-1 bg-white dark:bg-white/10 border border-zinc-300 dark:border-white/15 text-[16px] sm:text-xs text-zinc-900 dark:text-white placeholder-zinc-400 dark:placeholder-zinc-500 rounded-xl px-3 py-2.5 focus:outline-none focus:ring-1 focus:ring-blue-500 resize-none leading-relaxed backdrop-blur-md"
               style={{ maxHeight: '90px' }}
             />
             <button

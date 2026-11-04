@@ -1,12 +1,12 @@
 {
-  "timestamp": "2026-11-03T18:42:33.577Z",
+  "timestamp": "2026-11-04T18:36:26.190Z",
   "targetDirectory": "C:\\Users\\pr218\\OneDrive\\Documents\\projects Antigravity\\PulseUp",
   "stats": {
     "total": 46,
     "passed": 46,
     "failed": 0,
     "skipped": 0,
-    "durationMs": 30
+    "durationMs": 97
   },
   "suites": [
     {
@@ -18,7 +18,7 @@
           "id": "T1-DOC-001",
           "name": "Core directory layout matches specification",
           "status": "PASS",
-          "durationMs": 3
+          "durationMs": 6
         },
         {
           "id": "T1-DOC-002",
@@ -30,25 +30,25 @@
           "id": "T1-DOC-003",
           "name": "README.md contains 2-sentence PulseUp career OS overview",
           "status": "PASS",
-          "durationMs": 0
+          "durationMs": 2
         },
         {
           "id": "T1-DOC-004",
           "name": "README.md contains explicit browser launch instructions for prototype/index.html",
           "status": "PASS",
-          "durationMs": 0
+          "durationMs": 1
         },
         {
           "id": "T1-DOC-005",
           "name": "README.md contains explanation of research database deliverables",
           "status": "PASS",
-          "durationMs": 1
+          "durationMs": 2
         },
         {
           "id": "T1-DOC-006",
           "name": "README.md documents clinical design system tokens and screen shortcuts",
           "status": "PASS",
-          "durationMs": 0
+          "durationMs": 20
         }
       ]
     },
@@ -61,13 +61,13 @@
           "id": "T1-PROTO-001",
           "name": "Prototype HTML file exists and exceeds 15KB payload threshold",
           "status": "PASS",
-          "durationMs": 1
+          "durationMs": 6
         },
         {
           "id": "T1-PROTO-002",
           "name": "Offline self-containment: zero external scripts and only Google Fonts CDN allowed",
           "status": "PASS",
-          "durationMs": 1
+          "durationMs": 0
         },
         {
           "id": "T1-PROTO-003",
@@ -79,19 +79,19 @@
           "id": "T1-PROTO-004",
           "name": "CSS font-family rules declare and apply all 3 typography families",
           "status": "PASS",
-          "durationMs": 0
+          "durationMs": 1
         },
         {
           "id": "T1-PROTO-005",
           "name": "Clinical dark design system hex color tokens implemented accurately",
           "status": "PASS",
-          "durationMs": 4
+          "durationMs": 10
         },
         {
           "id": "T1-PROTO-006",
           "name": "Layout dimensions conform to specification (220px sidebar, 52px topbar, 12px card radius)",
           "status": "PASS",
-          "durationMs": 0
+          "durationMs": 1
         },
         {
           "id": "T1-PROTO-007",
@@ -109,13 +109,13 @@
           "id": "T1-PROTO-009",
           "name": "Screen 3: Goal Spaces Workbench elements present",
           "status": "PASS",
-          "durationMs": 0
+          "durationMs": 1
         },
         {
           "id": "T1-PROTO-010",
           "name": "Screen 4: AETCOM Bioethics Hub elements present",
           "status": "PASS",
-          "durationMs": 1
+          "durationMs": 0
         },
         {
           "id": "T1-PROTO-011",
@@ -127,7 +127,7 @@
           "id": "T1-PROTO-012",
           "name": "Screen 6: Campus Pulse & Med-Q elements present",
           "status": "PASS",
-          "durationMs": 0
+          "durationMs": 1
         },
         {
           "id": "T1-PROTO-013",
@@ -139,7 +139,7 @@
           "id": "T1-PROTO-014",
           "name": "Screen 8: Verified Medical Passport elements present",
           "status": "PASS",
-          "durationMs": 0
+          "durationMs": 1
         },
         {
           "id": "T1-PROTO-015",
@@ -157,7 +157,7 @@
           "id": "T1-PROTO-017",
           "name": "Inline JavaScript parses and compiles cleanly without syntax errors",
           "status": "PASS",
-          "durationMs": 0
+          "durationMs": 2
         },
         {
           "id": "T1-PROTO-018",
@@ -176,7 +176,7 @@
           "id": "T1-DATA-001",
           "name": "medical_events_database.md exists and covers Categories A through E",
           "status": "PASS",
-          "durationMs": 2
+          "durationMs": 5
         },
         {
           "id": "T1-DATA-002",
@@ -188,7 +188,7 @@
           "id": "T1-DATA-003",
           "name": "seed_data.json conforms strictly to the required 12-field schema",
           "status": "PASS",
-          "durationMs": 0
+          "durationMs": 1
         },
         {
           "id": "T1-DATA-004",
@@ -200,7 +200,7 @@
           "id": "T1-DATA-005",
           "name": "pulse_credits_suggested is strictly a positive finite number across all entries",
           "status": "PASS",
-          "durationMs": 0
+          "durationMs": 1
         },
         {
           "id": "T1-DATA-006",
@@ -212,7 +212,7 @@
           "id": "T1-DATA-007",
           "name": "USMLE entries specify eligibility criteria for Indian MBBS students/graduates",
           "status": "PASS",
-          "durationMs": 0
+          "durationMs": 1
         },
         {
           "id": "T1-DATA-008",
@@ -243,7 +243,7 @@
           "id": "T2-EDGE-001",
           "name": "Cross-platform keyboard shortcut listens for both ctrlKey and metaKey",
           "status": "PASS",
-          "durationMs": 0
+          "durationMs": 1
         },
         {
           "id": "T2-EDGE-002",
@@ -273,7 +273,7 @@
           "id": "T3-COMB-001",
           "name": "Sidebar navigation and Command Bar targets align 1:1 with screen containers",
           "status": "PASS",
-          "durationMs": 0
+          "durationMs": 1
         },
         {
           "id": "T3-COMB-002",
@@ -285,7 +285,7 @@
           "id": "T3-COMB-003",
           "name": "Pairwise seed data spans diverse career stages (UG, Intern, Resident)",
           "status": "PASS",
-          "durationMs": 0
+          "durationMs": 1
         }
       ]
     },
@@ -298,7 +298,7 @@
           "id": "T4-E2E-001",
           "name": "Persona 1 Journey (Dr. Aarav Sharma - 3rd Year MBBS Student @ MAMC Delhi)",
           "status": "PASS",
-          "durationMs": 0
+          "durationMs": 1
         },
         {
           "id": "T4-E2E-002",
@@ -310,7 +310,7 @@
           "id": "T4-E2E-003",
           "name": "Persona 3 Journey (Dr. Rohan Verma - Junior Resident MD Medicine)",
           "status": "PASS",
-          "durationMs": 0
+          "durationMs": 1
         },
         {
           "id": "T4-E2E-004",
