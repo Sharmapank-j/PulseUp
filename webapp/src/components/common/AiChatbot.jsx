@@ -27,6 +27,7 @@ import {
   Plus,
   Pin,
   RotateCcw,
+  Terminal,
 } from 'lucide-react';
 import {
   CLOUD_PRESETS,
@@ -314,15 +315,23 @@ export default function AiChatbot({
   };
 
   const saveCustom = () => {
-    const url = (customUrlD || '').trim();
-    if (!url.startsWith('http')) {
-      onToast?.({ type: 'error', title: 'Invalid URL', message: 'Base URL must start with http:// or https://' });
+    let raw = (customUrlD || '').trim();
+    if (!raw) {
+      onToast?.({ type: 'error', title: 'Missing URL', message: 'Enter a Base URL or choose a preset.' });
       return;
+    }
+    if (!raw.startsWith('http://') && !raw.startsWith('https://')) {
+      if (/^(localhost|127\.0\.0\.1|0\.0\.0\.0)(:\d+)?(\/.*)?$/i.test(raw)) {
+        raw = `http://${raw}`;
+      } else {
+        raw = `https://${raw}`;
+      }
+      setCustomUrlD(raw);
     }
     const model = (customModD || '').trim() || 'llama-3.3-70b-versatile';
     const key = cleanApiKey(customKeyD);
-    setCustomUrl(url);
-    aiStorage.set('pulseup_custom_url', url);
+    setCustomUrl(raw);
+    aiStorage.set('pulseup_custom_url', raw);
     setCustomKey(key);
     aiStorage.set('pulseup_custom_key', key);
     setCustomModel(model);
@@ -332,7 +341,7 @@ export default function AiChatbot({
     aiStorage.set('pulseup_ai_provider', 'custom');
     aiStorage.notifyUpdate();
     setShowCfg(false);
-    onToast?.({ type: 'success', title: 'Cloud LLM Active', message: `Connected to ${model} @ ${url}` });
+    onToast?.({ type: 'success', title: 'Cloud LLM Active', message: `Connected to ${model} @ ${raw}` });
   };
 
   const clearProviders = () => {
@@ -373,7 +382,11 @@ export default function AiChatbot({
     setLoading(true);
 
     try {
-      if (provider === 'gemini' && geminiKey) {
+      if (provider === 'gemini') {
+        if (!geminiKey) {
+          setShowCfg(true);
+          throw new Error('Gemini API key is required. Paste your Google AI Studio key in Settings (⚙️), or switch to Prototype Engine.');
+        }
         const reply = await callGeminiApi({
           key: geminiKey,
           model: geminiModel,
@@ -393,7 +406,11 @@ export default function AiChatbot({
           chatSessionStorage.updateSessionMessages(activeSessionId, finalMsgs);
         }
         setLoading(false);
-      } else if (provider === 'custom' && customUrl) {
+      } else if (provider === 'custom') {
+        if (!customUrl) {
+          setShowCfg(true);
+          throw new Error('Endpoint Base URL is required for Cloud/Local LLMs. Please configure a preset (Groq, OpenRouter, Ollama) in Settings (⚙️).');
+        }
         const reply = await callCloudLlmApi({
           url: customUrl,
           key: customKey,
@@ -843,6 +860,24 @@ export default function AiChatbot({
                   <label className="text-[9.5px] text-zinc-500 dark:text-zinc-400 font-bold uppercase tracking-wider block mb-1">
                     Model Identifier
                   </label>
+                  {CLOUD_PRESETS.find(p => p.id === cloudPreset)?.models?.length > 0 && (
+                    <div className="mb-1.5 flex flex-wrap gap-1">
+                      {CLOUD_PRESETS.find(p => p.id === cloudPreset).models.map(m => (
+                        <button
+                          key={m.id}
+                          type="button"
+                          onClick={() => setCustomModD(m.id)}
+                          className={`text-[9px] px-2 py-0.5 rounded-lg border font-mono transition-all ${
+                            customModD === m.id
+                              ? 'bg-purple-600 text-white border-purple-500 shadow-xs font-semibold'
+                              : 'bg-zinc-100 dark:bg-white/5 border-zinc-200 dark:border-white/10 text-zinc-700 dark:text-zinc-300 hover:bg-zinc-200 dark:hover:bg-white/10'
+                          }`}
+                        >
+                          {m.label.split(' (')[0]}
+                        </button>
+                      ))}
+                    </div>
+                  )}
                   <input
                     type="text"
                     value={customModD}
@@ -873,6 +908,20 @@ export default function AiChatbot({
                     </button>
                   </div>
                 </div>
+
+                {(cloudPreset === 'ollama' || (customUrlD && (customUrlD.includes('localhost') || customUrlD.includes('127.0.0.1')))) && (
+                  <div className="p-2.5 rounded-xl bg-purple-500/10 border border-purple-500/25 text-[10px] text-zinc-700 dark:text-zinc-300 space-y-1.5 leading-relaxed">
+                    <div className="font-bold flex items-center gap-1.5 text-purple-700 dark:text-purple-300">
+                      <Terminal size={12} /> Local Server Setup Guide
+                    </div>
+                    <p>
+                      <strong>1. CORS permission:</strong> Ollama requires running with <code className="bg-purple-500/20 px-1 py-0.5 rounded font-mono text-[9px]">OLLAMA_ORIGINS=&quot;*&quot; ollama serve</code> or toggle <em>Enable CORS</em> in LM Studio server settings.
+                    </p>
+                    <p>
+                      <strong>2. Mixed content:</strong> On HTTPS deployments (Netlify), browsers block HTTP localhost. For direct local access, run PulseUp locally (<code className="bg-purple-500/20 px-1 py-0.5 rounded font-mono text-[9px]">npm run dev</code>) or use an HTTPS tunnel (<code className="bg-purple-500/20 px-1 py-0.5 rounded font-mono text-[9px]">cloudflared tunnel --url http://localhost:11434</code>).
+                    </p>
+                  </div>
+                )}
 
                 {/* Ping Result Badge */}
                 {testStatus && (

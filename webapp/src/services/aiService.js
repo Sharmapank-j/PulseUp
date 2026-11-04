@@ -133,95 +133,291 @@ export const CLOUD_PRESETS = [
 
 export const GEMINI_MODELS = [
   { id: 'gemini-2.0-flash', label: 'Gemini 2.0 Flash (Recommended · Fastest)', tier: 'Standard' },
-  { id: 'gemini-2.5-flash', label: 'Gemini 2.5 Flash (Next-Gen Reasoning)', tier: 'Experimental' },
-  { id: 'gemini-1.5-flash', label: 'Gemini 1.5 Flash (Ultra-High Speed)', tier: 'Production' },
-  { id: 'gemini-1.5-pro', label: 'Gemini 1.5 Pro (Deep Clinical Cases)', tier: 'High-Intelligence' },
+  { id: 'gemini-2.0-flash-lite', label: 'Gemini 2.0 Flash-Lite (Low Latency)', tier: 'Standard' },
+  { id: 'gemini-1.5-flash', label: 'Gemini 1.5 Flash (Production Fast)', tier: 'Production' },
+  { id: 'gemini-1.5-pro', label: 'Gemini 1.5 Pro (Deep Clinical Reasoning)', tier: 'High-Intelligence' },
 ];
 
 // ── Smart URL Resolver ──────────────────────────────────────────────────────
 /**
  * Normalizes any user-entered base URL or full endpoint to prevent doubling path segments.
  * Handles cases like:
- * - https://api.groq.com/openai/v1 -> https://api.groq.com/openai/v1/chat/completions
- * - https://openrouter.ai/api/v1/ -> https://openrouter.ai/api/v1/chat/completions
- * - https://my-server.com/v1/chat/completions -> https://my-server.com/v1/chat/completions
+ * - localhost:11434 -> http://localhost:11434/v1/chat/completions
  * - http://localhost:11434 -> http://localhost:11434/v1/chat/completions
+ * - http://localhost:11434/api/chat -> http://localhost:11434/api/chat (Ollama native)
+ * - api.groq.com/openai/v1 -> https://api.groq.com/openai/v1/chat/completions
+ * - https://openrouter.ai/api/v1 -> https://openrouter.ai/api/v1/chat/completions
  */
 export function resolveChatEndpoint(rawUrl) {
   if (!rawUrl) return '';
   let u = rawUrl.trim().replace(/\/+$/, '');
+
+  // Auto-prepend protocol if omitted by user
+  if (!u.startsWith('http://') && !u.startsWith('https://')) {
+    if (/^(localhost|127\.0\.0\.1|0\.0\.0\.0)(:\d+)?(\/.*)?$/i.test(u)) {
+      u = `http://${u}`;
+    } else {
+      u = `https://${u}`;
+    }
+  }
+
+  // Preserve native Ollama endpoints if user explicitly targeted them
+  if (u.endsWith('/api/chat') || u.endsWith('/api/generate')) {
+    return u;
+  }
+
+  // Preserve existing /chat/completions
   if (u.endsWith('/chat/completions')) {
     return u;
   }
+
+  // Normalize /v1
   if (u.endsWith('/v1')) {
     return `${u}/chat/completions`;
   }
+
   return `${u}/v1/chat/completions`;
 }
 
 // ── Clean Key / Secret Helper ───────────────────────────────────────────────
 export function cleanApiKey(key) {
   if (!key) return '';
-  return key.trim().replace(/^['"]|['"]$/g, '');
+  const k = key.trim().replace(/^['"]|['"]$/g, '');
+  if (k.toLowerCase() === 'optional' || k.toLowerCase() === 'none' || k.toLowerCase() === 'null') {
+    return '';
+  }
+  return k;
+}
+
+// ── Strict CORS-Compliant Header Builder ────────────────────────────────────
+/**
+ * Generates headers for Cloud & Local LLM requests.
+ * CRITICAL CORS SAFEGUARD:
+ * Only OpenRouter supports and requests HTTP-Referer and X-Title.
+ * Sending custom headers to local servers (Ollama, LM Studio) or Groq/DeepSeek
+ * triggers preflight OPTIONS failure if they are not in Access-Control-Allow-Headers!
+ */
+export function buildCloudHeaders(url, cleanedKey) {
+  const headers = {
+    'Content-Type': 'application/json',
+  };
+
+  if (cleanedKey) {
+    headers['Authorization'] = `Bearer ${cleanedKey}`;
+  }
+
+  // Only attach OpenRouter metadata headers when communicating with openrouter.ai
+  if (url && url.includes('openrouter.ai')) {
+    try {
+      if (typeof window !== 'undefined' && window.location?.origin) {
+        headers['HTTP-Referer'] = window.location.origin;
+      }
+    } catch {}
+    headers['X-Title'] = 'PulseUp medimind.ai';
+  }
+
+  return headers;
 }
 
 // ── Diagnostic Error Formatter ──────────────────────────────────────────────
-export function diagnoseAiError(err, status = 0) {
-  const msg = err?.message || String(err || 'Unknown error');
+export function diagnoseAiError(err, status = 0, targetUrl = '') {
+  const rawMsg = err?.message || String(err || 'Unknown error');
+  let serverDetail = '';
 
-  if (msg.includes('Failed to fetch') || err?.name === 'TypeError') {
+  // Attempt to parse structured JSON error payloads returned by providers
+  try {
+    const jsonMatch = rawMsg.match(/\{[\s\S]*\}/);
+    if (jsonMatch) {
+      const parsed = JSON.parse(jsonMatch[0]);
+      serverDetail = parsed?.error?.message || parsed?.error || parsed?.message || parsed?.detail || '';
+    }
+  } catch {}
+
+  const isHttps = typeof window !== 'undefined' && window.location?.protocol === 'https:';
+  const isHttpTarget = targetUrl && targetUrl.startsWith('http://');
+
+  // Case 1: Browser Mixed Content Block (HTTPS page fetching HTTP local/remote server)
+  if (isHttps && isHttpTarget) {
     return {
-      title: 'Connection or CORS Blocked',
-      message: 'Failed to fetch from endpoint. If using a local server (Ollama), launch it with OLLAMA_ORIGINS="*" to permit browser requests. If using a remote server, check HTTPS and internet connectivity.',
-      code: 'ERR_CORS_OR_NETWORK',
+      title: 'Mixed Content Blocked by Browser (HTTPS → HTTP)',
+      message: 'Your browser blocks insecure HTTP requests from HTTPS sites (https://pulseupdemo.netlify.app). To connect to local models: 1) Run PulseUp locally on http://localhost:5173, 2) Expose your local model via HTTPS (e.g. cloudflared tunnel or ngrok), or 3) Allow "Insecure content" in your browser site permissions.',
+      code: 'ERR_MIXED_CONTENT',
+      isMixedContent: true,
+      serverDetail,
     };
   }
 
-  if (status === 401 || msg.includes('401') || msg.toLowerCase().includes('unauthorized') || msg.toLowerCase().includes('api key not valid')) {
+  // Case 2: CORS or Connection Refused (Failed to fetch)
+  if (rawMsg.includes('Failed to fetch') || err?.name === 'TypeError') {
+    const isLocalhost = targetUrl && (targetUrl.includes('localhost') || targetUrl.includes('127.0.0.1'));
+    if (isLocalhost) {
+      return {
+        title: 'Local Server Connection Refused or CORS Blocked',
+        message: 'Could not reach local server. 1) Ensure your local engine is running (e.g. `ollama serve` or LM Studio). 2) Ensure CORS is enabled (for Ollama: launch with `OLLAMA_ORIGINS="*"`, for LM Studio: check "Enable CORS" in Local Server settings).',
+        code: 'ERR_LOCAL_CORS',
+        isLocal: true,
+        serverDetail,
+      };
+    }
+    return {
+      title: 'Network / CORS Error',
+      message: serverDetail || 'Failed to fetch from endpoint. Verify your Base URL, internet connection, and provider CORS permissions.',
+      code: 'ERR_CORS_OR_NETWORK',
+      serverDetail,
+    };
+  }
+
+  // Case 3: 401 Unauthorized
+  if (status === 401 || rawMsg.includes('401') || rawMsg.toLowerCase().includes('unauthorized') || rawMsg.toLowerCase().includes('api key not valid')) {
     return {
       title: 'Authentication Failed (401)',
-      message: 'Invalid API key or Bearer token. Please verify your credentials in AI Settings.',
+      message: serverDetail || 'Invalid API key or Bearer token. Please verify your credentials in Setup (⚙️).',
       code: 'ERR_AUTH_INVALID_KEY',
+      serverDetail,
     };
   }
 
-  if (status === 403 || msg.includes('403') || msg.toLowerCase().includes('forbidden')) {
+  // Case 4: 403 Forbidden
+  if (status === 403 || rawMsg.includes('403') || rawMsg.toLowerCase().includes('forbidden')) {
     return {
       title: 'Access Forbidden (403)',
-      message: 'Your account or API key lacks permissions or quota for this model. Check billing/credits on the provider portal.',
+      message: serverDetail || 'Your account or API key lacks permissions or quota for this model. Check billing/credits on the provider portal.',
       code: 'ERR_FORBIDDEN',
+      serverDetail,
     };
   }
 
-  if (status === 404 || msg.includes('404')) {
+  // Case 5: 404 Not Found / Model Not Found
+  if (status === 404 || rawMsg.includes('404')) {
+    const detailOrMsg = (serverDetail || rawMsg).toLowerCase();
+    if (detailOrMsg.includes('model')) {
+      return {
+        title: 'Model Not Found (404)',
+        message: serverDetail || rawMsg,
+        code: 'ERR_MODEL_NOT_FOUND',
+        serverDetail,
+      };
+    }
     return {
-      title: 'Endpoint Not Found (404)',
-      message: 'The server did not find /chat/completions. Check your Base URL (e.g. ensure correct /v1 prefix).',
+      title: 'Endpoint or Model Not Found (404)',
+      message: serverDetail || 'The server did not recognize this model or endpoint. Check your Model Identifier and Base URL.',
       code: 'ERR_NOT_FOUND',
+      serverDetail,
     };
   }
 
-  if (status === 429 || msg.includes('429') || msg.toLowerCase().includes('quota') || msg.toLowerCase().includes('rate limit')) {
+  // Case 6: 429 Rate Limit / Quota Exceeded
+  if (status === 429 || rawMsg.includes('429') || rawMsg.toLowerCase().includes('quota') || rawMsg.toLowerCase().includes('rate limit')) {
     return {
       title: 'Rate Limit / Quota Exceeded (429)',
-      message: 'The AI provider returned a rate limit or quota exhausted error. Try switching models or check your usage limit.',
+      message: serverDetail || 'The provider returned a rate limit or quota exhausted error. Try switching models or check your usage limit.',
       code: 'ERR_RATE_LIMIT',
+      serverDetail,
     };
   }
 
+  // Case 7: 500+ Server Errors
   if (status >= 500) {
     return {
       title: `Server Error (${status})`,
-      message: 'The AI cloud provider is experiencing downtime or internal capacity issues. Try again shortly.',
+      message: serverDetail || 'The AI server is experiencing capacity or internal execution issues. Try again shortly.',
       code: 'ERR_SERVER_5XX',
+      serverDetail,
     };
   }
 
   return {
     title: 'Inference Error',
-    message: msg.slice(0, 220),
+    message: serverDetail || rawMsg.slice(0, 240),
     code: 'ERR_GENERAL',
+    serverDetail,
   };
+}
+
+// ── Sanitized Multiturn History Builders ────────────────────────────────────
+
+/**
+ * Builds Gemini-compliant contents array.
+ * CRITICAL RULE: Must start with role: 'user', and alternate strictly between 'user' and 'model'.
+ */
+export function buildGeminiContents(messages, userText) {
+  const firstUserIdx = (messages || []).findIndex(m => m.role === 'user');
+  const rawHistory = firstUserIdx === -1 ? [] : messages.slice(firstUserIdx);
+
+  const alternating = [];
+  for (const m of rawHistory) {
+    if (m.isError || !m.text?.trim()) continue;
+    const role = m.role === 'assistant' ? 'model' : 'user';
+
+    if (alternating.length === 0) {
+      if (role === 'user') {
+        alternating.push({ role: 'user', parts: [{ text: m.text.trim() }] });
+      }
+    } else {
+      const prev = alternating[alternating.length - 1];
+      if (prev.role === role) {
+        prev.parts[0].text += `\n\n${m.text.trim()}`;
+      } else {
+        alternating.push({ role, parts: [{ text: m.text.trim() }] });
+      }
+    }
+  }
+
+  const trimmedUserText = (userText || '').trim();
+  if (trimmedUserText) {
+    if (alternating.length === 0) {
+      alternating.push({ role: 'user', parts: [{ text: trimmedUserText }] });
+    } else {
+      const last = alternating[alternating.length - 1];
+      if (last.role === 'user') {
+        if (last.parts[0].text === trimmedUserText) {
+          // already present
+        } else if (last.parts[0].text.endsWith(trimmedUserText)) {
+          // already appended
+        } else {
+          last.parts[0].text += `\n\n${trimmedUserText}`;
+        }
+      } else {
+        alternating.push({ role: 'user', parts: [{ text: trimmedUserText }] });
+      }
+    }
+  }
+
+  return alternating;
+}
+
+/**
+ * Builds OpenAI / Groq / Cloud-compliant messages array.
+ * Includes system instructions at index 0, followed by alternating dialogue starting with user.
+ */
+export function buildOpenAiMessages(messages, userText, systemPrompt) {
+  const msgs = [];
+  if (systemPrompt && systemPrompt.trim()) {
+    msgs.push({ role: 'system', content: systemPrompt.trim() });
+  }
+
+  const firstUserIdx = (messages || []).findIndex(m => m.role === 'user');
+  const rawHistory = firstUserIdx === -1 ? [] : messages.slice(firstUserIdx);
+
+  for (const m of rawHistory) {
+    if (m.isError || !m.text?.trim()) continue;
+    msgs.push({
+      role: m.role === 'assistant' ? 'assistant' : 'user',
+      content: m.text.trim(),
+    });
+  }
+
+  const trimmed = (userText || '').trim();
+  if (trimmed) {
+    const last = msgs[msgs.length - 1];
+    if (last && last.role === 'user' && last.content === trimmed) {
+      // already present
+    } else {
+      msgs.push({ role: 'user', content: trimmed });
+    }
+  }
+
+  return msgs;
 }
 
 // ── Connection Verification / Ping Tests ────────────────────────────────────
@@ -255,20 +451,20 @@ export async function testGeminiConnection(key, model = 'gemini-2.0-flash') {
     const latency = Date.now() - startTime;
     if (!res.ok) {
       const errData = await res.json().catch(() => ({}));
-      const diag = diagnoseAiError(new Error(errData?.error?.message || `HTTP ${res.status}`), res.status);
+      const diag = diagnoseAiError(new Error(errData?.error?.message || `HTTP ${res.status}`), res.status, endpoint);
       return { success: false, latency, error: diag.message, title: diag.title };
     }
 
     return { success: true, latency, model };
   } catch (err) {
     clearTimeout(timeoutId);
-    const diag = diagnoseAiError(err);
+    const diag = diagnoseAiError(err, 0, endpoint);
     return { success: false, latency: Date.now() - startTime, error: diag.message, title: diag.title };
   }
 }
 
 /**
- * Test Cloud / OpenAI-compatible endpoint with a 1-token prompt
+ * Test Cloud / OpenAI-compatible endpoint with a test prompt
  */
 export async function testCloudConnection(rawUrl, key, model = 'llama-3.3-70b-versatile') {
   const endpoint = resolveChatEndpoint(rawUrl);
@@ -278,28 +474,30 @@ export async function testCloudConnection(rawUrl, key, model = 'llama-3.3-70b-ve
 
   const cleanedKey = cleanApiKey(key);
   const startTime = Date.now();
-
-  const headers = {
-    'Content-Type': 'application/json',
-    'HTTP-Referer': typeof window !== 'undefined' ? window.location.origin : 'https://pulseupdemo.netlify.app',
-    'X-Title': 'PulseUp medimind.ai',
-  };
-  if (cleanedKey) {
-    headers['Authorization'] = `Bearer ${cleanedKey}`;
-  }
+  const headers = buildCloudHeaders(endpoint, cleanedKey);
 
   const controller = new AbortController();
   const timeoutId = setTimeout(() => controller.abort(), 14000);
+
+  // Detect Ollama native vs OpenAI endpoint format
+  const isOllamaNative = endpoint.endsWith('/api/chat');
+  const requestBody = isOllamaNative
+    ? {
+        model: model || 'llama3',
+        messages: [{ role: 'user', content: 'ping' }],
+        stream: false,
+      }
+    : {
+        model: model || 'llama-3.3-70b-versatile',
+        messages: [{ role: 'user', content: 'ping' }],
+        max_tokens: 10,
+      };
 
   try {
     const res = await fetch(endpoint, {
       method: 'POST',
       headers,
-      body: JSON.stringify({
-        model: model || 'llama-3.3-70b-versatile',
-        messages: [{ role: 'user', content: 'ping' }],
-        max_tokens: 2,
-      }),
+      body: JSON.stringify(requestBody),
       signal: controller.signal,
     });
     clearTimeout(timeoutId);
@@ -307,14 +505,14 @@ export async function testCloudConnection(rawUrl, key, model = 'llama-3.3-70b-ve
     const latency = Date.now() - startTime;
     if (!res.ok) {
       const errText = await res.text().catch(() => '');
-      const diag = diagnoseAiError(new Error(errText || `HTTP ${res.status}`), res.status);
+      const diag = diagnoseAiError(new Error(errText || `HTTP ${res.status}`), res.status, endpoint);
       return { success: false, latency, error: diag.message, title: diag.title };
     }
 
     return { success: true, latency, model };
   } catch (err) {
     clearTimeout(timeoutId);
-    const diag = diagnoseAiError(err);
+    const diag = diagnoseAiError(err, 0, endpoint);
     return { success: false, latency: Date.now() - startTime, error: diag.message, title: diag.title };
   }
 }
@@ -328,21 +526,12 @@ export async function callGeminiApi({ key, model = 'gemini-2.0-flash', messages,
   if (!cleanedKey) throw new Error('Missing Gemini API Key.');
 
   const endpoint = `https://generativelanguage.googleapis.com/v1beta/models/${model}:generateContent?key=${cleanedKey}`;
-
-  const historyContents = (messages || [])
-    .filter(m => (m.role === 'user' || m.role === 'assistant') && !m.isError)
-    .map(m => ({
-      role: m.role === 'assistant' ? 'model' : 'user',
-      parts: [{ text: m.text }],
-    }));
+  const contents = buildGeminiContents(messages, userText);
 
   const body = {
     system_instruction: { parts: [{ text: systemPrompt }] },
-    contents: [
-      ...historyContents,
-      { role: 'user', parts: [{ text: userText }] },
-    ],
-    generationConfig: { temperature: 0.7, maxOutputTokens: 1500 },
+    contents,
+    generationConfig: { temperature: 0.7, maxOutputTokens: 2048 },
   };
 
   const controller = new AbortController();
@@ -359,7 +548,7 @@ export async function callGeminiApi({ key, model = 'gemini-2.0-flash', messages,
 
     if (!res.ok) {
       const errData = await res.json().catch(() => ({}));
-      const diag = diagnoseAiError(new Error(errData?.error?.message || `HTTP ${res.status}`), res.status);
+      const diag = diagnoseAiError(new Error(errData?.error?.message || `HTTP ${res.status}`), res.status, endpoint);
       throw new Error(`${diag.title}: ${diag.message}`);
     }
 
@@ -375,66 +564,70 @@ export async function callGeminiApi({ key, model = 'gemini-2.0-flash', messages,
 }
 
 /**
- * Call Cloud / OpenAI-compatible API with chat history & system prompt
+ * Call Cloud / OpenAI-compatible API or Ollama Native API with chat history & system prompt
  */
 export async function callCloudLlmApi({ url, key, model, messages, userText, systemPrompt }) {
   const endpoint = resolveChatEndpoint(url);
   if (!endpoint) throw new Error('Invalid or missing Base URL for Cloud LLM.');
 
   const cleanedKey = cleanApiKey(key);
-  const headers = {
-    'Content-Type': 'application/json',
-    'HTTP-Referer': typeof window !== 'undefined' ? window.location.origin : 'https://pulseupdemo.netlify.app',
-    'X-Title': 'PulseUp medimind.ai',
-  };
-  if (cleanedKey) {
-    headers['Authorization'] = `Bearer ${cleanedKey}`;
-  }
+  const headers = buildCloudHeaders(endpoint, cleanedKey);
+  const formattedMessages = buildOpenAiMessages(messages, userText, systemPrompt);
 
-  const history = (messages || [])
-    .filter(m => (m.role === 'user' || m.role === 'assistant') && !m.isError)
-    .map(m => ({
-      role: m.role === 'assistant' ? 'assistant' : 'user',
-      content: m.text,
-    }));
-
-  const body = {
-    model: model || 'llama-3.3-70b-versatile',
-    messages: [
-      { role: 'system', content: systemPrompt },
-      ...history,
-      { role: 'user', content: userText },
-    ],
-    temperature: 0.7,
-    max_tokens: 1500,
-  };
+  const isOllamaNative = endpoint.endsWith('/api/chat');
+  const requestBody = isOllamaNative
+    ? {
+        model: model || 'llama3',
+        messages: formattedMessages.map(m => ({ role: m.role, content: m.content })),
+        stream: false,
+      }
+    : {
+        model: model || 'llama-3.3-70b-versatile',
+        messages: formattedMessages,
+        temperature: 0.7,
+        max_tokens: 2048,
+      };
 
   const controller = new AbortController();
-  const timeoutId = setTimeout(() => controller.abort(), 35000);
+  const timeoutId = setTimeout(() => controller.abort(), 45000);
 
   try {
     const res = await fetch(endpoint, {
       method: 'POST',
       headers,
-      body: JSON.stringify(body),
+      body: JSON.stringify(requestBody),
       signal: controller.signal,
     });
     clearTimeout(timeoutId);
 
     if (!res.ok) {
       const errText = await res.text().catch(() => '');
-      const diag = diagnoseAiError(new Error(errText || `HTTP ${res.status}`), res.status);
+      const diag = diagnoseAiError(new Error(errText || `HTTP ${res.status}`), res.status, endpoint);
       throw new Error(`${diag.title}: ${diag.message}`);
     }
 
     const data = await res.json();
-    return data?.choices?.[0]?.message?.content || data?.choices?.[0]?.text || '(No content returned from Cloud LLM)';
+
+    // Check Ollama native format first
+    if (isOllamaNative && data?.message?.content) {
+      return data.message.content;
+    }
+
+    // Check OpenAI format with reasoning_content fallback
+    const firstChoice = data?.choices?.[0];
+    const content = firstChoice?.message?.content || firstChoice?.message?.reasoning_content || firstChoice?.text;
+    if (content) {
+      return content;
+    }
+
+    return '(No content returned from Cloud LLM)';
   } catch (err) {
     clearTimeout(timeoutId);
     if (err.name === 'AbortError') {
-      throw new Error('Cloud LLM request timed out after 35 seconds. Check endpoint speed or connectivity.');
+      throw new Error('Cloud LLM request timed out after 45 seconds. Check endpoint speed or connectivity.');
     }
-    throw err;
+    const diag = diagnoseAiError(err, 0, endpoint);
+    throw new Error(`${diag.title}: ${diag.message}`);
   }
 }
 

@@ -1,12 +1,12 @@
 {
-  "timestamp": "2026-11-04T20:34:47.182Z",
+  "timestamp": "2026-11-04T21:11:32.599Z",
   "targetDirectory": "C:\\Users\\pr218\\OneDrive\\Documents\\projects Antigravity\\PulseUp",
   "stats": {
     "total": 46,
     "passed": 46,
     "failed": 0,
     "skipped": 0,
-    "durationMs": 29
+    "durationMs": 26
   },
   "suites": [
     {
@@ -18,13 +18,13 @@
           "id": "T1-DOC-001",
           "name": "Core directory layout matches specification",
           "status": "PASS",
-          "durationMs": 2
+          "durationMs": 1
         },
         {
           "id": "T1-DOC-002",
           "name": "README.md exists and meets minimum documentation payload threshold",
           "status": "PASS",
-          "durationMs": 1
+          "durationMs": 0
         },
         {
           "id": "T1-DOC-003",
@@ -36,13 +36,13 @@
           "id": "T1-DOC-004",
           "name": "README.md contains explicit browser launch instructions for prototype/index.html",
           "status": "PASS",
-          "durationMs": 0
+          "durationMs": 1
         },
         {
           "id": "T1-DOC-005",
           "name": "README.md contains explanation of research database deliverables",
           "status": "PASS",
-          "durationMs": 1
+          "durationMs": 0
         },
         {
           "id": "T1-DOC-006",
@@ -61,19 +61,19 @@
           "id": "T1-PROTO-001",
           "name": "Prototype HTML file exists and exceeds 15KB payload threshold",
           "status": "PASS",
-          "durationMs": 1
+          "durationMs": 0
         },
         {
           "id": "T1-PROTO-002",
           "name": "Offline self-containment: zero external scripts and only Google Fonts CDN allowed",
           "status": "PASS",
-          "durationMs": 0
+          "durationMs": 1
         },
         {
           "id": "T1-PROTO-003",
           "name": "Google Fonts CDN imports Inter, Plus Jakarta Sans, and JetBrains Mono",
           "status": "PASS",
-          "durationMs": 1
+          "durationMs": 0
         },
         {
           "id": "T1-PROTO-004",
@@ -109,7 +109,7 @@
           "id": "T1-PROTO-009",
           "name": "Screen 3: Goal Spaces Workbench elements present",
           "status": "PASS",
-          "durationMs": 0
+          "durationMs": 1
         },
         {
           "id": "T1-PROTO-010",
@@ -121,7 +121,7 @@
           "id": "T1-PROTO-011",
           "name": "Screen 5: Async Mentorship Triage elements present",
           "status": "PASS",
-          "durationMs": 1
+          "durationMs": 0
         },
         {
           "id": "T1-PROTO-012",
@@ -139,13 +139,13 @@
           "id": "T1-PROTO-014",
           "name": "Screen 8: Verified Medical Passport elements present",
           "status": "PASS",
-          "durationMs": 0
+          "durationMs": 1
         },
         {
           "id": "T1-PROTO-015",
           "name": "Command search overlay (Cmd+K / Ctrl+K) contains all 8 screen links",
           "status": "PASS",
-          "durationMs": 1
+          "durationMs": 0
         },
         {
           "id": "T1-PROTO-016",
@@ -176,7 +176,7 @@
           "id": "T1-DATA-001",
           "name": "medical_events_database.md exists and covers Categories A through E",
           "status": "PASS",
-          "durationMs": 2
+          "durationMs": 1
         },
         {
           "id": "T1-DATA-002",
@@ -218,13 +218,13 @@
           "id": "T1-DATA-008",
           "name": "At least 5 verified official website URLs exist per category (>=25 total)",
           "status": "PASS",
-          "durationMs": 0
+          "durationMs": 1
         },
         {
           "id": "T1-DATA-009",
           "name": "All record IDs are unique strings without collisions",
           "status": "PASS",
-          "durationMs": 1
+          "durationMs": 0
         },
         {
           "id": "T1-DATA-010",
@@ -243,7 +243,7 @@
           "id": "T2-EDGE-001",
           "name": "Cross-platform keyboard shortcut listens for both ctrlKey and metaKey",
           "status": "PASS",
-          "durationMs": 1
+          "durationMs": 0
         },
         {
           "id": "T2-EDGE-002",
@@ -298,13 +298,13 @@
           "id": "T4-E2E-001",
           "name": "Persona 1 Journey (Dr. Aarav Sharma - 3rd Year MBBS Student @ MAMC Delhi)",
           "status": "PASS",
-          "durationMs": 1
+          "durationMs": 0
         },
         {
           "id": "T4-E2E-002",
           "name": "Persona 2 Journey (Dr. Priya Nair - Compulsory Rotating Medical Intern)",
           "status": "PASS",
-          "durationMs": 0
+          "durationMs": 1
         },
         {
           "id": "T4-E2E-003",

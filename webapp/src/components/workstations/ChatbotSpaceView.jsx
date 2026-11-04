@@ -355,19 +355,23 @@ export default function ChatbotSpaceView({
   };
 
   const handleSaveCustom = () => {
-    const url = (customUrlDraft || '').trim();
-    if (!url.startsWith('http://') && !url.startsWith('https://')) {
-      onToast?.({
-        type: 'error',
-        title: 'Invalid Server URL',
-        message: 'Endpoint must start with http:// or https://'
-      });
+    let raw = (customUrlDraft || '').trim();
+    if (!raw) {
+      onToast?.({ type: 'error', title: 'Missing URL', message: 'Enter a Base URL or choose a preset.' });
       return;
+    }
+    if (!raw.startsWith('http://') && !raw.startsWith('https://')) {
+      if (/^(localhost|127\.0\.0\.1|0\.0\.0\.0)(:\d+)?(\/.*)?$/i.test(raw)) {
+        raw = `http://${raw}`;
+      } else {
+        raw = `https://${raw}`;
+      }
+      setCustomUrlDraft(raw);
     }
     const model = (customModelDraft || '').trim() || 'llama-3.3-70b-versatile';
     const key = cleanApiKey(customKeyDraft);
-    setCustomUrl(url);
-    aiStorage.set('pulseup_custom_url', url);
+    setCustomUrl(raw);
+    aiStorage.set('pulseup_custom_url', raw);
     setCustomKey(key);
     aiStorage.set('pulseup_custom_key', key);
     setCustomModel(model);
@@ -380,7 +384,7 @@ export default function ChatbotSpaceView({
     onToast?.({
       type: 'success',
       title: 'Cloud LLM Connected',
-      message: `Active provider: ${model} @ ${url}`
+      message: `Active provider: ${model} @ ${raw}`
     });
   };
 
@@ -511,7 +515,12 @@ export default function ChatbotSpaceView({
     const systemPromptWithMode = `${SYSTEM_INSTRUCTION_BASE}\n\nCURRENT SPECIALTY FOCUS: ${modeConfig.label}\n${modeConfig.prompt}`;
 
     try {
-      if (provider === 'gemini' && geminiKey) {
+      if (provider === 'gemini') {
+        if (!geminiKey) {
+          setIsConfigOpen(true);
+          throw new Error('Gemini API key is required. Please paste your Google AI Studio key in Setup (⚙️) on the left, or switch to Prototype Engine for offline clinical reasoning.');
+        }
+
         const replyText = await callGeminiApi({
           key: geminiKey,
           model: geminiModel,
@@ -531,7 +540,12 @@ export default function ChatbotSpaceView({
           chatSessionStorage.updateSessionMessages(activeSessionId, finalMsgs);
         }
         setLoading(false);
-      } else if (provider === 'custom' && customUrl) {
+      } else if (provider === 'custom') {
+        if (!customUrl) {
+          setIsConfigOpen(true);
+          throw new Error('Endpoint Base URL is required for Cloud/Local LLMs. Please select a preset (Groq, OpenRouter, Ollama) or enter your URL in Setup (⚙️).');
+        }
+
         const replyText = await callCloudLlmApi({
           url: customUrl,
           key: customKey,
@@ -1066,134 +1080,172 @@ export default function ChatbotSpaceView({
                   </div>
                 </div>
               ) : provider === 'custom' ? (
-                <div className="space-y-2.5">
-                  {/* 1-Click Cloud Provider Presets */}
-                  <div>
-                    <label className="text-[9.5px] font-bold text-zinc-600 dark:text-zinc-400 uppercase tracking-wider block mb-1">
-                      Cloud Presets
-                    </label>
-                    <div className="grid grid-cols-3 gap-1">
-                      {CLOUD_PRESETS.map(cp => {
-                        const isSel = cloudPreset === cp.id;
-                        return (
+                (() => {
+                  const activePreset = CLOUD_PRESETS.find(p => p.id === cloudPreset);
+                  const isLocal = cloudPreset === 'ollama' || customUrlDraft.includes('localhost') || customUrlDraft.includes('127.0.0.1');
+                  return (
+                    <div className="space-y-2.5">
+                      {/* 1-Click Cloud Provider Presets */}
+                      <div>
+                        <label className="text-[9.5px] font-bold text-zinc-600 dark:text-zinc-400 uppercase tracking-wider block mb-1">
+                          Cloud Presets
+                        </label>
+                        <div className="grid grid-cols-3 gap-1">
+                          {CLOUD_PRESETS.map(cp => {
+                            const isSel = cloudPreset === cp.id;
+                            return (
+                              <button
+                                key={cp.id}
+                                type="button"
+                                onClick={() => handleSelectCloudPreset(cp.id)}
+                                className={`p-1 rounded-lg border text-left transition-all ${
+                                  isSel
+                                    ? `${cp.bg} ${cp.border} font-bold text-zinc-900 dark:text-white shadow-xs`
+                                    : 'bg-white dark:bg-white/5 border-zinc-200 dark:border-white/10 text-zinc-600 dark:text-zinc-400 hover:bg-zinc-100 dark:hover:bg-white/10'
+                                }`}
+                              >
+                                <p className="text-[10px] truncate leading-tight font-semibold">{cp.name}</p>
+                                <p className="text-[8px] truncate opacity-75">{cp.badge.split('/')[0]}</p>
+                              </button>
+                            );
+                          })}
+                        </div>
+                      </div>
+
+                      <div>
+                        <div className="flex items-center justify-between mb-1">
+                          <label className="text-[9.5px] font-bold text-zinc-600 dark:text-zinc-400 uppercase tracking-wider">
+                            Base Endpoint URL
+                          </label>
+                          {activePreset?.keyUrl && (
+                            <a
+                              href={activePreset.keyUrl}
+                              target="_blank"
+                              rel="noreferrer"
+                              className="text-[9.5px] text-blue-500 dark:text-blue-400 hover:underline flex items-center gap-0.5"
+                            >
+                              Get Key <ExternalLink size={8} />
+                            </a>
+                          )}
+                        </div>
+                        <input
+                          type="text"
+                          value={customUrlDraft}
+                          onChange={e => setCustomUrlDraft(e.target.value)}
+                          placeholder="https://api.groq.com/openai/v1 or https://openrouter.ai/api/v1"
+                          className="w-full bg-white dark:bg-black/30 border border-zinc-300 dark:border-white/10 text-xs rounded-xl px-2.5 py-1.5 font-mono text-zinc-900 dark:text-zinc-100 focus:outline-none focus:ring-1 focus:ring-purple-500"
+                        />
+                        <p className="text-[8.5px] text-zinc-400 mt-0.5 font-mono">
+                          Auto-resolves /v1 and /chat/completions endpoints
+                        </p>
+                      </div>
+
+                      <div>
+                        <label className="text-[9.5px] font-bold text-zinc-600 dark:text-zinc-400 uppercase tracking-wider block mb-1">
+                          Model Identifier
+                        </label>
+                        {activePreset?.models?.length > 0 && (
+                          <div className="mb-1.5 flex flex-wrap gap-1">
+                            {activePreset.models.map(m => (
+                              <button
+                                key={m.id}
+                                type="button"
+                                onClick={() => setCustomModelDraft(m.id)}
+                                className={`text-[9px] px-2 py-0.5 rounded-lg border font-mono transition-all ${
+                                  customModelDraft === m.id
+                                    ? 'bg-purple-600 text-white border-purple-500 shadow-xs font-semibold'
+                                    : 'bg-zinc-100 dark:bg-white/5 border-zinc-200 dark:border-white/10 text-zinc-700 dark:text-zinc-300 hover:bg-zinc-200 dark:hover:bg-white/10'
+                                }`}
+                              >
+                                {m.label.split(' (')[0]}
+                              </button>
+                            ))}
+                          </div>
+                        )}
+                        <input
+                          type="text"
+                          value={customModelDraft}
+                          onChange={e => setCustomModelDraft(e.target.value)}
+                          placeholder="llama-3.3-70b-versatile, deepseek-chat, gpt-4o-mini"
+                          className="w-full bg-white dark:bg-black/30 border border-zinc-300 dark:border-white/10 text-xs rounded-xl px-2.5 py-1.5 font-mono text-zinc-900 dark:text-zinc-100 focus:outline-none focus:ring-1 focus:ring-purple-500"
+                        />
+                      </div>
+
+                      <div>
+                        <label className="text-[9.5px] font-bold text-zinc-600 dark:text-zinc-400 uppercase tracking-wider block mb-1">
+                          API Key / Bearer Token
+                        </label>
+                        <div className="relative">
+                          <input
+                            type={showKey ? 'text' : 'password'}
+                            value={customKeyDraft}
+                            onChange={e => setCustomKeyDraft(e.target.value)}
+                            placeholder={activePreset?.keyPlaceholder || 'sk-... or leave blank'}
+                            className="w-full bg-white dark:bg-black/30 border border-zinc-300 dark:border-white/10 text-xs rounded-xl px-2.5 py-1.5 pr-8 font-mono text-zinc-900 dark:text-zinc-100 focus:outline-none focus:ring-1 focus:ring-purple-500"
+                          />
                           <button
-                            key={cp.id}
                             type="button"
-                            onClick={() => handleSelectCloudPreset(cp.id)}
-                            className={`p-1 rounded-lg border text-left transition-all ${
-                              isSel
-                                ? `${cp.bg} ${cp.border} font-bold text-zinc-900 dark:text-white shadow-xs`
-                                : 'bg-white dark:bg-white/5 border-zinc-200 dark:border-white/10 text-zinc-600 dark:text-zinc-400 hover:bg-zinc-100 dark:hover:bg-white/10'
-                            }`}
+                            onClick={() => setShowKey(!showKey)}
+                            className="absolute right-2.5 top-1/2 -translate-y-1/2 text-zinc-400 hover:text-zinc-600 dark:hover:text-zinc-200"
                           >
-                            <p className="text-[10px] truncate leading-tight font-semibold">{cp.name}</p>
-                            <p className="text-[8px] truncate opacity-75">{cp.badge.split('/')[0]}</p>
+                            {showKey ? <EyeOff size={13} /> : <Eye size={13} />}
                           </button>
-                        );
-                      })}
-                    </div>
-                  </div>
+                        </div>
+                      </div>
 
-                  <div>
-                    <div className="flex items-center justify-between mb-1">
-                      <label className="text-[9.5px] font-bold text-zinc-600 dark:text-zinc-400 uppercase tracking-wider">
-                        Base Endpoint URL
-                      </label>
-                      {CLOUD_PRESETS.find(p => p.id === cloudPreset)?.keyUrl && (
-                        <a
-                          href={CLOUD_PRESETS.find(p => p.id === cloudPreset).keyUrl}
-                          target="_blank"
-                          rel="noreferrer"
-                          className="text-[9.5px] text-blue-500 dark:text-blue-400 hover:underline flex items-center gap-0.5"
-                        >
-                          Get Key <ExternalLink size={8} />
-                        </a>
+                      {isLocal && (
+                        <div className="p-2.5 rounded-xl bg-purple-500/10 border border-purple-500/25 text-[10px] text-zinc-700 dark:text-zinc-300 space-y-1.5 leading-relaxed">
+                          <div className="font-bold flex items-center gap-1.5 text-purple-700 dark:text-purple-300">
+                            <Terminal size={12} /> Local Server Setup Guide
+                          </div>
+                          <p>
+                            <strong>1. CORS permission:</strong> Ollama requires running with <code className="bg-purple-500/20 px-1 py-0.5 rounded font-mono text-[9px]">OLLAMA_ORIGINS=&quot;*&quot; ollama serve</code> or toggle <em>Enable CORS</em> in LM Studio server settings.
+                          </p>
+                          <p>
+                            <strong>2. Mixed content:</strong> On HTTPS deployments (Netlify), browsers block HTTP localhost. For direct local access, run PulseUp locally (<code className="bg-purple-500/20 px-1 py-0.5 rounded font-mono text-[9px]">npm run dev</code>) or use an HTTPS tunnel (<code className="bg-purple-500/20 px-1 py-0.5 rounded font-mono text-[9px]">cloudflared tunnel --url http://localhost:11434</code>).
+                          </p>
+                        </div>
                       )}
+
+                      {pingStatus && (
+                        <div className={`p-2 rounded-xl text-[10px] font-mono border flex items-center justify-between ${
+                          pingStatus.success
+                            ? 'bg-emerald-500/15 text-emerald-700 dark:text-emerald-300 border-emerald-500/30'
+                            : 'bg-rose-500/15 text-rose-700 dark:text-rose-300 border-rose-500/30'
+                        }`}>
+                          <span className="truncate">
+                            {pingStatus.success ? `✓ Connected (${pingStatus.latency}ms)` : `✕ ${pingStatus.error}`}
+                          </span>
+                          {pingStatus.success && <span className="text-[9px] font-bold text-emerald-500">Live</span>}
+                        </div>
+                      )}
+
+                      <div className="flex gap-2 pt-1">
+                        <button
+                          onClick={handleSaveCustom}
+                          className="flex-1 py-1.5 bg-gradient-to-r from-purple-600 to-pink-600 text-white font-bold text-xs rounded-xl shadow-sm transition-all hover:brightness-105"
+                        >
+                          Save
+                        </button>
+                        <button
+                          onClick={handleTestCloudConnection}
+                          disabled={pingStatus?.loading}
+                          className="px-3 py-1.5 bg-zinc-100 hover:bg-zinc-200 dark:bg-white/[0.08] dark:hover:bg-white/[0.12] text-xs font-semibold rounded-xl text-zinc-800 dark:text-zinc-200 border border-zinc-200 dark:border-white/10 flex items-center gap-1"
+                        >
+                          {pingStatus?.loading ? <RefreshCw size={13} className="animate-spin text-purple-500 dark:text-purple-400" /> : 'Ping'}
+                        </button>
+                        {customUrl && (
+                          <button
+                            onClick={handleResetProvider}
+                            className="px-2.5 py-1.5 bg-rose-500/10 hover:bg-rose-500/20 text-rose-600 dark:text-rose-400 text-xs font-bold rounded-xl transition-colors"
+                          >
+                            Reset
+                          </button>
+                        )}
+                      </div>
                     </div>
-                    <input
-                      type="text"
-                      value={customUrlDraft}
-                      onChange={e => setCustomUrlDraft(e.target.value)}
-                      placeholder="https://api.groq.com/openai/v1 or https://openrouter.ai/api/v1"
-                      className="w-full bg-white dark:bg-black/30 border border-zinc-300 dark:border-white/10 text-xs rounded-xl px-2.5 py-1.5 font-mono text-zinc-900 dark:text-zinc-100 focus:outline-none focus:ring-1 focus:ring-purple-500"
-                    />
-                    <p className="text-[8.5px] text-zinc-400 mt-0.5 font-mono">
-                      Auto-resolves /v1 and /chat/completions endpoints
-                    </p>
-                  </div>
-
-                  <div>
-                    <label className="text-[9.5px] font-bold text-zinc-600 dark:text-zinc-400 uppercase tracking-wider block mb-1">
-                      Model Identifier
-                    </label>
-                    <input
-                      type="text"
-                      value={customModelDraft}
-                      onChange={e => setCustomModelDraft(e.target.value)}
-                      placeholder="llama-3.3-70b-versatile, deepseek-chat, gpt-4o-mini"
-                      className="w-full bg-white dark:bg-black/30 border border-zinc-300 dark:border-white/10 text-xs rounded-xl px-2.5 py-1.5 font-mono text-zinc-900 dark:text-zinc-100 focus:outline-none focus:ring-1 focus:ring-purple-500"
-                    />
-                  </div>
-
-                  <div>
-                    <label className="text-[9.5px] font-bold text-zinc-600 dark:text-zinc-400 uppercase tracking-wider block mb-1">
-                      API Key / Bearer Token
-                    </label>
-                    <div className="relative">
-                      <input
-                        type={showKey ? 'text' : 'password'}
-                        value={customKeyDraft}
-                        onChange={e => setCustomKeyDraft(e.target.value)}
-                        placeholder={CLOUD_PRESETS.find(p => p.id === cloudPreset)?.keyPlaceholder || 'sk-... or leave blank'}
-                        className="w-full bg-white dark:bg-black/30 border border-zinc-300 dark:border-white/10 text-xs rounded-xl px-2.5 py-1.5 pr-8 font-mono text-zinc-900 dark:text-zinc-100 focus:outline-none focus:ring-1 focus:ring-purple-500"
-                      />
-                      <button
-                        type="button"
-                        onClick={() => setShowKey(!showKey)}
-                        className="absolute right-2.5 top-1/2 -translate-y-1/2 text-zinc-400 hover:text-zinc-600 dark:hover:text-zinc-200"
-                      >
-                        {showKey ? <EyeOff size={13} /> : <Eye size={13} />}
-                      </button>
-                    </div>
-                  </div>
-
-                  {pingStatus && (
-                    <div className={`p-2 rounded-xl text-[10px] font-mono border flex items-center justify-between ${
-                      pingStatus.success
-                        ? 'bg-emerald-500/15 text-emerald-700 dark:text-emerald-300 border-emerald-500/30'
-                        : 'bg-rose-500/15 text-rose-700 dark:text-rose-300 border-rose-500/30'
-                    }`}>
-                      <span className="truncate">
-                        {pingStatus.success ? `✓ Connected (${pingStatus.latency}ms)` : `✕ ${pingStatus.error}`}
-                      </span>
-                      {pingStatus.success && <span className="text-[9px] font-bold text-emerald-500">Live</span>}
-                    </div>
-                  )}
-
-                  <div className="flex gap-2 pt-1">
-                    <button
-                      onClick={handleSaveCustom}
-                      className="flex-1 py-1.5 bg-gradient-to-r from-purple-600 to-pink-600 text-white font-bold text-xs rounded-xl shadow-sm transition-all hover:brightness-105"
-                    >
-                      Save
-                    </button>
-                    <button
-                      onClick={handleTestCloudConnection}
-                      disabled={pingStatus?.loading}
-                      className="px-3 py-1.5 bg-zinc-100 hover:bg-zinc-200 dark:bg-white/[0.08] dark:hover:bg-white/[0.12] text-xs font-semibold rounded-xl text-zinc-800 dark:text-zinc-200 border border-zinc-200 dark:border-white/10 flex items-center gap-1"
-                    >
-                      {pingStatus?.loading ? <RefreshCw size={13} className="animate-spin text-purple-500 dark:text-purple-400" /> : 'Ping'}
-                    </button>
-                    {customUrl && (
-                      <button
-                        onClick={handleResetProvider}
-                        className="px-2.5 py-1.5 bg-rose-500/10 hover:bg-rose-500/20 text-rose-600 dark:text-rose-400 text-xs font-bold rounded-xl transition-colors"
-                      >
-                        Reset
-                      </button>
-                    )}
-                  </div>
-                </div>
+                  );
+                })()
               ) : (
                 <div className="text-[11px] text-zinc-600 dark:text-zinc-400 leading-relaxed">
                   Active: <strong>Prototype Clinical Engine</strong> with simulated streaming. Switch to Gemini or Cloud LLM above to link external keys.
