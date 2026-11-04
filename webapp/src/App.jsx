@@ -35,6 +35,29 @@ export default function App() {
   };
 
   const [lastEcosystemScreen, setLastEcosystemScreen] = useState('dashboard');
+  const [dutyStatus, setDutyStatus] = useState('on_duty');
+
+  const dutyCycle = ['on_duty', 'night_call', 'in_ot', 'research', 'off_call'];
+  const dutyDescriptions = {
+    on_duty: 'Ward Duty Active · Maulana Azad Medical College, Internal Med Ward 4B',
+    night_call: 'Night Call Triage Active · Trauma Emergency & ICU Telemetry online',
+    in_ot: 'In OT / Procedures · Thoracic Surgery & Emergency Laparotomy',
+    research: 'Research Block · Drafting Multi-Center Stroke Thrombolysis Registry',
+    off_call: 'Post-Duty Rest · NEET PG Recall Drills & AETCOM Case Review',
+  };
+
+  const handleToggleDutyStatus = () => {
+    setDutyStatus((prev) => {
+      const idx = dutyCycle.indexOf(prev);
+      const next = dutyCycle[(idx + 1) % dutyCycle.length];
+      addToast({
+        type: 'info',
+        title: 'Resident Duty Status Switched',
+        message: dutyDescriptions[next],
+      });
+      return next;
+    });
+  };
 
   const handleSelectScreen = (screenId) => {
     if (activeScreen !== 'chatbot' && screenId === 'chatbot') {
@@ -144,7 +167,11 @@ export default function App() {
   };
 
   return (
-    <div className="flex h-screen h-[100dvh] max-h-[100dvh] w-screen overflow-hidden bg-zinc-50 dark:bg-[#0B101B] text-zinc-900 dark:text-[#F1F5F9] font-sans antialiased overscroll-none">
+    <div className="flex h-screen h-[100dvh] max-h-[100dvh] w-screen overflow-hidden bg-zinc-50 dark:bg-[#070B14] text-zinc-900 dark:text-[#F1F5F9] font-sans antialiased overscroll-none clinical-grid relative">
+      {/* Ambient Clinical Aura Lights */}
+      <div className="pointer-events-none absolute -top-40 -left-40 w-96 h-96 bg-emerald-500/10 dark:bg-emerald-500/15 rounded-full blur-3xl opacity-60 z-0" />
+      <div className="pointer-events-none absolute top-1/3 -right-40 w-96 h-96 bg-blue-500/10 dark:bg-blue-500/15 rounded-full blur-3xl opacity-60 z-0" />
+
       {/* Sidebar Navigation (Desktop Persistent for Ecosystem + Mobile Drawer for All) */}
       {activeScreen !== 'chatbot' ? (
         <Sidebar
@@ -154,6 +181,8 @@ export default function App() {
           isMobileOpen={isMobileMenuOpen}
           onCloseMobile={() => setIsMobileMenuOpen(false)}
           userProfile={userProfile}
+          dutyStatus={dutyStatus}
+          onToggleDutyStatus={handleToggleDutyStatus}
           onOpenProfile={() => handleSelectScreen('identity')}
           onOpenCredits={() =>
             addToast({
@@ -175,6 +204,8 @@ export default function App() {
             isMobileOpen={true}
             onCloseMobile={() => setIsMobileMenuOpen(false)}
             userProfile={userProfile}
+            dutyStatus={dutyStatus}
+            onToggleDutyStatus={handleToggleDutyStatus}
             onOpenProfile={() => handleSelectScreen('identity')}
             onOpenCredits={() =>
               addToast({
@@ -188,13 +219,14 @@ export default function App() {
       )}
 
       {/* Main Viewport */}
-      <div className="flex-1 flex flex-col min-w-0 min-h-0 h-full max-h-full overflow-hidden">
+      <div className="flex-1 flex flex-col min-w-0 min-h-0 h-full max-h-full overflow-hidden relative z-1">
         {/* Sticky Frosted Topbar (Hidden in dedicated fullscreen chatbot workspace to maximize screen space) */}
         {activeScreen !== 'chatbot' && (
           <Topbar
             title={screenTitles[activeScreen] || 'PulseUp Clinical OS'}
             onOpenSearch={() => setIsSearchOpen(true)}
             isDarkMode={isDarkMode}
+            dutyStatus={dutyStatus}
             onToggleDarkMode={() => {
               setIsDarkMode(!isDarkMode);
               addToast({
