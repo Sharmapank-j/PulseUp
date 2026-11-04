@@ -49,6 +49,7 @@ import {
 import {
   CLOUD_PRESETS,
   GEMINI_MODELS,
+  normalizeGeminiModel,
   testGeminiConnection,
   testCloudConnection,
   callGeminiApi,
@@ -221,7 +222,7 @@ export default function ChatbotSpaceView({
   // Provider Settings State
   const [provider, setProvider] = useState(() => aiStorage.get('pulseup_ai_provider', 'none'));
   const [geminiKey, setGeminiKey] = useState(() => aiStorage.get('pulseup_gemini_key', ''));
-  const [geminiModel, setGeminiModel] = useState(() => aiStorage.get('pulseup_gemini_model', 'gemini-2.0-flash'));
+  const [geminiModel, setGeminiModel] = useState(() => normalizeGeminiModel(aiStorage.get('pulseup_gemini_model', 'gemini-3.8-flash')));
   const [geminiDraft, setGeminiDraft] = useState('');
 
   const [customUrl, setCustomUrl] = useState(() => aiStorage.get('pulseup_custom_url', ''));
@@ -262,7 +263,7 @@ export default function ChatbotSpaceView({
     const handleSync = () => {
       setProvider(aiStorage.get('pulseup_ai_provider', 'none'));
       setGeminiKey(aiStorage.get('pulseup_gemini_key', ''));
-      setGeminiModel(aiStorage.get('pulseup_gemini_model', 'gemini-2.0-flash'));
+      setGeminiModel(normalizeGeminiModel(aiStorage.get('pulseup_gemini_model', 'gemini-3.8-flash')));
       setCustomUrl(aiStorage.get('pulseup_custom_url', ''));
       setCustomKey(aiStorage.get('pulseup_custom_key', ''));
       setCustomModel(aiStorage.get('pulseup_custom_model', 'llama-3.3-70b-versatile'));
@@ -340,9 +341,11 @@ export default function ChatbotSpaceView({
       });
       return;
     }
+    const cleanModel = normalizeGeminiModel(geminiModel);
     setGeminiKey(k);
+    setGeminiModel(cleanModel);
     aiStorage.set('pulseup_gemini_key', k);
-    aiStorage.set('pulseup_gemini_model', geminiModel);
+    aiStorage.set('pulseup_gemini_model', cleanModel);
     setProvider('gemini');
     aiStorage.set('pulseup_ai_provider', 'gemini');
     aiStorage.notifyUpdate();
@@ -350,7 +353,7 @@ export default function ChatbotSpaceView({
     onToast?.({
       type: 'success',
       title: 'Gemini Cloud Activated',
-      message: `medimind.ai powered by ${geminiModel} ✨`
+      message: `medimind.ai powered by ${cleanModel} (3.8 Flash series) ✨`
     });
   };
 
@@ -395,13 +398,14 @@ export default function ChatbotSpaceView({
       return;
     }
     setPingStatus({ loading: true });
-    const res = await testGeminiConnection(k, geminiModel);
+    const targetModel = normalizeGeminiModel(geminiModel);
+    const res = await testGeminiConnection(k, targetModel);
     setPingStatus({ loading: false, ...res });
     if (res.success) {
       onToast?.({
         type: 'success',
-        title: 'Gemini Cloud Verified',
-        message: `Endpoint responded in ${res.latency}ms!`
+        title: 'Gemini 3.8 Flash Cloud Verified',
+        message: `${res.model || targetModel} responded in ${res.latency}ms!`
       });
     } else {
       onToast?.({
@@ -521,9 +525,10 @@ export default function ChatbotSpaceView({
           throw new Error('Gemini API key is required. Please paste your Google AI Studio key in Setup (⚙️) on the left, or switch to Prototype Engine for offline clinical reasoning.');
         }
 
+        const targetModel = normalizeGeminiModel(geminiModel);
         const replyText = await callGeminiApi({
           key: geminiKey,
-          model: geminiModel,
+          model: targetModel,
           messages,
           userText,
           systemPrompt: systemPromptWithMode,

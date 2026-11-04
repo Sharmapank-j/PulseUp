@@ -35,11 +35,12 @@ export const CLOUD_PRESETS = [
     border: 'border-indigo-500/30',
     bg: 'bg-indigo-500/10',
     defaultUrl: 'https://openrouter.ai/api/v1',
-    defaultModel: 'google/gemini-2.0-flash-001',
+    defaultModel: 'google/gemini-3.8-flash',
     models: [
-      { id: 'google/gemini-2.0-flash-001', label: 'Gemini 2.0 Flash (OpenRouter)' },
+      { id: 'google/gemini-3.8-flash', label: 'Gemini 3.8 Flash (OpenRouter)' },
       { id: 'meta-llama/llama-3.3-70b-instruct', label: 'Llama 3.3 70B Instruct' },
       { id: 'deepseek/deepseek-chat', label: 'DeepSeek V3 (Chat)' },
+      { id: 'deepseek/deepseek-r1', label: 'DeepSeek R1 (Clinical Reasoning)' },
       { id: 'anthropic/claude-3.5-haiku', label: 'Claude 3.5 Haiku' },
     ],
     keyPlaceholder: 'sk-or-v1-...',
@@ -134,6 +135,24 @@ export const CLOUD_PRESETS = [
     keyDoc: 'Bypasses browser mixed content on HTTPS',
   },
   {
+    id: 'gemini_openai',
+    name: 'Gemini (OpenAI Endpoint)',
+    badge: 'Official Google OpenAI API',
+    accent: 'text-blue-500 dark:text-blue-400',
+    border: 'border-blue-500/30',
+    bg: 'bg-blue-500/10',
+    defaultUrl: 'https://generativelanguage.googleapis.com/v1beta/openai',
+    defaultModel: 'gemini-3.8-flash',
+    models: [
+      { id: 'gemini-3.8-flash', label: 'Gemini 3.8 Flash (Recommended · 1M Context)' },
+      { id: 'gemini-3.8-flash-lite', label: 'Gemini 3.8 Flash-Lite (Fast & Cheap)' },
+      { id: 'gemini-4-argon', label: 'Gemini 4 Argon (Advanced Clinical Reasoning)' },
+    ],
+    keyPlaceholder: 'AIzaSy...',
+    keyUrl: 'https://aistudio.google.com/apikey',
+    keyDoc: 'aistudio.google.com',
+  },
+  {
     id: 'custom',
     name: 'Custom Endpoint',
     badge: 'Custom OpenAI-Compatible',
@@ -149,12 +168,27 @@ export const CLOUD_PRESETS = [
   },
 ];
 
+// ── Google Gemini Models (Gemini 3.8 Flash Series) ──────────────────────────
 export const GEMINI_MODELS = [
-  { id: 'gemini-2.0-flash', label: 'Gemini 2.0 Flash (Recommended · Fastest)', tier: 'Standard' },
-  { id: 'gemini-2.0-flash-lite', label: 'Gemini 2.0 Flash-Lite (Low Latency)', tier: 'Standard' },
-  { id: 'gemini-1.5-flash', label: 'Gemini 1.5 Flash (Production Fast)', tier: 'Production' },
-  { id: 'gemini-1.5-pro', label: 'Gemini 1.5 Pro (Deep Clinical Reasoning)', tier: 'High-Intelligence' },
+  { id: 'gemini-3.8-flash', label: 'Gemini 3.8 Flash (Recommended · Fastest & Most Accurate)', tier: '3.8-Flash-Series' },
+  { id: 'gemini-3.8-flash-lite', label: 'Gemini 3.8 Flash-Lite (Ultra Low Latency)', tier: '3.8-Flash-Series' },
+  { id: 'gemini-3.5-flash-lite', label: 'Gemini 3.5 Flash-Lite (High Throughput)', tier: 'Flash-Lite' },
+  { id: 'gemini-4-argon', label: 'Gemini 4 Argon (Deep Clinical Reasoning & Coding)', tier: 'Flagship-Reasoning' },
 ];
+
+/**
+ * Normalizes Gemini model identifiers and automatically migrates legacy or deprecated
+ * models (gemini-1.5-*, gemini-2.0-*, gemini-2.5-*) to the Gemini 3.8 Flash series.
+ */
+export function normalizeGeminiModel(model) {
+  if (!model) return 'gemini-3.8-flash';
+  let m = model.trim().replace(/^models\//, '');
+  // Auto-upgrade legacy and deprecated models (1.5, 2.0, 2.5) to the Gemini 3.8 Flash series
+  if (/^gemini-(1\.5|2\.0|2\.5)/i.test(m)) {
+    return 'gemini-3.8-flash';
+  }
+  return m;
+}
 
 // ── Smart URL Resolver ──────────────────────────────────────────────────────
 /**
@@ -200,7 +234,13 @@ export function resolveChatEndpoint(rawUrl) {
 // ── Clean Key / Secret Helper ───────────────────────────────────────────────
 export function cleanApiKey(key) {
   if (!key) return '';
-  const k = key.trim().replace(/^['"]|['"]$/g, '');
+  let k = key.trim().replace(/^['"]|['"]$/g, '');
+  if (k.toLowerCase().startsWith('bearer ')) {
+    k = k.slice(7).trim();
+  }
+  if (k.toLowerCase().startsWith('api_key=')) {
+    k = k.slice(8).trim();
+  }
   if (k.toLowerCase() === 'optional' || k.toLowerCase() === 'none' || k.toLowerCase() === 'null') {
     return '';
   }
@@ -476,12 +516,12 @@ export async function dispatchAiRequest({ endpoint, headers, body, signal }) {
     return await fetch(endpoint, {
       method: 'POST',
       headers,
-      body: JSON.stringify(body),
+      body: typeof body === 'string' ? body : JSON.stringify(body),
       signal,
     });
   } catch (directErr) {
-    // If direct fetch fails on a remote target (CORS/network block) while on Netlify,
-    // seamlessly retry through the backend serverless proxy (/api/proxy)
+    // If direct fetch fails on a remote target (CORS/network block, browser shields),
+    // seamlessly retry through the backend gateway proxy (/api/proxy)
     if (!isLocal && typeof window !== 'undefined' && window.location?.origin) {
       try {
         const proxyRes = await fetch('/api/proxy', {
@@ -490,10 +530,16 @@ export async function dispatchAiRequest({ endpoint, headers, body, signal }) {
           body: JSON.stringify({ endpoint, method: 'POST', headers, body }),
           signal,
         });
+        // Return proxyRes if upstream responded (even with 4xx error payloads so error details are parsed)
+        if (proxyRes.status !== 404 && proxyRes.status !== 502) {
+          return proxyRes;
+        }
         if (proxyRes.ok) {
           return proxyRes;
         }
-      } catch {}
+      } catch (proxyErr) {
+        console.warn('Proxy fallback failed:', proxyErr);
+      }
     }
     throw directErr;
   }
@@ -501,24 +547,28 @@ export async function dispatchAiRequest({ endpoint, headers, body, signal }) {
 
 // ── Connection Verification / Ping Tests ────────────────────────────────────
 /**
- * Test Google Gemini connection with a 1-token prompt
+ * Test Google Gemini connection with a 1-token prompt (defaults to Gemini 3.8 Flash series)
  */
-export async function testGeminiConnection(key, model = 'gemini-2.0-flash') {
+export async function testGeminiConnection(key, model = 'gemini-3.8-flash') {
   const cleanedKey = cleanApiKey(key);
   if (!cleanedKey) {
     throw new Error('Please enter a Gemini API Key before testing.');
   }
 
-  const endpoint = `https://generativelanguage.googleapis.com/v1beta/models/${model}:generateContent?key=${cleanedKey}`;
+  const cleanModel = normalizeGeminiModel(model);
+  const endpoint = `https://generativelanguage.googleapis.com/v1beta/models/${cleanModel}:generateContent?key=${cleanedKey}`;
   const startTime = Date.now();
 
   const controller = new AbortController();
-  const timeoutId = setTimeout(() => controller.abort(), 12000);
+  const timeoutId = setTimeout(() => controller.abort(), 15000);
 
   try {
     const res = await dispatchAiRequest({
       endpoint,
-      headers: { 'Content-Type': 'application/json' },
+      headers: {
+        'Content-Type': 'application/json',
+        'x-goog-api-key': cleanedKey,
+      },
       body: {
         contents: [{ role: 'user', parts: [{ text: 'ping' }] }],
         generationConfig: { maxOutputTokens: 2 },
@@ -534,7 +584,7 @@ export async function testGeminiConnection(key, model = 'gemini-2.0-flash') {
       return { success: false, latency, error: diag.message, title: diag.title };
     }
 
-    return { success: true, latency, model };
+    return { success: true, latency, model: cleanModel };
   } catch (err) {
     clearTimeout(timeoutId);
     const diag = diagnoseAiError(err, 0, endpoint);
@@ -556,7 +606,7 @@ export async function testCloudConnection(rawUrl, key, model = 'llama-3.3-70b-ve
   const headers = buildCloudHeaders(endpoint, cleanedKey);
 
   const controller = new AbortController();
-  const timeoutId = setTimeout(() => controller.abort(), 14000);
+  const timeoutId = setTimeout(() => controller.abort(), 15000);
 
   // Detect Ollama native vs OpenAI endpoint format
   const isOllamaNative = endpoint.endsWith('/api/chat');
@@ -598,13 +648,14 @@ export async function testCloudConnection(rawUrl, key, model = 'llama-3.3-70b-ve
 
 // ── Full Chat Generation ────────────────────────────────────────────────────
 /**
- * Call Gemini API with chat history & system instructions
+ * Call Gemini API with chat history & system instructions (defaults to Gemini 3.8 Flash series)
  */
-export async function callGeminiApi({ key, model = 'gemini-2.0-flash', messages, userText, systemPrompt }) {
+export async function callGeminiApi({ key, model = 'gemini-3.8-flash', messages, userText, systemPrompt }) {
   const cleanedKey = cleanApiKey(key);
   if (!cleanedKey) throw new Error('Missing Gemini API Key.');
 
-  const endpoint = `https://generativelanguage.googleapis.com/v1beta/models/${model}:generateContent?key=${cleanedKey}`;
+  const cleanModel = normalizeGeminiModel(model);
+  const endpoint = `https://generativelanguage.googleapis.com/v1beta/models/${cleanModel}:generateContent?key=${cleanedKey}`;
   const contents = buildGeminiContents(messages, userText);
 
   const body = {
@@ -619,7 +670,10 @@ export async function callGeminiApi({ key, model = 'gemini-2.0-flash', messages,
   try {
     const res = await dispatchAiRequest({
       endpoint,
-      headers: { 'Content-Type': 'application/json' },
+      headers: {
+        'Content-Type': 'application/json',
+        'x-goog-api-key': cleanedKey,
+      },
       body,
       signal: controller.signal,
     });
@@ -632,7 +686,16 @@ export async function callGeminiApi({ key, model = 'gemini-2.0-flash', messages,
     }
 
     const data = await res.json();
-    return data?.candidates?.[0]?.content?.parts?.[0]?.text || '(No response returned from Gemini)';
+    const candidate = data?.candidates?.[0];
+    const parts = candidate?.content?.parts || [];
+    const text = parts.map(p => p.text || '').filter(Boolean).join('\n');
+    if (text) {
+      return text;
+    }
+    if (candidate?.finishReason && candidate.finishReason !== 'STOP') {
+      throw new Error(`Gemini generated no response text (Finish Reason: ${candidate.finishReason}). Check safety filters.`);
+    }
+    return '(No response returned from Gemini)';
   } catch (err) {
     clearTimeout(timeoutId);
     if (err.name === 'AbortError') {

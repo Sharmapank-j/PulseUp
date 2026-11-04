@@ -73,6 +73,11 @@ export async function handler(event, context) {
     delete forwardHeaders['host'];
     delete forwardHeaders['connection'];
     delete forwardHeaders['content-length'];
+    delete forwardHeaders['origin'];
+    delete forwardHeaders['referer'];
+    if (!forwardHeaders['content-type'] && !forwardHeaders['Content-Type']) {
+      forwardHeaders['Content-Type'] = 'application/json';
+    }
 
     // Forward request from serverless environment (Node.js 18+ global fetch)
     const upstreamRes = await fetch(endpoint, {

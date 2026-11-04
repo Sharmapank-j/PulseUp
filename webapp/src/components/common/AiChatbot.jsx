@@ -32,6 +32,7 @@ import {
 import {
   CLOUD_PRESETS,
   GEMINI_MODELS,
+  normalizeGeminiModel,
   testGeminiConnection,
   testCloudConnection,
   callGeminiApi,
@@ -135,7 +136,7 @@ export default function AiChatbot({
   // Providers & Cloud Config
   const [provider, setProvider] = useState(() => aiStorage.get('pulseup_ai_provider', 'none'));
   const [geminiKey, setGeminiKey] = useState(() => aiStorage.get('pulseup_gemini_key', ''));
-  const [geminiModel, setGeminiModel] = useState(() => aiStorage.get('pulseup_gemini_model', 'gemini-2.0-flash'));
+  const [geminiModel, setGeminiModel] = useState(() => normalizeGeminiModel(aiStorage.get('pulseup_gemini_model', 'gemini-3.8-flash')));
   const [geminiDraft, setGeminiDraft] = useState('');
 
   const [customUrl, setCustomUrl] = useState(() => aiStorage.get('pulseup_custom_url', ''));
@@ -164,7 +165,7 @@ export default function AiChatbot({
     const handleSync = () => {
       setProvider(aiStorage.get('pulseup_ai_provider', 'none'));
       setGeminiKey(aiStorage.get('pulseup_gemini_key', ''));
-      setGeminiModel(aiStorage.get('pulseup_gemini_model', 'gemini-2.0-flash'));
+      setGeminiModel(normalizeGeminiModel(aiStorage.get('pulseup_gemini_model', 'gemini-3.8-flash')));
       setCustomUrl(aiStorage.get('pulseup_custom_url', ''));
       setCustomKey(aiStorage.get('pulseup_custom_key', ''));
       setCustomModel(aiStorage.get('pulseup_custom_model', 'llama-3.3-70b-versatile'));
@@ -273,10 +274,11 @@ export default function AiChatbot({
       return;
     }
     setTestStatus({ loading: true });
-    const res = await testGeminiConnection(k, geminiModel);
+    const targetModel = normalizeGeminiModel(geminiModel);
+    const res = await testGeminiConnection(k, targetModel);
     setTestStatus({ loading: false, ...res });
     if (res.success) {
-      onToast?.({ type: 'success', title: 'Gemini Verified', message: `Connected to ${geminiModel} in ${res.latency}ms!` });
+      onToast?.({ type: 'success', title: 'Gemini 3.8 Flash Verified', message: `Connected to ${res.model || targetModel} in ${res.latency}ms!` });
     } else {
       onToast?.({ type: 'error', title: res.title || 'Gemini Failed', message: res.error });
     }
@@ -304,14 +306,16 @@ export default function AiChatbot({
       onToast?.({ type: 'error', title: 'Invalid Key', message: 'Please provide a valid Gemini API key.' });
       return;
     }
+    const cleanModel = normalizeGeminiModel(geminiModel);
     setGeminiKey(k);
+    setGeminiModel(cleanModel);
     aiStorage.set('pulseup_gemini_key', k);
-    aiStorage.set('pulseup_gemini_model', geminiModel);
+    aiStorage.set('pulseup_gemini_model', cleanModel);
     setProvider('gemini');
     aiStorage.set('pulseup_ai_provider', 'gemini');
     aiStorage.notifyUpdate();
     setShowCfg(false);
-    onToast?.({ type: 'success', title: 'Gemini AI Active', message: `medimind.ai powered by ${geminiModel} ✨` });
+    onToast?.({ type: 'success', title: 'Gemini AI Active', message: `medimind.ai powered by ${cleanModel} (3.8 Flash series) ✨` });
   };
 
   const saveCustom = () => {
@@ -387,9 +391,10 @@ export default function AiChatbot({
           setShowCfg(true);
           throw new Error('Gemini API key is required. Paste your Google AI Studio key in Settings (⚙️), or switch to Prototype Engine.');
         }
+        const targetModel = normalizeGeminiModel(geminiModel);
         const reply = await callGeminiApi({
           key: geminiKey,
-          model: geminiModel,
+          model: targetModel,
           messages,
           userText,
           systemPrompt: SYSTEM_INSTRUCTION,
