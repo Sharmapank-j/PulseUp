@@ -91,35 +91,35 @@ export default function PassportView({ onToast, credits, userProfile, onUpdatePr
   return (
     <div className="space-y-5">
       {/* Profile Hero Header */}
-      <div className="bg-gradient-to-br from-blue-500/10 via-emerald/5 to-transparent border border-blue-500/20 rounded-2xl p-6 flex flex-col md:flex-row items-start md:items-center justify-between gap-6">
+      <div className="clinical-card bg-gradient-to-br from-blue-500/10 via-emerald-500/[0.04] to-transparent border border-blue-500/25 rounded-2xl p-6 flex flex-col md:flex-row items-start md:items-center justify-between gap-6 shadow-sm">
         <div className="flex items-center gap-4">
-          <div className="w-16 h-16 rounded-full bg-gradient-to-br from-blue-500 to-purple-600 text-white font-extrabold text-2xl flex items-center justify-center flex-shrink-0 border-2 border-emerald shadow-lg">
+          <div className="w-16 h-16 rounded-full bg-gradient-to-br from-blue-600 to-purple-600 text-white font-black text-2xl flex items-center justify-center flex-shrink-0 border-2 border-emerald-500 shadow-md">
             {userProfile?.initials || 'AS'}
           </div>
           <div>
             <div className="flex items-center gap-2">
-              <h2 className="font-display font-extrabold text-xl text-zinc-900 dark:text-zinc-100">
+              <h2 className="font-display font-black text-xl text-zinc-900 dark:text-zinc-100">
                 {userProfile?.name || 'Dr. Aarav Sharma, MBBS'}
               </h2>
               <button
                 onClick={() => setShowEditModal(true)}
-                className="p-1 rounded-lg hover:bg-zinc-200 dark:hover:bg-white/[0.08] text-zinc-500 hover:text-emerald transition-colors"
+                className="p-1.5 rounded-lg hover:bg-zinc-200 dark:hover:bg-white/[0.08] text-zinc-500 hover:text-emerald-600 dark:hover:text-emerald-400 transition-colors"
                 title="Edit Profile"
               >
                 <Edit3 size={14} />
               </button>
             </div>
-            <p className="text-xs text-zinc-500 dark:text-[#94A3B8] mt-0.5">
+            <p className="text-xs text-zinc-600 dark:text-zinc-400 mt-0.5">
               {userProfile?.role || 'Senior Resident (JR-2) · Department of Internal Medicine · Maulana Azad Medical College (MAMC), New Delhi'}
             </p>
             <div className="flex flex-wrap gap-1.5 mt-2">
-              <span className="text-[10px] font-mono font-semibold bg-emerald/10 text-emerald border border-emerald/20 px-2 py-0.5 rounded-full">
+              <span className="text-[10px] font-mono font-bold bg-emerald-500/10 text-emerald-700 dark:text-emerald-300 border border-emerald-500/25 px-2 py-0.5 rounded-full">
                 ✓ NMC: {userProfile?.nmcNumber || 'DMC/R/142981'}
               </span>
-              <span className="text-[10px] font-mono font-semibold bg-blue-500/10 text-blue-400 border border-blue-500/20 px-2 py-0.5 rounded-full">
+              <span className="text-[10px] font-mono font-bold bg-blue-500/10 text-blue-700 dark:text-blue-300 border border-blue-500/25 px-2 py-0.5 rounded-full">
                 ✓ ABDM: {userProfile?.abdmId || 'aarav.sharma@hpid.abdm'}
               </span>
-              <span className="text-[10px] font-mono font-semibold bg-purple-500/10 text-purple-400 border border-purple-500/20 px-2 py-0.5 rounded-full">
+              <span className="text-[10px] font-mono font-bold bg-purple-500/10 text-purple-700 dark:text-purple-300 border border-purple-500/25 px-2 py-0.5 rounded-full">
                 DigiLocker Synced
               </span>
             </div>
@@ -128,16 +128,16 @@ export default function PassportView({ onToast, credits, userProfile, onUpdatePr
 
         <div className="flex items-center gap-4">
           <div className="text-center px-4 border-r border-zinc-200 dark:border-white/[0.08]">
-            <p className="font-mono font-extrabold text-2xl text-emerald">{userProfile?.score || 785}</p>
-            <p className="text-[10px] text-zinc-400">Career Score</p>
+            <p className="font-mono font-extrabold text-2xl text-emerald-700 dark:text-emerald-400">{userProfile?.score || 785}</p>
+            <p className="text-[10px] font-semibold text-zinc-500 dark:text-zinc-400">Career Score</p>
           </div>
           <div className="text-center px-4">
-            <p className="font-mono font-extrabold text-2xl text-amber-500">{credits}</p>
-            <p className="text-[10px] text-zinc-400">Pulse Credits</p>
+            <p className="font-mono font-extrabold text-2xl text-amber-600 dark:text-amber-400">{credits}</p>
+            <p className="text-[10px] font-semibold text-zinc-500 dark:text-zinc-400">Pulse Credits</p>
           </div>
           <button
             onClick={() => setShowCvModal(true)}
-            className="px-4 py-2 bg-emerald hover:bg-emerald-dark text-navy-950 font-bold text-xs rounded-xl shadow-sm flex items-center gap-1.5 transition-colors"
+            className="px-4 py-2 bg-gradient-to-r from-emerald-600 to-teal-600 hover:from-emerald-500 hover:to-teal-500 text-white font-bold text-xs rounded-xl shadow-sm flex items-center gap-1.5 transition-all"
           >
             <Printer size={14} />
             <span>Export Verified CV</span>
@@ -147,46 +147,46 @@ export default function PassportView({ onToast, credits, userProfile, onUpdatePr
 
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
         {/* 3-Node Timeline */}
-        <div className="bg-white dark:bg-[#1A2235] border border-zinc-200 dark:border-white/[0.07] rounded-xl p-5 shadow-sm space-y-4">
-          <h3 className="font-display font-bold text-sm text-zinc-900 dark:text-zinc-100 flex items-center gap-2">
-            <Clock size={16} className="text-emerald" />
+        <div className="clinical-card bg-white/95 dark:bg-[#1A2235]/95 border border-zinc-200 dark:border-white/[0.08] rounded-2xl p-5 shadow-sm space-y-4">
+          <h3 className="font-display font-black text-sm text-zinc-900 dark:text-zinc-100 flex items-center gap-2">
+            <Clock size={16} className="text-emerald-600 dark:text-emerald-400" />
             <span>Verified Career Timeline (3 Milestones)</span>
           </h3>
 
-          <div className="space-y-4 text-xs border-l-2 border-emerald/30 pl-4 ml-2">
+          <div className="space-y-4 text-xs border-l-2 border-emerald-500/30 pl-4 ml-2">
             <div className="relative">
-              <div className="absolute -left-[21px] top-1 w-2.5 h-2.5 rounded-full bg-emerald" />
+              <div className="absolute -left-[21px] top-1 w-2.5 h-2.5 rounded-full bg-emerald-600 dark:bg-emerald" />
               <p className="font-bold text-zinc-900 dark:text-zinc-100">Postgraduate Residency (MD Internal Medicine)</p>
-              <p className="text-zinc-500 dark:text-[#94A3B8]">{userProfile?.college || 'MAMC & Lok Nayak Hospital, New Delhi'}</p>
-              <span className="text-[10px] font-mono text-emerald font-semibold">2026 – Present · State Council Verified</span>
+              <p className="text-zinc-600 dark:text-zinc-400">{userProfile?.college || 'MAMC & Lok Nayak Hospital, New Delhi'}</p>
+              <span className="text-[10px] font-mono text-emerald-700 dark:text-emerald-400 font-bold">2026 – Present · State Council Verified</span>
             </div>
 
             <div className="relative">
-              <div className="absolute -left-[21px] top-1 w-2.5 h-2.5 rounded-full bg-emerald" />
+              <div className="absolute -left-[21px] top-1 w-2.5 h-2.5 rounded-full bg-emerald-600 dark:bg-emerald" />
               <p className="font-bold text-zinc-900 dark:text-zinc-100">Compulsory Rotatory Residential Internship (CRRI)</p>
-              <p className="text-zinc-500 dark:text-[#94A3B8]">Teaching Hospital & Emergency Triage Center · 12 Rotations</p>
-              <span className="text-[10px] font-mono text-blue-400 font-semibold">2025 – 2026 · DigiLocker Verified</span>
+              <p className="text-zinc-600 dark:text-zinc-400">Teaching Hospital & Emergency Triage Center · 12 Rotations</p>
+              <span className="text-[10px] font-mono text-blue-600 dark:text-blue-400 font-bold">2025 – 2026 · DigiLocker Verified</span>
             </div>
 
             <div className="relative">
               <div className="absolute -left-[21px] top-1 w-2.5 h-2.5 rounded-full bg-zinc-400" />
               <p className="font-bold text-zinc-900 dark:text-zinc-100">MBBS with Distinction</p>
-              <p className="text-zinc-500 dark:text-[#94A3B8]">Gold Medal Pharmacology · 3x ICMR-STS Grantee</p>
-              <span className="text-[10px] font-mono text-zinc-400 font-semibold">2020 – 2025 · DigiLocker Verified</span>
+              <p className="text-zinc-600 dark:text-zinc-400">Gold Medal Pharmacology · 3x ICMR-STS Grantee</p>
+              <span className="text-[10px] font-mono text-zinc-500 dark:text-zinc-400 font-semibold">2020 – 2025 · DigiLocker Verified</span>
             </div>
           </div>
         </div>
 
         {/* Procedure Logbook */}
-        <div className="bg-white dark:bg-[#1A2235] border border-zinc-200 dark:border-white/[0.07] rounded-xl p-5 shadow-sm space-y-4">
+        <div className="clinical-card bg-white/95 dark:bg-[#1A2235]/95 border border-zinc-200 dark:border-white/[0.08] rounded-2xl p-5 shadow-sm space-y-4">
           <div className="flex items-center justify-between">
-            <h3 className="font-display font-bold text-sm text-zinc-900 dark:text-zinc-100 flex items-center gap-2">
+            <h3 className="font-display font-black text-sm text-zinc-900 dark:text-zinc-100 flex items-center gap-2">
               <FileText size={16} className="text-blue-500" />
               <span>NMC Procedure Logbook ({procedures.length} Entries)</span>
             </h3>
             <button
               onClick={() => setShowLogModal(true)}
-              className="px-2.5 py-1 text-xs font-semibold bg-emerald/10 text-emerald hover:bg-emerald hover:text-navy-950 rounded-lg flex items-center gap-1 transition-colors"
+              className="px-2.5 py-1 text-xs font-bold bg-emerald-500/10 text-emerald-700 dark:text-emerald-300 hover:bg-emerald-600 hover:text-white dark:hover:bg-emerald dark:hover:text-navy-950 rounded-lg flex items-center gap-1 transition-colors border border-emerald-500/20"
             >
               <Plus size={13} />
               <span>Log Procedure</span>
@@ -197,10 +197,10 @@ export default function PassportView({ onToast, credits, userProfile, onUpdatePr
             {procedures.map((p, i) => (
               <div
                 key={i}
-                className="p-2.5 bg-zinc-50 dark:bg-white/[0.02] border border-zinc-100 dark:border-white/[0.05] rounded-lg flex items-center justify-between text-xs"
+                className="p-2.5 bg-zinc-50 dark:bg-white/[0.02] border border-zinc-200/70 dark:border-white/[0.05] rounded-xl flex items-center justify-between text-xs"
               >
-                <span className="font-medium text-zinc-800 dark:text-zinc-200">{p.name}</span>
-                <span className="font-mono text-[10px] font-semibold bg-emerald/10 text-emerald px-2 py-0.5 rounded-full">
+                <span className="font-semibold text-zinc-800 dark:text-zinc-200">{p.name}</span>
+                <span className="font-mono text-[10px] font-bold bg-emerald-500/10 text-emerald-700 dark:text-emerald-300 border border-emerald-500/20 px-2 py-0.5 rounded-full">
                   {p.count} · {p.type}
                 </span>
               </div>

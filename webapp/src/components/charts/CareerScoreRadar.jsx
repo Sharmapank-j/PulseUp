@@ -25,9 +25,10 @@ export default function CareerScoreRadar({ isDarkMode = true }) {
       shape: 'polygon',
       splitNumber: 4,
       axisName: {
-        color: isDarkMode ? '#94A3B8' : '#64748B',
+        color: isDarkMode ? '#CBD5E1' : '#334155',
         fontFamily: 'Inter, sans-serif',
         fontSize: 11,
+        fontWeight: 600,
       },
       splitLine: {
         lineStyle: {

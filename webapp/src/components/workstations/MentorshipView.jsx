@@ -50,21 +50,21 @@ export default function MentorshipView({ onToast, onAddCredits }) {
   return (
     <div className="space-y-5">
       {/* Header Banner */}
-      <div className="bg-white dark:bg-[#1A2235] border border-zinc-200 dark:border-white/[0.07] p-5 rounded-2xl flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
+      <div className="clinical-card bg-white/95 dark:bg-[#1A2235]/95 border border-zinc-200 dark:border-white/[0.08] p-5 rounded-2xl flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 shadow-sm">
         <div>
-          <span className="text-xs font-mono font-bold text-amber-500 bg-amber-500/10 border border-amber-500/20 px-2 py-0.5 rounded-full">
+          <span className="text-xs font-mono font-bold text-amber-700 dark:text-amber-300 bg-amber-500/10 border border-amber-500/25 px-2.5 py-0.5 rounded-full">
             Async Clinical Triage
           </span>
-          <h2 className="font-display font-extrabold text-xl text-zinc-900 dark:text-zinc-100 mt-1">
+          <h2 className="font-display font-black text-xl text-zinc-900 dark:text-zinc-100 mt-1">
             Async Mentorship Triage (SBAR Structured Queries)
           </h2>
-          <p className="text-xs text-zinc-500 dark:text-[#94A3B8]">
+          <p className="text-xs text-zinc-600 dark:text-zinc-400">
             SLA-governed voice memos and ticket triage with verified Indian & international faculty.
           </p>
         </div>
         <button
           onClick={() => setShowSbarModal(true)}
-          className="px-4 py-2 bg-emerald hover:bg-emerald-dark text-navy-950 font-bold text-xs rounded-xl shadow-sm flex items-center gap-1.5 transition-colors"
+          className="px-4 py-2 bg-gradient-to-r from-emerald-600 to-teal-600 hover:from-emerald-500 hover:to-teal-500 text-white font-bold text-xs rounded-xl shadow-sm flex items-center gap-1.5 transition-all"
         >
           <Plus size={14} />
           <span>Open SBAR Ticket</span>
@@ -73,28 +73,28 @@ export default function MentorshipView({ onToast, onAddCredits }) {
 
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
         {/* Active Tickets Queue */}
-        <div className="bg-white dark:bg-[#1A2235] border border-zinc-200 dark:border-white/[0.07] rounded-xl p-5 shadow-sm space-y-3">
+        <div className="clinical-card bg-white/95 dark:bg-[#1A2235]/95 border border-zinc-200 dark:border-white/[0.08] rounded-2xl p-5 shadow-sm space-y-3">
           <div className="flex items-center justify-between">
-            <h3 className="font-display font-bold text-sm text-zinc-900 dark:text-zinc-100 flex items-center gap-2">
-              <MessageSquare size={16} className="text-emerald" />
+            <h3 className="font-display font-black text-sm text-zinc-900 dark:text-zinc-100 flex items-center gap-2">
+              <MessageSquare size={16} className="text-emerald-600 dark:text-emerald-400" />
               <span>Active Tickets</span>
             </h3>
-            <span className="text-[10px] text-amber-500 font-semibold bg-amber-500/10 px-2 py-0.5 rounded-full">
+            <span className="text-[10px] text-amber-700 dark:text-amber-300 font-bold bg-amber-500/10 border border-amber-500/20 px-2 py-0.5 rounded-full">
               1 Unread Memo
             </span>
           </div>
 
-          <div className="p-4 bg-zinc-50 dark:bg-white/[0.02] border-l-4 border-l-amber-500 border border-zinc-200 dark:border-white/[0.06] rounded-xl space-y-3">
+          <div className="p-4 bg-zinc-50 dark:bg-white/[0.02] border-l-4 border-l-amber-500 border border-zinc-200/80 dark:border-white/[0.06] rounded-xl space-y-3">
             <div className="flex justify-between items-start">
               <div>
                 <h4 className="font-bold text-xs text-zinc-900 dark:text-zinc-100">
                   Oxford Neurosurgery Fellowship SOP Review
                 </h4>
-                <p className="text-[11px] text-zinc-400 mt-0.5">
+                <p className="text-[11px] text-zinc-500 dark:text-zinc-400 mt-0.5">
                   Prof. Dr. Priya Ramaswamy · 150 PC Escrowed
                 </p>
               </div>
-              <span className="text-[10px] font-semibold text-emerald bg-emerald/10 px-2 py-0.5 rounded-full">
+              <span className="text-[10px] font-bold text-emerald-700 dark:text-emerald-300 bg-emerald-500/10 border border-emerald-500/20 px-2 py-0.5 rounded-full">
                 Responded
               </span>
             </div>
@@ -103,7 +103,7 @@ export default function MentorshipView({ onToast, onAddCredits }) {
             <div className="p-3 bg-white dark:bg-[#151D2D] border border-zinc-200 dark:border-white/[0.07] rounded-xl flex items-center gap-3">
               <button
                 onClick={handleToggleAudio}
-                className="w-8 h-8 rounded-full bg-emerald text-navy-950 font-bold flex items-center justify-center flex-shrink-0 hover:scale-105 transition-transform"
+                className="w-8 h-8 rounded-full bg-emerald-600 dark:bg-emerald text-white dark:text-navy-950 font-bold flex items-center justify-center flex-shrink-0 hover:scale-105 transition-transform shadow-xs"
               >
                 {isPlaying ? <Pause size={14} fill="currentColor" /> : <Play size={14} fill="currentColor" />}
               </button>
@@ -113,23 +113,23 @@ export default function MentorshipView({ onToast, onAddCredits }) {
                   <div
                     key={i}
                     className={`w-1 rounded-full transition-all ${
-                      isPlaying ? 'bg-emerald animate-pulse' : 'bg-zinc-300 dark:bg-white/[0.2]'
+                      isPlaying ? 'bg-emerald-600 dark:bg-emerald animate-pulse' : 'bg-zinc-300 dark:bg-white/[0.2]'
                     }`}
                     style={{ height: `${h}px` }}
                   />
                 ))}
               </div>
 
-              <span className="text-[11px] font-mono text-zinc-400">
+              <span className="text-[11px] font-mono font-semibold text-zinc-500 dark:text-zinc-400">
                 0:{audioSeconds} / 1:48
               </span>
             </div>
 
             <div className="flex items-center justify-between pt-1 text-[11px]">
-              <span className="text-zinc-400">SLA Fulfilled in 31 Hours</span>
+              <span className="text-zinc-500 dark:text-zinc-400 font-semibold">SLA Fulfilled in 31 Hours</span>
               <button
                 onClick={() => onToast({ type: 'success', title: 'Feedback Submitted', message: '5-star rating submitted and 150 PC escrow released.' })}
-                className="px-2.5 py-1 text-[11px] font-semibold bg-emerald/10 text-emerald hover:bg-emerald hover:text-navy-950 rounded-lg transition-colors"
+                className="px-2.5 py-1 text-[11px] font-bold bg-emerald-500/10 text-emerald-700 dark:text-emerald-300 hover:bg-emerald-600 hover:text-white dark:hover:bg-emerald dark:hover:text-navy-950 rounded-lg transition-colors border border-emerald-500/20"
               >
                 Rate & Release Escrow
               </button>
@@ -138,12 +138,12 @@ export default function MentorshipView({ onToast, onAddCredits }) {
         </div>
 
         {/* Mentor Directory */}
-        <div className="bg-white dark:bg-[#1A2235] border border-zinc-200 dark:border-white/[0.07] rounded-xl p-5 shadow-sm space-y-3">
+        <div className="clinical-card bg-white/95 dark:bg-[#1A2235]/95 border border-zinc-200 dark:border-white/[0.08] rounded-2xl p-5 shadow-sm space-y-3">
           <div className="flex items-center justify-between">
-            <h3 className="font-display font-bold text-sm text-zinc-900 dark:text-zinc-100">
+            <h3 className="font-display font-black text-sm text-zinc-900 dark:text-zinc-100">
               Verified Consultant Mentors
             </h3>
-            <span className="text-[10px] text-zinc-400">NMC Registered</span>
+            <span className="text-[10px] font-mono font-bold text-zinc-500 dark:text-zinc-400">NMC Registered</span>
           </div>
 
           <div className="space-y-2.5">
@@ -154,19 +154,19 @@ export default function MentorshipView({ onToast, onAddCredits }) {
                   setSbarForm(f => ({ ...f, mentor: m.name }));
                   setShowSbarModal(true);
                 }}
-                className="p-3 bg-zinc-50 dark:bg-white/[0.02] border border-zinc-100 dark:border-white/[0.05] rounded-xl flex items-center justify-between cursor-pointer hover:border-emerald/40 transition-colors text-xs"
+                className="p-3 bg-zinc-50 dark:bg-white/[0.02] border border-zinc-200/70 dark:border-white/[0.05] rounded-xl flex items-center justify-between cursor-pointer hover:border-emerald-500/40 transition-colors text-xs"
               >
                 <div>
                   <p className="font-semibold text-zinc-900 dark:text-zinc-100 text-xs">{m.name}</p>
-                  <p className="text-[10.5px] text-zinc-400">{m.role}</p>
+                  <p className="text-[10.5px] text-zinc-500 dark:text-zinc-400">{m.role}</p>
                   <div className="flex gap-2 mt-1 text-[10px]">
-                    <span className="text-emerald font-semibold">{m.sla}</span>
-                    <span className="text-amber-500 font-mono">{m.fee} PC Escrow</span>
+                    <span className="text-emerald-700 dark:text-emerald-400 font-bold">{m.sla}</span>
+                    <span className="text-amber-600 dark:text-amber-400 font-mono font-bold">{m.fee} PC Escrow</span>
                   </div>
                 </div>
                 <div className="text-right">
-                  <span className="text-xs font-bold text-emerald">{m.rating}</span>
-                  <p className="text-[10px] text-zinc-400">{m.reviews} reviews</p>
+                  <span className="text-xs font-bold text-emerald-700 dark:text-emerald-400">{m.rating}</span>
+                  <p className="text-[10px] text-zinc-500 dark:text-zinc-400">{m.reviews} reviews</p>
                 </div>
               </div>
             ))}

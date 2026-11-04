@@ -134,18 +134,18 @@ export default function OpportunitiesView({ onToast }) {
   return (
     <div className="space-y-4">
       {/* Header & Stats Banner */}
-      <div className="flex flex-col md:flex-row md:items-center justify-between gap-3 bg-white dark:bg-[#1A2235] p-5 rounded-2xl border border-zinc-200 dark:border-white/[0.07]">
+      <div className="clinical-card flex flex-col md:flex-row md:items-center justify-between gap-3 bg-white/95 dark:bg-[#1A2235]/95 p-5 rounded-2xl border border-zinc-200 dark:border-white/[0.08] shadow-sm">
         <div>
           <div className="flex items-center gap-2 mb-1">
-            <h2 className="font-display font-bold text-lg text-zinc-900 dark:text-zinc-100">
+            <h2 className="font-display font-black text-lg text-zinc-900 dark:text-zinc-100">
               Bharat Opportunities Catalog
             </h2>
-            <span className="text-[10px] font-mono font-bold text-emerald bg-emerald/10 border border-emerald/20 px-2 py-0.5 rounded-full">
+            <span className="text-[10px] font-mono font-bold text-emerald-700 dark:text-emerald-300 bg-emerald-500/10 border border-emerald-500/25 px-2 py-0.5 rounded-full">
               68 Verified
             </span>
           </div>
-          <p className="text-xs text-zinc-500 dark:text-[#94A3B8]">
-            Central JR Posts, ICMR Grants, Medical Fests, Clinical Quizzes & Observerships.
+          <p className="text-xs text-zinc-600 dark:text-zinc-400">
+            Central JR Posts (7th CPC Level 10), ICMR Grants, Medical Fests, Clinical Quizzes & Observerships.
           </p>
         </div>
 
@@ -155,8 +155,8 @@ export default function OpportunitiesView({ onToast }) {
             onClick={() => setActiveTab('browse')}
             className={`px-3 py-1.5 rounded-lg transition-all ${
               activeTab === 'browse'
-                ? 'bg-white dark:bg-[#151D2D] text-emerald font-semibold shadow-sm'
-                : 'text-zinc-600 dark:text-[#94A3B8] hover:text-zinc-900 dark:hover:text-white'
+                ? 'bg-white dark:bg-[#151D2D] text-emerald-700 dark:text-emerald-400 font-bold shadow-sm'
+                : 'text-zinc-600 dark:text-zinc-400 hover:text-zinc-900 dark:hover:text-white'
             }`}
           >
             Catalog Directory (68)
@@ -165,8 +165,8 @@ export default function OpportunitiesView({ onToast }) {
             onClick={() => setActiveTab('applications')}
             className={`px-3 py-1.5 rounded-lg transition-all flex items-center gap-1.5 ${
               activeTab === 'applications'
-                ? 'bg-white dark:bg-[#151D2D] text-emerald font-semibold shadow-sm'
-                : 'text-zinc-600 dark:text-[#94A3B8] hover:text-zinc-900 dark:hover:text-white'
+                ? 'bg-white dark:bg-[#151D2D] text-emerald-700 dark:text-emerald-400 font-bold shadow-sm'
+                : 'text-zinc-600 dark:text-zinc-400 hover:text-zinc-900 dark:hover:text-white'
             }`}
           >
             <Briefcase size={13} />
@@ -190,7 +190,7 @@ export default function OpportunitiesView({ onToast }) {
                   setSearchQuery(e.target.value);
                   setCurrentPage(1);
                 }}
-                className="w-full pl-9 pr-3 py-2 bg-white dark:bg-[#1A2235] border border-zinc-200 dark:border-white/[0.08] rounded-xl text-xs text-zinc-900 dark:text-zinc-100 placeholder-zinc-400 focus:outline-none focus:ring-2 focus:ring-emerald/40"
+                className="w-full pl-9 pr-3 py-2 bg-white dark:bg-[#1A2235] border border-zinc-200 dark:border-white/[0.08] rounded-xl text-xs text-zinc-900 dark:text-zinc-100 placeholder-zinc-400 focus:outline-none focus:ring-2 focus:ring-emerald-500/40"
               />
             </div>
 
@@ -205,8 +205,8 @@ export default function OpportunitiesView({ onToast }) {
                   }}
                   className={`px-3 py-1.5 rounded-full text-xs font-medium whitespace-nowrap transition-all ${
                     selectedCategory === cat
-                      ? 'bg-emerald text-navy-950 font-bold shadow-sm'
-                      : 'bg-white dark:bg-[#1A2235] border border-zinc-200 dark:border-white/[0.07] text-zinc-600 dark:text-[#94A3B8] hover:bg-zinc-100 dark:hover:bg-white/[0.05]'
+                      ? 'bg-emerald-600 dark:bg-emerald text-white dark:text-navy-950 font-bold shadow-sm'
+                      : 'bg-white dark:bg-[#1A2235] border border-zinc-200 dark:border-white/[0.07] text-zinc-600 dark:text-zinc-400 hover:bg-zinc-100 dark:hover:bg-white/[0.05]'
                   }`}
                 >
                   {cat}
@@ -219,13 +219,13 @@ export default function OpportunitiesView({ onToast }) {
           <div className="flex gap-4 items-start transition-all duration-300">
             {/* Primary Data Table */}
             <div
-              className={`transition-all duration-300 bg-white dark:bg-[#1A2235] border border-zinc-200 dark:border-white/[0.07] rounded-xl overflow-hidden shadow-sm ${
+              className={`clinical-card transition-all duration-300 bg-white/95 dark:bg-[#1A2235]/95 border border-zinc-200 dark:border-white/[0.08] rounded-xl overflow-hidden shadow-sm ${
                 selectedItem ? 'w-full lg:w-2/3' : 'w-full'
               }`}
             >
               <div className="overflow-x-auto max-h-[560px]">
                 <table className="w-full text-left border-collapse text-xs">
-                  <thead className="sticky top-0 bg-zinc-50 dark:bg-[#151D2D] z-10 border-b border-zinc-200 dark:border-white/[0.07] text-zinc-500 dark:text-[#94A3B8] font-bold text-[10.5px] uppercase tracking-wider">
+                  <thead className="sticky top-0 bg-zinc-50 dark:bg-[#151D2D] z-10 border-b border-zinc-200 dark:border-white/[0.07] text-zinc-600 dark:text-zinc-400 font-bold text-[10.5px] uppercase tracking-wider">
                     <tr>
                       <th className="p-3">Opportunity</th>
                       <th className="p-3 hidden md:table-cell">Organizer</th>
@@ -259,7 +259,7 @@ export default function OpportunitiesView({ onToast }) {
                               <div className="font-semibold text-zinc-900 dark:text-zinc-100 text-xs flex items-center gap-1.5 flex-wrap">
                                 <span>{item.name}</span>
                                 {hasApplied && (
-                                  <span className="text-[9px] font-bold text-emerald bg-emerald/10 border border-emerald/20 px-1.5 py-0.5 rounded">
+                                  <span className="text-[9px] font-bold text-emerald-700 dark:text-emerald-300 bg-emerald-500/10 border border-emerald-500/20 px-1.5 py-0.5 rounded">
                                     Applied ✓
                                   </span>
                                 )}
@@ -270,11 +270,11 @@ export default function OpportunitiesView({ onToast }) {
                                   return null;
                                 })()}
                               </div>
-                              <div className="text-[10px] text-zinc-400 dark:text-[#94A3B8] truncate max-w-xs">
+                              <div className="text-[10.5px] text-zinc-500 dark:text-zinc-400 truncate max-w-xs">
                                 {item.eligibility}
                               </div>
                             </td>
-                            <td className="p-3 hidden md:table-cell text-zinc-600 dark:text-[#94A3B8] text-[11px] truncate max-w-[180px]">
+                            <td className="p-3 hidden md:table-cell text-zinc-600 dark:text-zinc-400 text-[11px] truncate max-w-[180px]">
                               {item.organizer}
                             </td>
                             <td className="p-3 hidden sm:table-cell">
@@ -295,8 +295,8 @@ export default function OpportunitiesView({ onToast }) {
                                 }}
                                 className={`px-2.5 py-1 text-[11px] font-semibold rounded-md transition-colors ${
                                   hasApplied
-                                    ? 'bg-zinc-100 dark:bg-white/[0.06] text-emerald font-bold'
-                                    : 'bg-emerald/10 text-emerald hover:bg-emerald hover:text-navy-950'
+                                    ? 'bg-zinc-100 dark:bg-white/[0.06] text-emerald-700 dark:text-emerald-300 font-bold'
+                                    : 'bg-emerald-500/10 text-emerald-700 dark:text-emerald-300 hover:bg-emerald-600 hover:text-white dark:hover:bg-emerald dark:hover:text-navy-950'
                                 }`}
                               >
                                 {hasApplied ? 'Applied ✓' : 'Apply'}
@@ -353,7 +353,7 @@ export default function OpportunitiesView({ onToast }) {
 
             {/* Investigation & Details Side Panel (w-1/3) */}
             {selectedItem && (
-              <div className="w-full lg:w-1/3 bg-white dark:bg-[#1A2235] border border-zinc-200 dark:border-white/[0.12] rounded-xl p-5 shadow-lg relative animate-fadeIn">
+              <div className="clinical-card w-full lg:w-1/3 bg-white/95 dark:bg-[#1A2235]/95 border border-zinc-200 dark:border-white/[0.12] rounded-xl p-5 shadow-lg relative animate-fadeIn">
                 <button
                   onClick={() => setSelectedItem(null)}
                   className="absolute top-4 right-4 text-zinc-400 hover:text-zinc-600 dark:hover:text-zinc-200 p-1"
@@ -362,39 +362,39 @@ export default function OpportunitiesView({ onToast }) {
                 </button>
 
                 <div className="flex items-center gap-2">
-                  <span className="text-[10px] font-bold uppercase tracking-wider text-emerald bg-emerald/10 border border-emerald/20 px-2 py-0.5 rounded-full">
+                  <span className="text-[10px] font-mono font-bold uppercase tracking-wider text-emerald-700 dark:text-emerald-300 bg-emerald-500/10 border border-emerald-500/25 px-2 py-0.5 rounded-full">
                     {selectedItem.category}
                   </span>
                   {appliedOpps.some(a => a.opportunityId === selectedItem.id || a.name === selectedItem.name) && (
-                    <span className="text-[10px] font-bold text-blue-400 bg-blue-500/10 border border-blue-500/20 px-2 py-0.5 rounded-full">
+                    <span className="text-[10px] font-bold text-blue-600 dark:text-blue-400 bg-blue-500/10 border border-blue-500/20 px-2 py-0.5 rounded-full">
                       Applied ✓
                     </span>
                   )}
                 </div>
 
-                <h3 className="font-display font-bold text-base text-zinc-900 dark:text-zinc-100 mt-2.5 leading-snug">
+                <h3 className="font-display font-black text-base text-zinc-900 dark:text-zinc-100 mt-2.5 leading-snug">
                   {selectedItem.name}
                 </h3>
 
                 <div className="space-y-3 my-4 text-xs">
-                  <div className="p-3 bg-zinc-50 dark:bg-white/[0.03] border border-zinc-100 dark:border-white/[0.05] rounded-lg">
-                    <div className="flex items-center gap-1.5 text-zinc-500 dark:text-zinc-400 font-semibold mb-1">
+                  <div className="p-3 bg-zinc-50 dark:bg-white/[0.03] border border-zinc-200/70 dark:border-white/[0.05] rounded-xl">
+                    <div className="flex items-center gap-1.5 text-zinc-600 dark:text-zinc-400 font-semibold mb-1">
                       <Building size={13} />
                       <span>Host Institution / Organizer</span>
                     </div>
-                    <p className="text-zinc-800 dark:text-zinc-200 font-medium">{selectedItem.organizer}</p>
+                    <p className="text-zinc-900 dark:text-zinc-200 font-medium">{selectedItem.organizer}</p>
                   </div>
 
-                  <div className="p-3 bg-zinc-50 dark:bg-white/[0.03] border border-zinc-100 dark:border-white/[0.05] rounded-lg">
-                    <div className="flex items-center gap-1.5 text-zinc-500 dark:text-zinc-400 font-semibold mb-1">
-                      <CheckCircle2 size={13} className="text-emerald" />
+                  <div className="p-3 bg-zinc-50 dark:bg-white/[0.03] border border-zinc-200/70 dark:border-white/[0.05] rounded-xl">
+                    <div className="flex items-center gap-1.5 text-zinc-600 dark:text-zinc-400 font-semibold mb-1">
+                      <CheckCircle2 size={13} className="text-emerald-600 dark:text-emerald-400" />
                       <span>Eligibility Criteria</span>
                     </div>
                     <p className="text-zinc-700 dark:text-zinc-300">{selectedItem.eligibility}</p>
                   </div>
 
-                  <div className="p-3 bg-zinc-50 dark:bg-white/[0.03] border border-zinc-100 dark:border-white/[0.05] rounded-lg">
-                    <div className="flex items-center gap-1.5 text-zinc-500 dark:text-zinc-400 font-semibold mb-1">
+                  <div className="p-3 bg-zinc-50 dark:bg-white/[0.03] border border-zinc-200/70 dark:border-white/[0.05] rounded-xl">
+                    <div className="flex items-center gap-1.5 text-zinc-600 dark:text-zinc-400 font-semibold mb-1">
                       <Award size={13} className="text-amber-500" />
                       <span>Prize, Stipend or Certification</span>
                     </div>
@@ -402,30 +402,30 @@ export default function OpportunitiesView({ onToast }) {
                   </div>
 
                   <div className="grid grid-cols-2 gap-2">
-                    <div className="p-2.5 bg-zinc-50 dark:bg-white/[0.03] border border-zinc-100 dark:border-white/[0.05] rounded-lg">
-                      <span className="text-[10px] text-zinc-400 uppercase">Typical Window</span>
-                      <p className="font-semibold text-zinc-800 dark:text-zinc-200">{selectedItem.typical_month || 'Rolling'}</p>
+                    <div className="p-2.5 bg-zinc-50 dark:bg-white/[0.03] border border-zinc-200/70 dark:border-white/[0.05] rounded-xl">
+                      <span className="text-[10px] text-zinc-500 dark:text-zinc-400 uppercase font-mono font-semibold">Typical Window</span>
+                      <p className="font-semibold text-zinc-900 dark:text-zinc-200">{selectedItem.typical_month || 'Rolling'}</p>
                     </div>
-                    <div className="p-2.5 bg-zinc-50 dark:bg-white/[0.03] border border-zinc-100 dark:border-white/[0.05] rounded-lg">
-                      <span className="text-[10px] text-zinc-400 uppercase">Registration Fee</span>
-                      <p className="font-semibold text-zinc-800 dark:text-zinc-200">
+                    <div className="p-2.5 bg-zinc-50 dark:bg-white/[0.03] border border-zinc-200/70 dark:border-white/[0.05] rounded-xl">
+                      <span className="text-[10px] text-zinc-500 dark:text-zinc-400 uppercase font-mono font-semibold">Registration Fee</span>
+                      <p className="font-semibold text-zinc-900 dark:text-zinc-200">
                         {typeof selectedItem.fee_inr === 'number' ? `₹${selectedItem.fee_inr}` : selectedItem.fee_inr}
                       </p>
                     </div>
                   </div>
 
                   {selectedItem.notes && (
-                    <p className="text-[11px] text-zinc-500 dark:text-[#94A3B8] italic">
+                    <p className="text-[11px] text-zinc-600 dark:text-zinc-400 italic">
                       Note: {selectedItem.notes}
                     </p>
                   )}
                 </div>
 
                 {/* Actions */}
-                <div className="flex flex-col gap-2 pt-2 border-t border-zinc-100 dark:border-white/[0.07]">
+                <div className="flex flex-col gap-2 pt-2 border-t border-zinc-200 dark:border-white/[0.07]">
                   <button
                     onClick={() => handleApply(selectedItem)}
-                    className="w-full py-2.5 px-4 bg-emerald hover:bg-emerald-dark text-navy-950 font-bold text-xs rounded-xl shadow-sm transition-all"
+                    className="w-full py-2.5 px-4 bg-gradient-to-r from-emerald-600 to-teal-600 hover:from-emerald-500 hover:to-teal-500 text-white font-bold text-xs rounded-xl shadow-sm transition-all"
                   >
                     {appliedOpps.some(a => a.opportunityId === selectedItem.id || a.name === selectedItem.name)
                       ? 'Already Applied (Resubmit Passport)'
@@ -449,24 +449,24 @@ export default function OpportunitiesView({ onToast }) {
 
       {/* VIEW 2: MY APPLICATIONS TRACKER */}
       {activeTab === 'applications' && (
-        <div className="bg-white dark:bg-[#1A2235] border border-zinc-200 dark:border-white/[0.07] rounded-2xl p-6 shadow-sm space-y-4">
-          <div className="flex items-center justify-between border-b border-zinc-100 dark:border-white/[0.06] pb-3">
+        <div className="clinical-card bg-white/95 dark:bg-[#1A2235]/95 border border-zinc-200 dark:border-white/[0.08] rounded-2xl p-6 shadow-sm space-y-4">
+          <div className="flex items-center justify-between border-b border-zinc-200 dark:border-white/[0.06] pb-3">
             <div>
-              <h3 className="font-display font-bold text-base text-zinc-900 dark:text-zinc-100">
+              <h3 className="font-display font-black text-base text-zinc-900 dark:text-zinc-100">
                 Submitted Career Applications Tracker
               </h3>
-              <p className="text-xs text-zinc-500 dark:text-[#94A3B8]">
-                Real-time status tracking for central residency posts, ICMR grants & observerships.
+              <p className="text-xs text-zinc-600 dark:text-zinc-400">
+                Real-time status tracking for central residency posts (7th CPC Level 10), ICMR grants & observerships.
               </p>
             </div>
-            <span className="text-xs font-mono font-bold text-emerald bg-emerald/10 px-2.5 py-1 rounded-full">
+            <span className="text-xs font-mono font-bold text-emerald-700 dark:text-emerald-300 bg-emerald-500/10 border border-emerald-500/20 px-2.5 py-1 rounded-full">
               {appliedOpps.length} Active Dossiers
             </span>
           </div>
 
           <div className="space-y-3">
             {appliedOpps.length === 0 ? (
-              <div className="p-8 text-center text-zinc-400 text-xs">
+              <div className="p-8 text-center text-zinc-500 dark:text-zinc-400 text-xs">
                 You have not submitted any applications yet. Browse the catalog to apply!
               </div>
             ) : (
@@ -477,22 +477,22 @@ export default function OpportunitiesView({ onToast }) {
                 >
                   <div className="space-y-1">
                     <div className="flex items-center gap-2">
-                      <span className="text-[10px] font-bold uppercase text-emerald bg-emerald/10 px-2 py-0.5 rounded">
+                      <span className="text-[10px] font-mono font-bold uppercase text-emerald-700 dark:text-emerald-300 bg-emerald-500/10 px-2 py-0.5 rounded">
                         {app.category}
                       </span>
-                      <span className="text-xs font-mono font-bold text-zinc-600 dark:text-zinc-300">
+                      <span className="text-xs font-mono font-bold text-zinc-700 dark:text-zinc-300">
                         Hash: #{app.trackingHash}
                       </span>
                     </div>
                     <h4 className="font-bold text-sm text-zinc-900 dark:text-zinc-100">{app.name}</h4>
-                    <p className="text-[11px] text-zinc-500 dark:text-[#94A3B8]">{app.organizer}</p>
-                    <div className="flex items-center gap-3 text-[10.5px] text-zinc-400 pt-1">
+                    <p className="text-[11px] text-zinc-600 dark:text-zinc-400">{app.organizer}</p>
+                    <div className="flex items-center gap-3 text-[10.5px] text-zinc-500 dark:text-zinc-400 pt-1">
                       <span className="flex items-center gap-1">
                         <Clock size={12} />
                         <span>Submitted on {app.appliedAt}</span>
                       </span>
                       <span>·</span>
-                      <span className="text-emerald font-semibold">{app.salary}</span>
+                      <span className="text-emerald-700 dark:text-emerald-400 font-semibold">{app.salary}</span>
                     </div>
                   </div>
 
@@ -506,7 +506,7 @@ export default function OpportunitiesView({ onToast }) {
                             <span
                               key={si}
                               className={`text-[9px] font-semibold ${
-                                si < activeIdx ? 'text-emerald' :
+                                si < activeIdx ? 'text-emerald-700 dark:text-emerald-400' :
                                 si === activeIdx ? 'text-amber-500' :
                                 'text-zinc-400 dark:text-zinc-600'
                               }`}
@@ -518,7 +518,7 @@ export default function OpportunitiesView({ onToast }) {
                       </div>
                       <div className="relative w-full h-1.5 bg-zinc-200 dark:bg-white/[0.08] rounded-full overflow-hidden">
                         <div
-                          className="h-full bg-emerald rounded-full transition-all"
+                          className="h-full bg-emerald-600 dark:bg-emerald rounded-full transition-all"
                           style={{ width: `${((getStageIndex(app.status) + 1) / APPLICATION_STAGES.length) * 100}%` }}
                         />
                         {/* Active stage pulse dot */}

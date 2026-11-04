@@ -4,6 +4,7 @@ import Topbar from './components/layout/Topbar';
 import CommandPalette from './components/layout/CommandPalette';
 import ToastContainer from './components/common/ToastContainer';
 import AiChatbot from './components/common/AiChatbot';
+import ErrorBoundary from './components/common/ErrorBoundary';
 
 import CareerBoardView from './components/workstations/CareerBoardView';
 import OpportunitiesView from './components/workstations/OpportunitiesView';
@@ -245,71 +246,73 @@ export default function App() {
             ? 'p-0 w-full h-full max-w-full overflow-hidden flex flex-col'
             : 'overflow-y-auto overscroll-contain p-3 sm:p-4 md:p-6 pb-28 sm:pb-32 max-w-[1500px] w-full mx-auto scroll-smooth'
         }`}>
-          {activeScreen === 'dashboard' && (
-            <CareerBoardView
-              onNavigate={handleSelectScreen}
-              isDarkMode={isDarkMode}
-              onToast={addToast}
-            />
-          )}
-          {activeScreen === 'chatbot' && (
-            <ChatbotSpaceView
-              messages={medimindMessages}
-              setMessages={setMedimindMessages}
-              onToast={addToast}
-              onAddCredits={handleAddCredits}
-              onReturnToEcosystem={() => handleSelectScreen(lastEcosystemScreen || 'dashboard')}
-              ecosystemScreenName={screenTitles[lastEcosystemScreen] || 'Career Board'}
-              isDarkMode={isDarkMode}
-              onToggleDarkMode={() => {
-                setIsDarkMode(!isDarkMode);
-                addToast({
-                  type: 'info',
-                  title: isDarkMode ? 'Light Theme Activated' : 'Dark Theme Activated',
-                  message: isDarkMode ? 'Switched to clean daytime clinical palette.' : 'Switched to dark ward palette.',
-                });
-              }}
-              onToggleMobileMenu={() => setIsMobileMenuOpen(prev => !prev)}
-            />
-          )}
-          {activeScreen === 'opportunities' && (
-            <OpportunitiesView onToast={addToast} />
-          )}
-          {activeScreen === 'research' && (
-            <ResearchHubView
-              onToast={addToast}
-              onAddCredits={handleAddCredits}
-            />
-          )}
-          {activeScreen === 'goalspaces' && (
-            <GoalSpacesView onToast={addToast} />
-          )}
-          {activeScreen === 'aetcom' && (
-            <AetcomView
-              onToast={addToast}
-              onAddCredits={handleAddCredits}
-            />
-          )}
-          {activeScreen === 'mentorship' && (
-            <MentorshipView
-              onToast={addToast}
-              onAddCredits={handleAddCredits}
-            />
-          )}
-          {activeScreen === 'campus' && (
-            <CampusView
-              onToast={addToast}
-              onAddCredits={handleAddCredits}
-            />
-          )}
-          {activeScreen === 'identity' && (
-            <PassportView
-              onToast={addToast}
-              credits={credits}
-              userProfile={userProfile}
-              onUpdateProfile={setUserProfile}
-            />
-          )}
+          <ErrorBoundary onNavigateHome={() => handleSelectScreen('dashboard')}>
+            {activeScreen === 'dashboard' && (
+              <CareerBoardView
+                onNavigate={handleSelectScreen}
+                isDarkMode={isDarkMode}
+                onToast={addToast}
+              />
+            )}
+            {activeScreen === 'chatbot' && (
+              <ChatbotSpaceView
+                messages={medimindMessages}
+                setMessages={setMedimindMessages}
+                onToast={addToast}
+                onAddCredits={handleAddCredits}
+                onReturnToEcosystem={() => handleSelectScreen(lastEcosystemScreen || 'dashboard')}
+                ecosystemScreenName={screenTitles[lastEcosystemScreen] || 'Career Board'}
+                isDarkMode={isDarkMode}
+                onToggleDarkMode={() => {
+                  setIsDarkMode(!isDarkMode);
+                  addToast({
+                    type: 'info',
+                    title: isDarkMode ? 'Light Theme Activated' : 'Dark Theme Activated',
+                    message: isDarkMode ? 'Switched to clean daytime clinical palette.' : 'Switched to dark ward palette.',
+                  });
+                }}
+                onToggleMobileMenu={() => setIsMobileMenuOpen(prev => !prev)}
+              />
+            )}
+            {activeScreen === 'opportunities' && (
+              <OpportunitiesView onToast={addToast} />
+            )}
+            {activeScreen === 'research' && (
+              <ResearchHubView
+                onToast={addToast}
+                onAddCredits={handleAddCredits}
+              />
+            )}
+            {activeScreen === 'goalspaces' && (
+              <GoalSpacesView onToast={addToast} />
+            )}
+            {activeScreen === 'aetcom' && (
+              <AetcomView
+                onToast={addToast}
+                onAddCredits={handleAddCredits}
+              />
+            )}
+            {activeScreen === 'mentorship' && (
+              <MentorshipView
+                onToast={addToast}
+                onAddCredits={handleAddCredits}
+              />
+            )}
+            {activeScreen === 'campus' && (
+              <CampusView
+                onToast={addToast}
+                onAddCredits={handleAddCredits}
+              />
+            )}
+            {activeScreen === 'identity' && (
+              <PassportView
+                onToast={addToast}
+                credits={credits}
+                userProfile={userProfile}
+                onUpdateProfile={setUserProfile}
+              />
+            )}
+          </ErrorBoundary>
         </main>
       </div>
 

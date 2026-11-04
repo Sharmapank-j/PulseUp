@@ -142,27 +142,27 @@ export default function AetcomView({ onToast, onAddCredits }) {
   return (
     <div className="space-y-5">
       {/* CBME Progress Banner */}
-      <div className="bg-white dark:bg-[#1A2235] border border-zinc-200 dark:border-white/[0.07] p-6 rounded-2xl flex flex-col md:flex-row items-start md:items-center justify-between gap-4">
+      <div className="clinical-card bg-white/95 dark:bg-[#1A2235]/95 border border-zinc-200 dark:border-white/[0.08] p-6 rounded-2xl flex flex-col md:flex-row items-start md:items-center justify-between gap-4 shadow-sm">
         <div>
-          <span className="text-xs font-mono font-bold text-emerald bg-emerald/10 border border-emerald/20 px-2 py-0.5 rounded-full">
+          <span className="text-xs font-mono font-bold text-emerald-700 dark:text-emerald-300 bg-emerald-500/10 border border-emerald-500/25 px-2.5 py-0.5 rounded-full">
             NMC CBME Competency Ledger
           </span>
-          <h2 className="font-display font-extrabold text-xl text-zinc-900 dark:text-zinc-100 mt-1">
+          <h2 className="font-display font-black text-xl text-zinc-900 dark:text-zinc-100 mt-1">
             AETCOM: Attitude, Ethics & Communication
           </h2>
-          <p className="text-xs text-zinc-500 dark:text-[#94A3B8] mt-0.5">
+          <p className="text-xs text-zinc-600 dark:text-zinc-400 mt-0.5">
             Internal Medicine Residency 2024–2027 · Maulana Azad Medical College MEU
           </p>
         </div>
 
         <div className="flex items-center gap-4">
           <div className="text-center px-3 border-r border-zinc-200 dark:border-white/[0.08]">
-            <p className="font-mono font-extrabold text-2xl text-emerald">22 / 27</p>
-            <p className="text-[10px] text-zinc-400">Modules Completed</p>
+            <p className="font-mono font-extrabold text-2xl text-emerald-700 dark:text-emerald-400">22 / 27</p>
+            <p className="text-[10px] font-semibold text-zinc-500 dark:text-zinc-400">Modules Completed</p>
           </div>
           <div className="text-center px-3 border-r border-zinc-200 dark:border-white/[0.08]">
-            <p className="font-mono font-extrabold text-2xl text-emerald">81.5%</p>
-            <p className="text-[10px] text-zinc-400">AETCOM Score</p>
+            <p className="font-mono font-extrabold text-2xl text-emerald-700 dark:text-emerald-400">81.5%</p>
+            <p className="text-[10px] font-semibold text-zinc-500 dark:text-zinc-400">AETCOM Score</p>
           </div>
           <button
             onClick={() => onToast({ type: 'success', title: 'NMC Dossier Exported', message: 'Generated official PDF with MEU Convener cryptographic signature.' })}
@@ -175,64 +175,64 @@ export default function AetcomView({ onToast, onAddCredits }) {
 
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
         {/* Module Logbook */}
-        <div className="bg-white dark:bg-[#1A2235] border border-zinc-200 dark:border-white/[0.07] rounded-xl p-5 shadow-sm space-y-3">
+        <div className="clinical-card bg-white/95 dark:bg-[#1A2235]/95 border border-zinc-200 dark:border-white/[0.08] rounded-2xl p-5 shadow-sm space-y-3">
           <div className="flex items-center justify-between">
-            <h3 className="font-display font-bold text-sm text-zinc-900 dark:text-zinc-100 flex items-center gap-2">
-              <FileCheck size={16} className="text-emerald" />
+            <h3 className="font-display font-black text-sm text-zinc-900 dark:text-zinc-100 flex items-center gap-2">
+              <FileCheck size={16} className="text-emerald-600 dark:text-emerald-400" />
               <span>NMC Module Logbook (27 Competencies)</span>
             </h3>
-            <span className="text-[10px] text-zinc-400">Phase IV Active</span>
+            <span className="text-[10px] font-mono font-bold text-zinc-500 dark:text-zinc-400">Phase IV Active</span>
           </div>
 
           <div className="space-y-2.5">
-            <div className="p-3 bg-zinc-50 dark:bg-white/[0.02] border border-emerald/20 rounded-xl flex items-center justify-between text-xs">
+            <div className="p-3 bg-zinc-50 dark:bg-white/[0.02] border border-emerald-500/25 rounded-xl flex items-center justify-between text-xs">
               <div className="flex items-center gap-3">
-                <span className="font-mono font-bold text-xs text-emerald bg-emerald/10 px-2 py-1 rounded">3.1</span>
+                <span className="font-mono font-bold text-xs text-emerald-700 dark:text-emerald-300 bg-emerald-500/10 px-2 py-1 rounded">3.1</span>
                 <div>
                   <p className="font-semibold text-zinc-900 dark:text-zinc-100">Breaking Bad News — SPIKES Protocol</p>
-                  <p className="text-[10px] text-zinc-400">Phase III Part 1 · Dr. S. K. Rao (Signed)</p>
+                  <p className="text-[10px] text-zinc-500 dark:text-zinc-400">Phase III Part 1 · Dr. S. K. Rao (Signed)</p>
                 </div>
               </div>
-              <span className="text-[10px] font-semibold text-emerald bg-emerald/10 px-2 py-0.5 rounded-full">
+              <span className="text-[10px] font-bold text-emerald-700 dark:text-emerald-300 bg-emerald-500/10 border border-emerald-500/20 px-2 py-0.5 rounded-full">
                 ✓ Signed
               </span>
             </div>
 
-            <div className="p-3 bg-zinc-50 dark:bg-white/[0.02] border border-emerald/20 rounded-xl flex items-center justify-between text-xs">
+            <div className="p-3 bg-zinc-50 dark:bg-white/[0.02] border border-emerald-500/25 rounded-xl flex items-center justify-between text-xs">
               <div className="flex items-center gap-3">
-                <span className="font-mono font-bold text-xs text-emerald bg-emerald/10 px-2 py-1 rounded">3.3</span>
+                <span className="font-mono font-bold text-xs text-emerald-700 dark:text-emerald-300 bg-emerald-500/10 px-2 py-1 rounded">3.3</span>
                 <div>
                   <p className="font-semibold text-zinc-900 dark:text-zinc-100">Informed Consent — CPA & Emergency Doctrine</p>
-                  <p className="text-[10px] text-zinc-400">Phase III Part 1 · Dr. B. Sharma (Signed)</p>
+                  <p className="text-[10px] text-zinc-500 dark:text-zinc-400">Phase III Part 1 · Dr. B. Sharma (Signed)</p>
                 </div>
               </div>
-              <span className="text-[10px] font-semibold text-emerald bg-emerald/10 px-2 py-0.5 rounded-full">
+              <span className="text-[10px] font-bold text-emerald-700 dark:text-emerald-300 bg-emerald-500/10 border border-emerald-500/20 px-2 py-0.5 rounded-full">
                 ✓ Signed
               </span>
             </div>
 
-            <div className="p-3 bg-zinc-50 dark:bg-white/[0.02] border border-amber-500/20 rounded-xl flex items-center justify-between text-xs">
+            <div className="p-3 bg-zinc-50 dark:bg-white/[0.02] border border-amber-500/25 rounded-xl flex items-center justify-between text-xs">
               <div className="flex items-center gap-3">
-                <span className="font-mono font-bold text-xs text-amber-500 bg-amber-500/10 px-2 py-1 rounded">4.1</span>
+                <span className="font-mono font-bold text-xs text-amber-700 dark:text-amber-300 bg-amber-500/10 px-2 py-1 rounded">4.1</span>
                 <div>
                   <p className="font-semibold text-zinc-900 dark:text-zinc-100">End-of-Life DNR & Passive Euthanasia</p>
-                  <p className="text-[10px] text-zinc-400">Phase IV Resident · Supreme Court Doctrine</p>
+                  <p className="text-[10px] text-zinc-500 dark:text-zinc-400">Phase IV Resident · Supreme Court Doctrine</p>
                 </div>
               </div>
-              <span className="text-[10px] font-semibold text-amber-500 bg-amber-500/10 px-2 py-0.5 rounded-full">
+              <span className="text-[10px] font-bold text-amber-700 dark:text-amber-300 bg-amber-500/10 border border-amber-500/20 px-2 py-0.5 rounded-full">
                 Awaiting MEU
               </span>
             </div>
 
             <div className="p-3 bg-zinc-50 dark:bg-white/[0.02] border border-zinc-200 dark:border-white/[0.06] rounded-xl flex items-center justify-between text-xs">
               <div className="flex items-center gap-3">
-                <span className="font-mono font-bold text-xs text-zinc-400 bg-zinc-100 dark:bg-white/[0.06] px-2 py-1 rounded">4.4</span>
+                <span className="font-mono font-bold text-xs text-zinc-600 dark:text-zinc-400 bg-zinc-100 dark:bg-white/[0.06] px-2 py-1 rounded">4.4</span>
                 <div>
                   <p className="font-semibold text-zinc-900 dark:text-zinc-100">Clinical Audit & Remediation of Medical Errors</p>
-                  <p className="text-[10px] text-zinc-400">Phase IV Resident · Incident Reporting</p>
+                  <p className="text-[10px] text-zinc-500 dark:text-zinc-400">Phase IV Resident · Incident Reporting</p>
                 </div>
               </div>
-              <span className="text-[10px] font-semibold text-zinc-400 bg-zinc-100 dark:bg-white/[0.06] px-2 py-0.5 rounded-full">
+              <span className="text-[10px] font-semibold text-zinc-500 dark:text-zinc-400 bg-zinc-100 dark:bg-white/[0.06] px-2 py-0.5 rounded-full">
                 Queued
               </span>
             </div>
@@ -240,13 +240,13 @@ export default function AetcomView({ onToast, onAddCredits }) {
         </div>
 
         {/* AI Bedside Simulators (All 3 Modules) */}
-        <div className="bg-white dark:bg-[#1A2235] border border-zinc-200 dark:border-white/[0.07] rounded-xl p-5 shadow-sm space-y-3">
+        <div className="clinical-card bg-white/95 dark:bg-[#1A2235]/95 border border-zinc-200 dark:border-white/[0.08] rounded-2xl p-5 shadow-sm space-y-3">
           <div className="flex items-center justify-between">
-            <h3 className="font-display font-bold text-sm text-zinc-900 dark:text-zinc-100 flex items-center gap-2">
+            <h3 className="font-display font-black text-sm text-zinc-900 dark:text-zinc-100 flex items-center gap-2">
               <Stethoscope size={16} className="text-blue-500" />
               <span>Interactive Bedside Simulators (3 Scenarios)</span>
             </h3>
-            <span className="text-[10px] text-blue-500 font-semibold bg-blue-500/10 px-2 py-0.5 rounded-full">
+            <span className="text-[10px] text-blue-700 dark:text-blue-300 font-bold bg-blue-500/10 border border-blue-500/20 px-2 py-0.5 rounded-full">
               AI Standardized Patient
             </span>
           </div>
@@ -257,25 +257,25 @@ export default function AetcomView({ onToast, onAddCredits }) {
               return (
                 <div
                   key={sim.id}
-                  className="p-4 bg-zinc-50/70 dark:bg-white/[0.02] border border-zinc-200 dark:border-white/[0.07] rounded-xl space-y-2 hover:border-emerald/40 transition-colors"
+                  className="p-4 bg-zinc-50/70 dark:bg-white/[0.02] border border-zinc-200/80 dark:border-white/[0.07] rounded-xl space-y-2 hover:border-emerald-500/40 transition-colors"
                 >
                   <div className="flex items-start justify-between gap-2">
                     <div className="flex items-center gap-2">
-                      <div className="p-1.5 rounded-lg bg-emerald/10 text-emerald">
+                      <div className="p-1.5 rounded-lg bg-emerald-500/10 text-emerald-600 dark:text-emerald-400">
                         <Icon size={15} />
                       </div>
                       <h4 className="font-bold text-xs text-zinc-900 dark:text-zinc-100">{sim.title}</h4>
                     </div>
-                    <span className="font-mono text-xs font-bold text-amber-500">+{sim.creditsReward} PC</span>
+                    <span className="font-mono text-xs font-bold text-amber-600 dark:text-amber-400">+{sim.creditsReward} PC</span>
                   </div>
-                  <p className="text-[11px] text-zinc-500 dark:text-[#94A3B8] leading-relaxed">
+                  <p className="text-[11.5px] text-zinc-600 dark:text-zinc-400 leading-relaxed">
                     {sim.desc}
                   </p>
                   <div className="flex items-center justify-between pt-1">
-                    <span className="text-[10px] font-mono text-zinc-400">{sim.tag}</span>
+                    <span className="text-[10px] font-mono text-zinc-500 dark:text-zinc-400 font-semibold">{sim.tag}</span>
                     <button
                       onClick={() => handleRunSim(sim)}
-                      className="px-3 py-1 bg-emerald hover:bg-emerald-dark text-navy-950 font-bold text-xs rounded-lg flex items-center gap-1.5 transition-colors"
+                      className="px-3 py-1 bg-gradient-to-r from-emerald-600 to-teal-600 hover:from-emerald-500 hover:to-teal-500 text-white font-bold text-xs rounded-lg flex items-center gap-1.5 transition-all shadow-xs"
                     >
                       <Play size={11} fill="currentColor" />
                       <span>Run Simulator</span>

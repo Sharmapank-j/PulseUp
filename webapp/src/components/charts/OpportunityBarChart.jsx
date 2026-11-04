@@ -37,26 +37,29 @@ export default function OpportunityBarChart({ isDarkMode = true }) {
         lineStyle: { color: isDarkMode ? 'rgba(255,255,255,0.1)' : 'rgba(0,0,0,0.1)' }
       },
       axisLabel: {
-        color: isDarkMode ? '#94A3B8' : '#64748B',
+        color: isDarkMode ? '#CBD5E1' : '#334155',
         fontSize: 11,
         fontFamily: 'Inter, sans-serif',
+        fontWeight: 500,
       },
     },
     yAxis: {
       type: 'value',
       name: 'Opportunities Cataloged',
       nameTextStyle: {
-        color: isDarkMode ? '#94A3B8' : '#64748B',
+        color: isDarkMode ? '#CBD5E1' : '#334155',
         fontSize: 10,
         fontFamily: 'Inter, sans-serif',
+        fontWeight: 600,
       },
       splitLine: {
         lineStyle: { color: isDarkMode ? 'rgba(255,255,255,0.06)' : 'rgba(0,0,0,0.06)' }
       },
       axisLabel: {
-        color: isDarkMode ? '#94A3B8' : '#64748B',
+        color: isDarkMode ? '#CBD5E1' : '#334155',
         fontSize: 10,
         fontFamily: 'JetBrains Mono, monospace',
+        fontWeight: 500,
       },
     },
     series: [

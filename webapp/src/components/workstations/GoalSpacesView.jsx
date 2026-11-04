@@ -241,18 +241,18 @@ export default function GoalSpacesView({ onToast }) {
   return (
     <div className="space-y-5">
       {/* Top Banner & Space Switcher */}
-      <div className="bg-white dark:bg-[#1A2235] border border-zinc-200 dark:border-white/[0.07] p-5 rounded-2xl flex flex-col md:flex-row items-start md:items-center justify-between gap-4">
+      <div className="clinical-card bg-white/95 dark:bg-[#1A2235]/95 border border-zinc-200 dark:border-white/[0.08] p-5 rounded-2xl flex flex-col md:flex-row items-start md:items-center justify-between gap-4 shadow-sm">
         <div>
           <div className="flex items-center gap-2 mb-1">
-            <span className="text-xs font-mono font-bold text-emerald bg-emerald/10 border border-emerald/20 px-2 py-0.5 rounded-full">
+            <span className="text-xs font-mono font-bold text-emerald-700 dark:text-emerald-300 bg-emerald-500/10 border border-emerald-500/25 px-2.5 py-0.5 rounded-full">
               Goal Spaces Hub
             </span>
-            <span className="text-xs text-zinc-400">6 Active Collaborative Sprints</span>
+            <span className="text-xs font-semibold text-zinc-500 dark:text-zinc-400">6 Active Collaborative Sprints</span>
           </div>
-          <h2 className="font-display font-extrabold text-xl text-zinc-900 dark:text-zinc-100">
+          <h2 className="font-display font-black text-xl text-zinc-900 dark:text-zinc-100">
             Goal Spaces & Sprint Acceleration
           </h2>
-          <p className="text-xs text-zinc-500 dark:text-[#94A3B8]">
+          <p className="text-xs text-zinc-600 dark:text-zinc-400">
             Multi-center collaborative hubs for clinical registries, exam groups, and ICMR grants.
           </p>
         </div>
@@ -260,7 +260,7 @@ export default function GoalSpacesView({ onToast }) {
         <div className="flex items-center gap-2">
           <button
             onClick={() => setShowCreateModal(true)}
-            className="px-4 py-2 bg-emerald hover:bg-emerald-dark text-navy-950 font-bold text-xs rounded-xl shadow-sm flex items-center gap-1.5 transition-colors"
+            className="px-4 py-2 bg-gradient-to-r from-emerald-600 to-teal-600 hover:from-emerald-500 hover:to-teal-500 text-white font-bold text-xs rounded-xl shadow-sm flex items-center gap-1.5 transition-all"
           >
             <Plus size={14} />
             <span>Create Goal Space</span>
@@ -283,38 +283,38 @@ export default function GoalSpacesView({ onToast }) {
                   message: `Now viewing "${sp.title}" workbench.`
                 });
               }}
-              className={`p-4 rounded-xl border cursor-pointer transition-all duration-200 shadow-sm flex flex-col justify-between ${
+              className={`clinical-card p-4 rounded-xl border cursor-pointer transition-all duration-200 shadow-sm flex flex-col justify-between ${
                 isSelected
-                  ? 'bg-emerald/5 dark:bg-emerald/10 border-emerald ring-1 ring-emerald'
-                  : 'bg-white dark:bg-[#1A2235] border-zinc-200 dark:border-white/[0.07] hover:border-emerald/40 hover:-translate-y-0.5'
+                  ? 'bg-emerald-500/10 dark:bg-emerald-500/15 border-emerald-500 ring-1 ring-emerald-500'
+                  : 'bg-white/95 dark:bg-[#1A2235]/95 border-zinc-200 dark:border-white/[0.08] hover:border-emerald-500/50 hover:-translate-y-0.5'
               }`}
             >
               <div>
                 <div className="flex items-center justify-between gap-2 mb-2">
                   <span className="text-2xl">{sp.icon}</span>
-                  <span className={`text-[10px] font-bold uppercase px-2 py-0.5 rounded-full ${
+                  <span className={`text-[10px] font-mono font-bold uppercase px-2 py-0.5 rounded-full ${
                     sp.statusColor === 'emerald'
-                      ? 'bg-emerald/10 text-emerald'
+                      ? 'bg-emerald-500/15 text-emerald-700 dark:text-emerald-300 border border-emerald-500/25'
                       : sp.statusColor === 'blue'
-                      ? 'bg-blue-500/10 text-blue-400'
+                      ? 'bg-blue-500/15 text-blue-700 dark:text-blue-300 border border-blue-500/25'
                       : sp.statusColor === 'purple'
-                      ? 'bg-purple-500/10 text-purple-400'
-                      : 'bg-amber-500/10 text-amber-500'
+                      ? 'bg-purple-500/15 text-purple-700 dark:text-purple-300 border border-purple-500/25'
+                      : 'bg-amber-500/15 text-amber-700 dark:text-amber-300 border border-amber-500/25'
                   }`}>
                     {sp.status}
                   </span>
                 </div>
-                <h4 className="font-display font-bold text-xs text-zinc-900 dark:text-zinc-100 mb-1">
+                <h4 className="font-display font-black text-xs text-zinc-900 dark:text-zinc-100 mb-1">
                   {sp.title}
                 </h4>
-                <p className="text-[11px] text-zinc-500 dark:text-[#94A3B8] leading-relaxed line-clamp-2">
+                <p className="text-[11.5px] text-zinc-600 dark:text-zinc-400 leading-relaxed line-clamp-2">
                   {sp.sprintText}
                 </p>
               </div>
 
-              <div className="flex items-center justify-between pt-3 mt-2 border-t border-zinc-100 dark:border-white/[0.05] text-[10px] text-zinc-400">
-                <span>{sp.membersText}</span>
-                <span className="text-emerald font-semibold flex items-center gap-0.5">
+              <div className="flex items-center justify-between pt-3 mt-2 border-t border-zinc-200/70 dark:border-white/[0.05] text-[10.5px] text-zinc-500 dark:text-zinc-400">
+                <span className="font-semibold">{sp.membersText}</span>
+                <span className="text-emerald-700 dark:text-emerald-400 font-bold flex items-center gap-0.5">
                   <span>{isSelected ? 'Active Workbench' : 'Open Space'}</span>
                   <ChevronRight size={12} />
                 </span>
@@ -325,21 +325,21 @@ export default function GoalSpacesView({ onToast }) {
       </div>
 
       {/* Active Workbench Section */}
-      <div className="bg-white dark:bg-[#1A2235] border border-zinc-200 dark:border-white/[0.07] rounded-2xl p-5 shadow-sm space-y-4">
+      <div className="clinical-card bg-white/95 dark:bg-[#1A2235]/95 border border-zinc-200 dark:border-white/[0.08] rounded-2xl p-5 shadow-sm space-y-4">
         {/* Active Space Workbench Header */}
-        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 pb-4 border-b border-zinc-100 dark:border-white/[0.06]">
+        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 pb-4 border-b border-zinc-200 dark:border-white/[0.06]">
           <div>
             <div className="flex items-center gap-2 mb-1">
               <span className="text-xl">{currentSpace.icon}</span>
-              <span className="text-xs font-mono font-bold text-emerald bg-emerald/10 border border-emerald/20 px-2 py-0.5 rounded-full">
+              <span className="text-xs font-mono font-bold text-emerald-700 dark:text-emerald-300 bg-emerald-500/10 border border-emerald-500/20 px-2.5 py-0.5 rounded-full">
                 {currentSpace.category}
               </span>
-              <span className="text-xs text-zinc-400">{currentSpace.membersText}</span>
+              <span className="text-xs font-semibold text-zinc-500 dark:text-zinc-400">{currentSpace.membersText}</span>
             </div>
-            <h3 className="font-display font-extrabold text-lg text-zinc-900 dark:text-zinc-100">
+            <h3 className="font-display font-black text-lg text-zinc-900 dark:text-zinc-100">
               {currentSpace.title} (Sprint Workbench)
             </h3>
-            <p className="text-xs text-zinc-500 dark:text-[#94A3B8]">
+            <p className="text-xs text-zinc-600 dark:text-zinc-400">
               {currentSpace.sprintText}
             </p>
           </div>
@@ -350,8 +350,8 @@ export default function GoalSpacesView({ onToast }) {
               onClick={() => setActiveTab('kanban')}
               className={`px-3 py-1.5 rounded-lg transition-all ${
                 activeTab === 'kanban'
-                  ? 'bg-white dark:bg-[#151D2D] text-emerald font-semibold shadow-sm'
-                  : 'text-zinc-600 dark:text-[#94A3B8] hover:text-zinc-900 dark:hover:text-white'
+                  ? 'bg-white dark:bg-[#151D2D] text-emerald-700 dark:text-emerald-400 font-bold shadow-sm'
+                  : 'text-zinc-600 dark:text-zinc-400 hover:text-zinc-900 dark:hover:text-white'
               }`}
             >
               Kanban Board ({completionPct}%)
@@ -360,8 +360,8 @@ export default function GoalSpacesView({ onToast }) {
               onClick={() => setActiveTab('chat')}
               className={`px-3 py-1.5 rounded-lg transition-all ${
                 activeTab === 'chat'
-                  ? 'bg-white dark:bg-[#151D2D] text-emerald font-semibold shadow-sm'
-                  : 'text-zinc-600 dark:text-[#94A3B8] hover:text-zinc-900 dark:hover:text-white'
+                  ? 'bg-white dark:bg-[#151D2D] text-emerald-700 dark:text-emerald-400 font-bold shadow-sm'
+                  : 'text-zinc-600 dark:text-zinc-400 hover:text-zinc-900 dark:hover:text-white'
               }`}
             >
               Discussion & Copilot
@@ -370,8 +370,8 @@ export default function GoalSpacesView({ onToast }) {
               onClick={() => setActiveTab('files')}
               className={`px-3 py-1.5 rounded-lg transition-all ${
                 activeTab === 'files'
-                  ? 'bg-white dark:bg-[#151D2D] text-emerald font-semibold shadow-sm'
-                  : 'text-zinc-600 dark:text-[#94A3B8] hover:text-zinc-900 dark:hover:text-white'
+                  ? 'bg-white dark:bg-[#151D2D] text-emerald-700 dark:text-emerald-400 font-bold shadow-sm'
+                  : 'text-zinc-600 dark:text-zinc-400 hover:text-zinc-900 dark:hover:text-white'
               }`}
             >
               File Vault (3)
