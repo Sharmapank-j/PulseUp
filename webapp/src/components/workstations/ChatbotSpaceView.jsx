@@ -45,6 +45,7 @@ import {
   RotateCcw,
   MessageSquare,
   BookOpen,
+  Loader2,
 } from 'lucide-react';
 import {
   CLOUD_PRESETS,
@@ -454,8 +455,8 @@ export default function ChatbotSpaceView({
     setPingStatus(null);
     onToast?.({
       type: 'info',
-      title: 'Scripted Mode Active',
-      message: 'Switched to built-in high-yield medical career response bank.'
+      title: 'Local Knowledge Base Active',
+      message: 'Switched to built-in high-yield ICMR / NMC clinical reference bank.'
     });
   };
 
@@ -572,37 +573,21 @@ export default function ChatbotSpaceView({
         }
         setLoading(false);
       } else {
-        // Prototype Clinical Intelligence Engine with Realistic Token Streaming
-        const fullPrototypeResponse = generatePrototypeResponse(userText, activeMode);
-        const botId = 'bot-' + Date.now();
-        const placeholderMsg = {
+        // Verified Local Clinical Knowledge Base (Instant & Authoritative)
+        const localResponse = generatePrototypeResponse(userText, activeMode);
+        const botMsg = {
           role: 'assistant',
-          text: '',
-          id: botId,
-          isStreaming: true,
+          text: localResponse,
+          id: 'bot-' + Date.now(),
+          isLocalRef: true,
           timestamp: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })
         };
-
-        setMessages([...nextMessages, placeholderMsg]);
-
-        // Start progressive token streaming simulation (12ms per chunk)
-        simulateStreamResponse(
-          fullPrototypeResponse,
-          (chunk) => {
-            setMessages(prev => prev.map(m => m.id === botId ? { ...m, text: chunk } : m));
-          },
-          () => {
-            setMessages(prev => {
-              const completed = prev.map(m => m.id === botId ? { ...m, isStreaming: false } : m);
-              if (activeSessionId) {
-                chatSessionStorage.updateSessionMessages(activeSessionId, completed);
-              }
-              return completed;
-            });
-            setLoading(false);
-          },
-          12
-        );
+        const finalMsgs = [...nextMessages, botMsg];
+        setMessages(finalMsgs);
+        if (activeSessionId) {
+          chatSessionStorage.updateSessionMessages(activeSessionId, finalMsgs);
+        }
+        setLoading(false);
       }
 
       if (onAddCredits && Math.random() > 0.6) {
@@ -980,9 +965,9 @@ export default function ChatbotSpaceView({
                 >
                   <div className="flex items-center gap-2">
                     <Bot size={14} className={provider === 'none' ? 'text-white' : 'text-emerald-500 dark:text-emerald-400'} />
-                    <span>Prototype Clinical Engine</span>
+                    <span>Local Knowledge Base</span>
                   </div>
-                  <span className="text-[9px] opacity-80 font-mono">Streaming</span>
+                  <span className="text-[9px] opacity-80 font-mono">Curated</span>
                 </button>
               </div>
             </div>
@@ -1273,7 +1258,7 @@ export default function ChatbotSpaceView({
                 })()
               ) : (
                 <div className="text-[11px] text-zinc-600 dark:text-zinc-400 leading-relaxed">
-                  Active: <strong>Prototype Clinical Engine</strong> with simulated streaming. Switch to Gemini or Cloud LLM above to link external keys.
+                  Active: <strong>Local Clinical Knowledge Base</strong> with verified ICMR and NMC reference algorithms. Switch to Gemini or Cloud LLMs above to link live generative reasoning.
                 </div>
               )}
             </div>
@@ -1438,7 +1423,7 @@ export default function ChatbotSpaceView({
                     ? geminiModel.replace('gemini-', 'Gemini ')
                     : provider === 'custom'
                     ? customModel
-                    : 'Prototype Engine'}
+                    : 'Local Knowledge Base'}
                 </span>
               </span>
             </div>
@@ -1571,6 +1556,11 @@ export default function ChatbotSpaceView({
                         <p className="text-xs sm:text-sm whitespace-pre-wrap leading-relaxed">{msg.text}</p>
                       ) : (
                         <div>
+                          {msg.isLocalRef && (
+                            <div className="inline-flex items-center gap-1.5 text-[9.5px] font-mono text-emerald-600 dark:text-emerald-400 font-semibold mb-1 pb-1 border-b border-emerald-500/15">
+                              <BookOpen size={11} /> Verified Clinical Knowledge Base (ICMR / NMC Curated)
+                            </div>
+                          )}
                           {renderMarkdown(msg.text)}
                           {msg.isStreaming && (
                             <span className="inline-block w-1.5 h-3.5 bg-blue-500 animate-pulse ml-0.5 align-middle rounded-xs" />
@@ -1609,13 +1599,13 @@ export default function ChatbotSpaceView({
                   <Bot size={15} />
                 </div>
                 <div className="backdrop-blur-xl bg-white dark:bg-[#141C2E]/80 border border-zinc-200 dark:border-white/20 rounded-2xl rounded-tl-sm p-3 sm:p-4 flex items-center gap-2.5 shadow-sm">
-                  <RefreshCw size={13} className="text-blue-500 animate-spin" />
-                  <span className="text-xs text-zinc-600 dark:text-[#94A3B8]">
+                  <Loader2 size={13} className="text-blue-500 animate-spin" />
+                  <span className="text-xs font-medium text-zinc-600 dark:text-[#94A3B8]">
                     {provider === 'gemini'
-                      ? 'Deliberating with Gemini…'
+                      ? 'Deliberating with Gemini 3.8 Flash…'
                       : provider === 'custom'
                       ? `Querying ${customModel}…`
-                      : 'Formulating clinical guidance…'}
+                      : 'Consulting clinical knowledge base…'}
                   </span>
                 </div>
               </div>

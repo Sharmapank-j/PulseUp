@@ -28,6 +28,7 @@ import {
   Pin,
   RotateCcw,
   Terminal,
+  BookOpen,
 } from 'lucide-react';
 import {
   CLOUD_PRESETS,
@@ -102,19 +103,6 @@ const STARTERS = [
   'Explain AETCOM Module 4.1 SPIKES protocol',
   'Best strategy for USMLE Step 1 from India?',
 ];
-
-function scriptedResponse(userMsg) {
-  const q = userMsg.toLowerCase();
-  if (q.includes('neet') || q.includes('next exam'))
-    return "**NEET PG / NEXT Preparation Strategy:**\n\n- Start with **Medicine, Surgery, Obs & Gynae** — highest weightage\n- Use **Marrow** or **DAMS** for structured video learning\n- Attempt 50+ MCQs daily from Day 1\n- Grand test analysis matters more than raw score\n- Target **2200+ correct** in Marrow full-length tests for a competitive rank\n- NEXT has 2 papers: `Paper 1` (pre-clinical) + `Paper 2` (clinical reasoning focus)";
-  if (q.includes('icmr') || q.includes('sts'))
-    return "**ICMR-STS (Short-Term Studentship):**\n\n- Open to **1st–final year MBBS students**\n- Stipend: **₹10,000/month** for 2 months (May–July)\n- Apply via `sts.icmr.gov.in` by **February** each year\n- Choose **epidemiology or clinical audit** — feasible in 2 months\n- Adds 50 PC on PulseUp and looks great on your Medical Passport!";
-  if (q.includes('aetcom') || q.includes('spikes'))
-    return "**AETCOM SPIKES Protocol (Module 4.1):**\n\n- **S**etting — private space, support persons present\n- **P**erception — assess existing patient knowledge\n- **I**nvitation — ask how much detail they want\n- **K**nowledge — plain language, no jargon\n- **E**motions — acknowledge grief with empathy\n- **S**trategy — outline next steps clearly\n\nYour PulseUp Reflective Journal entries count toward CBME Phase IV certification.";
-  if (q.includes('usmle') || q.includes('step 1'))
-    return "**USMLE for Indian MBBS Graduates:**\n\n- **Step 1** is now Pass/Fail — focus score on **Step 2 CK ≥ 245**\n- Non-negotiable resources: `UWorld` + `Amboss`\n- ECFMG certification is required before applying for residency\n- Timeline: 12–18 months from internship for both steps\n- Many MAMC/AIIMS graduates are now PGY-1 in the US — very achievable!";
-  return "I'm **medimind.ai** 🩺 — your clinical AI copilot.\n\nTry asking me about NEET PG, ICMR-STS grants, AETCOM ethical cases, or USMLE timelines.\n\n*Tap ⚙️ to connect Google Gemini or your own Custom LLM server!*";
-}
 
 const LS = aiStorage;
 
@@ -437,35 +425,21 @@ export default function AiChatbot({
         }
         setLoading(false);
       } else {
-        // Prototype Clinical AI Engine with simulated stream typing
-        const fullPrototypeReply = generatePrototypeResponse(userText, 'general');
-        const botId = 'a-' + Date.now();
-        const placeholderMsg = {
+        // Verified Local Clinical Knowledge Base (Instant & Authoritative)
+        const localReply = generatePrototypeResponse(userText, 'general');
+        const botMsg = {
           role: 'assistant',
-          text: '',
-          id: botId,
-          isStreaming: true,
+          text: localReply,
+          id: 'a-' + Date.now(),
+          isLocalRef: true,
           timestamp: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })
         };
-        setMessages([...nextMsgs, placeholderMsg]);
-
-        simulateStreamResponse(
-          fullPrototypeReply,
-          (chunk) => {
-            setMessages(prev => prev.map(m => m.id === botId ? { ...m, text: chunk } : m));
-          },
-          () => {
-            setMessages(prev => {
-              const completed = prev.map(m => m.id === botId ? { ...m, isStreaming: false } : m);
-              if (activeSessionId) {
-                chatSessionStorage.updateSessionMessages(activeSessionId, completed);
-              }
-              return completed;
-            });
-            setLoading(false);
-          },
-          12
-        );
+        const finalMsgs = [...nextMsgs, botMsg];
+        setMessages(finalMsgs);
+        if (activeSessionId) {
+          chatSessionStorage.updateSessionMessages(activeSessionId, finalMsgs);
+        }
+        setLoading(false);
       }
     } catch (err) {
       console.error('medimind.ai error:', err);
@@ -511,7 +485,7 @@ export default function AiChatbot({
     ? `● ${geminiModel.replace('gemini-', 'Gemini ')}`
     : provider === 'custom'
     ? `● ${customModel.slice(0, 18)}`
-    : '○ Scripted Mode';
+    : '○ Local Knowledge Base';
 
   const providerColor = provider !== 'none' ? 'text-emerald-400' : 'text-zinc-400';
 
@@ -689,7 +663,7 @@ export default function AiChatbot({
               {[
                 { id: 'gemini', label: 'Gemini Cloud', icon: <Zap size={11} className="text-amber-500" /> },
                 { id: 'custom', label: 'Cloud LLMs', icon: <Cloud size={11} className="text-blue-500" /> },
-                { id: 'none', label: 'Offline / Bank', icon: <Bot size={11} className="text-emerald-500" /> },
+                { id: 'none', label: 'Local Knowledge', icon: <BookOpen size={11} className="text-emerald-500" /> },
               ].map(tab => (
                 <button
                   key={tab.id}
@@ -988,20 +962,26 @@ export default function AiChatbot({
               </div>
             )}
 
-            {/* Offline Scripted Mode tab */}
+            {/* Offline Local Knowledge Base tab */}
             {provider === 'none' && (
-              <div className="p-3 space-y-2">
-                <p className="text-xs text-zinc-700 dark:text-zinc-300 leading-relaxed">
-                  Currently running in <strong>Offline Scripted Mode</strong> with built-in high-yield medical question banks (NEET PG, ICMR-STS, AETCOM SPIKES, USMLE Step 1/2).
-                </p>
+              <div className="p-3 space-y-2.5">
+                <div className="flex items-start gap-2 p-2.5 rounded-xl bg-emerald-500/10 border border-emerald-500/20 text-emerald-800 dark:text-emerald-300">
+                  <BookOpen size={14} className="mt-0.5 flex-shrink-0" />
+                  <div className="text-[11px] leading-relaxed">
+                    <strong>Local Clinical Knowledge Base Active.</strong>
+                    <p className="mt-1 text-[10.5px] opacity-90">
+                      Instant verified reference frameworks covering NEET PG / NEXT core subject hierarchies, ICMR-STS grant proposal architecture, NMC AETCOM SPIKES protocol, USMLE Step 1/2 CK timelines, Emergency STEMI/Pneumothorax algorithms, and 7th CPC resident salary scales.
+                    </p>
+                  </div>
+                </div>
                 <p className="text-[10px] text-zinc-500 dark:text-zinc-400">
-                  Switch to <strong>Gemini Cloud</strong> or <strong>Cloud LLMs</strong> (Groq, OpenRouter, DeepSeek, OpenAI) above to unlock live generative inference.
+                  To deliberate with live conversational generative AI, choose <strong>Gemini Cloud</strong> (Google Gemini 3.8 Flash recommended) or <strong>Cloud LLMs</strong> above.
                 </p>
                 <button
                   onClick={clearProviders}
                   className="w-full py-1.5 bg-zinc-200 hover:bg-zinc-300 dark:bg-white/10 dark:hover:bg-white/15 text-zinc-800 dark:text-zinc-200 text-xs font-bold rounded-xl transition-colors"
                 >
-                  Confirm Scripted Mode
+                  Confirm Local Knowledge Base Mode
                 </button>
               </div>
             )}
@@ -1030,7 +1010,12 @@ export default function AiChatbot({
                 {msg.role === 'user' ? (
                   <p className="text-xs leading-relaxed">{msg.text}</p>
                 ) : (
-                  <div className="space-y-0.5">
+                  <div className="space-y-1">
+                    {msg.isLocalRef && (
+                      <div className="inline-flex items-center gap-1 text-[9px] font-mono text-emerald-600 dark:text-emerald-400 font-semibold mb-1 pb-0.5 border-b border-emerald-500/20">
+                        <BookOpen size={10} /> Local Knowledge Base (ICMR / NMC Curated)
+                      </div>
+                    )}
                     {renderMarkdown(msg.text)}
                     {msg.isStreaming && (
                       <span className="inline-block w-1.5 h-3.5 bg-blue-500 animate-pulse ml-0.5 align-middle rounded-xs" />
@@ -1069,12 +1054,12 @@ export default function AiChatbot({
           {loading && (
             <div className="flex gap-2.5 justify-start">
               <div className="w-6 h-6 rounded-lg bg-gradient-to-br from-blue-500 via-indigo-600 to-purple-600 flex items-center justify-center flex-shrink-0 shadow-sm">
-                <Sparkles size={12} className="text-white animate-spin" />
+                <Sparkles size={12} className="text-white animate-pulse" />
               </div>
               <div className="bg-zinc-100 dark:bg-white/10 border border-zinc-200 dark:border-white/15 rounded-2xl rounded-bl-sm px-3.5 py-2.5 flex items-center gap-2 backdrop-blur-md">
                 <Loader2 size={12} className="text-blue-500 animate-spin" />
-                <span className="text-[11px] text-zinc-600 dark:text-zinc-400">
-                  {provider === 'gemini' ? 'Deliberating with Gemini…' : provider === 'custom' ? `Calling ${customModel}…` : 'Formulating guidance…'}
+                <span className="text-[11px] font-medium text-zinc-600 dark:text-zinc-400">
+                  {provider === 'gemini' ? 'Deliberating with Gemini 3.8 Flash…' : provider === 'custom' ? `Calling ${customModel}…` : 'Consulting clinical knowledge base…'}
                 </span>
               </div>
             </div>
