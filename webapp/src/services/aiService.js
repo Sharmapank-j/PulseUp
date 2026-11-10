@@ -9,6 +9,30 @@ export const PULSEUP_AI_CONFIG_EVENT = 'pulseup_ai_config_updated';
 // ── Cloud Provider Presets ──────────────────────────────────────────────────
 export const CLOUD_PRESETS = [
   {
+    id: 'agentx',
+    name: 'AgentX (Android Edge)',
+    badge: 'On-Device MediMind-v2',
+    accent: 'text-emerald-500 dark:text-emerald-400',
+    border: 'border-emerald-500/40',
+    bg: 'bg-emerald-500/10',
+    defaultUrl: 'http://localhost:8080/v1',
+    wifiUrl: 'http://10.212.66.224:8080/v1',
+    defaultModel: 'medimind-v2-q5_k_m',
+    defaultKey: 'agx_adm_cjieyc1e67udrsnxzlye817x327m',
+    models: [
+      { id: 'medimind-v2-q5_k_m', label: 'MediMind v2 Q5_K_M (Active Local GGUF)' },
+      { id: 'storage_medimind-v2-q5_k_m.gguf', label: 'MediMind v2 GGUF Storage' },
+      { id: 'biomistral-7b', label: 'BioMistral 7B (Clinical Medical Model)' },
+      { id: 'deepseek-r1-1.5b', label: 'DeepSeek R1 1.5B (Edge Reasoning)' },
+      { id: 'llama-3.2-3b', label: 'Llama 3.2 3B Instruct' },
+      { id: 'phi-3.5-mini', label: 'Phi-3.5 Mini' },
+      { id: 'qwen-2.5-coder-3b', label: 'Qwen 2.5 Coder 3B' },
+    ],
+    keyPlaceholder: 'agx_adm_...',
+    keyUrl: 'http://10.212.66.224:8080',
+    keyDoc: 'AgentX Serve on Xiaomi (5eb1d795a3b4) • port 8080',
+  },
+  {
     id: 'groq',
     name: 'Groq Cloud',
     badge: 'Ultra Fast / Free Tier',
@@ -262,6 +286,9 @@ export function buildCloudHeaders(url, cleanedKey) {
 
   if (cleanedKey) {
     headers['Authorization'] = `Bearer ${cleanedKey}`;
+    if (cleanedKey.startsWith('agx_') || (url && url.includes(':8080'))) {
+      headers['X-API-Key'] = cleanedKey;
+    }
   }
 
   // Only attach OpenRouter metadata headers when communicating with openrouter.ai
@@ -581,6 +608,7 @@ export async function testCloudConnection(rawUrl, key, model = 'llama-3.3-70b-ve
         model: model || 'llama-3.3-70b-versatile',
         messages: [{ role: 'user', content: 'ping' }],
         max_tokens: 10,
+        stream: false,
       };
 
   try {
@@ -689,6 +717,7 @@ export async function callCloudLlmApi({ url, key, model, messages, userText, sys
         messages: formattedMessages,
         temperature: 0.7,
         max_tokens: 2048,
+        stream: false,
       };
 
   const controller = new AbortController();
@@ -709,7 +738,32 @@ export async function callCloudLlmApi({ url, key, model, messages, userText, sys
       throw new Error(`${diag.title}: ${diag.message}`);
     }
 
-    const data = await res.json();
+    const rawText = await res.text();
+    let data;
+
+    // Support servers that stream SSE even without explicit client stream requested
+    if (rawText.includes('data: {') || rawText.startsWith('data:')) {
+      let accumulatedContent = '';
+      for (const line of rawText.split('\n')) {
+        const trimmed = line.trim();
+        if (trimmed.startsWith('data: ') && trimmed !== 'data: [DONE]') {
+          try {
+            const parsed = JSON.parse(trimmed.slice(6));
+            const delta = parsed.choices?.[0]?.delta?.content || parsed.choices?.[0]?.message?.content || '';
+            accumulatedContent += delta;
+          } catch {}
+        }
+      }
+      if (accumulatedContent) {
+        return accumulatedContent;
+      }
+    }
+
+    try {
+      data = JSON.parse(rawText);
+    } catch {
+      throw new Error(`Invalid response from model endpoint: ${rawText.slice(0, 100)}`);
+    }
 
     // Check Ollama native format first
     if (isOllamaNative && data?.message?.content) {

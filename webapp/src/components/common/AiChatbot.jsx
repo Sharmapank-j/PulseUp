@@ -65,10 +65,27 @@ Your expertise covers:
 Personality: Sharp, knowledgeable, evidence-based, structured. Use concise bullet points. Cite Indian medical contexts specifically (NMC, MAMC, AIIMS, JIPMER, CMC Vellore).
 Important: Never give actual patient-level clinical diagnosis or treatment advice. Educational & career purposes only.`;
 
+function formatReasoningText(text) {
+  if (!text) return '';
+  return text.replace(/<think>([\s\S]*?)<\/think>/gi, (match, p1) => {
+    const clean = p1.trim();
+    if (!clean) return '';
+    return `> 🧠 **MediMind Edge Reasoning:**\n> ${clean.replace(/\n/g, '\n> ')}\n\n`;
+  });
+}
+
 function renderMarkdown(text) {
   if (!text) return null;
-  return text.split('\n').map((line, i) => {
+  const formatted = formatReasoningText(text);
+  return formatted.split('\n').map((line, i) => {
     if (line.startsWith('```')) return null;
+    if (line.startsWith('> ')) {
+      return (
+        <div key={i} className="pl-2.5 py-1 my-1 border-l-2 border-emerald-500/60 bg-emerald-500/5 text-zinc-700 dark:text-zinc-300 text-[10.5px] italic rounded-r">
+          <span dangerouslySetInnerHTML={{ __html: inlineFmt(line.slice(2)) }} />
+        </div>
+      );
+    }
     const bullet = line.match(/^(\s*[-*•])\s+(.+)/);
     if (bullet) return (
       <div key={i} className="flex gap-2 text-xs leading-relaxed my-0.5">
@@ -251,6 +268,9 @@ export default function AiChatbot({
     if (p && p.defaultUrl) {
       setCustomUrlD(p.defaultUrl);
       setCustomModD(p.defaultModel);
+      if (p.defaultKey) {
+        setCustomKeyD(p.defaultKey);
+      }
     }
     setTestStatus(null);
   };
@@ -806,6 +826,48 @@ export default function AiChatbot({
                     })}
                   </div>
                 </div>
+
+                {/* AgentX Android Edge Quick Selector */}
+                {(cloudPreset === 'agentx' || customUrlD?.includes(':8080')) && (
+                  <div className="p-2.5 rounded-xl border border-emerald-500/30 bg-emerald-500/10 dark:bg-emerald-950/20 space-y-1.5 text-xs">
+                    <div className="flex items-center justify-between">
+                      <div className="flex items-center gap-1.5 font-semibold text-emerald-700 dark:text-emerald-300 text-[11px]">
+                        <span className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse" />
+                        AgentX Serve • Xiaomi (5eb1d795a3b4)
+                      </div>
+                      <span className="text-[9px] font-mono px-1.5 py-0.5 rounded bg-emerald-500/20 text-emerald-800 dark:text-emerald-200">
+                        Port 8080
+                      </span>
+                    </div>
+                    <p className="text-[10px] text-zinc-600 dark:text-zinc-400">
+                      Active edge model: <code className="text-emerald-600 dark:text-emerald-400 font-mono font-bold">medimind-v2-q5_k_m</code> (Ktor CIO runtime)
+                    </p>
+                    <div className="flex items-center gap-1 pt-0.5">
+                      <button
+                        type="button"
+                        onClick={() => setCustomUrlD('http://localhost:8080/v1')}
+                        className={`px-2 py-1 rounded-lg text-[9.5px] font-mono font-semibold transition-all border ${
+                          customUrlD.includes('localhost') || customUrlD.includes('127.0.0.1')
+                            ? 'bg-emerald-600 text-white border-emerald-500 shadow-xs'
+                            : 'bg-white dark:bg-white/5 text-zinc-700 dark:text-zinc-300 border-zinc-200 dark:border-white/10 hover:bg-zinc-100 dark:hover:bg-white/10'
+                        }`}
+                      >
+                        🔌 USB Bridge (adb forward)
+                      </button>
+                      <button
+                        type="button"
+                        onClick={() => setCustomUrlD('http://10.212.66.224:8080/v1')}
+                        className={`px-2 py-1 rounded-lg text-[9.5px] font-mono font-semibold transition-all border ${
+                          customUrlD.includes('10.212.66.224')
+                            ? 'bg-emerald-600 text-white border-emerald-500 shadow-xs'
+                            : 'bg-white dark:bg-white/5 text-zinc-700 dark:text-zinc-300 border-zinc-200 dark:border-white/10 hover:bg-zinc-100 dark:hover:bg-white/10'
+                        }`}
+                      >
+                        📶 Wi-Fi LAN (Direct)
+                      </button>
+                    </div>
+                  </div>
+                )}
 
                 <div>
                   <div className="flex items-center justify-between mb-1">

@@ -8,6 +8,7 @@
     "dev": "npm --prefix webapp run dev",
     "test": "node tests/test_runner.js",
     "bridge": "node scripts/local_bridge.js",
-    "bridge:tunnel": "node scripts/local_bridge.js --tunnel"
+    "bridge:tunnel": "node scripts/local_bridge.js --tunnel",
+    "adb:forward": "adb forward tcp:8080 tcp:8080"
   }
 }

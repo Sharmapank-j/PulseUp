@@ -1,12 +1,12 @@
 {
-  "timestamp": "2026-11-05T19:40:35.311Z",
+  "timestamp": "2026-11-10T21:09:39.746Z",
   "targetDirectory": "C:\\Users\\pr218\\OneDrive\\Documents\\projects Antigravity\\PulseUp",
   "stats": {
     "total": 46,
     "passed": 46,
     "failed": 0,
     "skipped": 0,
-    "durationMs": 31
+    "durationMs": 39
   },
   "suites": [
     {
@@ -18,31 +18,31 @@
           "id": "T1-DOC-001",
           "name": "Core directory layout matches specification",
           "status": "PASS",
-          "durationMs": 2
+          "durationMs": 3
         },
         {
           "id": "T1-DOC-002",
           "name": "README.md exists and meets minimum documentation payload threshold",
           "status": "PASS",
-          "durationMs": 1
+          "durationMs": 2
         },
         {
           "id": "T1-DOC-003",
           "name": "README.md contains 2-sentence PulseUp career OS overview",
           "status": "PASS",
-          "durationMs": 1
+          "durationMs": 2
         },
         {
           "id": "T1-DOC-004",
           "name": "README.md contains explicit browser launch instructions for prototype/index.html",
           "status": "PASS",
-          "durationMs": 1
+          "durationMs": 2
         },
         {
           "id": "T1-DOC-005",
           "name": "README.md contains explanation of research database deliverables",
           "status": "PASS",
-          "durationMs": 1
+          "durationMs": 0
         },
         {
           "id": "T1-DOC-006",
@@ -61,25 +61,25 @@
           "id": "T1-PROTO-001",
           "name": "Prototype HTML file exists and exceeds 15KB payload threshold",
           "status": "PASS",
-          "durationMs": 1
+          "durationMs": 3
         },
         {
           "id": "T1-PROTO-002",
           "name": "Offline self-containment: zero external scripts and only Google Fonts CDN allowed",
           "status": "PASS",
-          "durationMs": 0
+          "durationMs": 1
         },
         {
           "id": "T1-PROTO-003",
           "name": "Google Fonts CDN imports Inter, Plus Jakarta Sans, and JetBrains Mono",
           "status": "PASS",
-          "durationMs": 1
+          "durationMs": 0
         },
         {
           "id": "T1-PROTO-004",
           "name": "CSS font-family rules declare and apply all 3 typography families",
           "status": "PASS",
-          "durationMs": 0
+          "durationMs": 1
         },
         {
           "id": "T1-PROTO-005",
@@ -91,7 +91,7 @@
           "id": "T1-PROTO-006",
           "name": "Layout dimensions conform to specification (220px sidebar, 52px topbar, 12px card radius)",
           "status": "PASS",
-          "durationMs": 0
+          "durationMs": 1
         },
         {
           "id": "T1-PROTO-007",
@@ -103,7 +103,7 @@
           "id": "T1-PROTO-008",
           "name": "Screen 2: Research & Publishing Hub elements present",
           "status": "PASS",
-          "durationMs": 1
+          "durationMs": 0
         },
         {
           "id": "T1-PROTO-009",
@@ -176,7 +176,7 @@
           "id": "T1-DATA-001",
           "name": "medical_events_database.md exists and covers Categories A through E",
           "status": "PASS",
-          "durationMs": 0
+          "durationMs": 4
         },
         {
           "id": "T1-DATA-002",
@@ -200,7 +200,7 @@
           "id": "T1-DATA-005",
           "name": "pulse_credits_suggested is strictly a positive finite number across all entries",
           "status": "PASS",
-          "durationMs": 1
+          "durationMs": 0
         },
         {
           "id": "T1-DATA-006",
@@ -243,13 +243,13 @@
           "id": "T2-EDGE-001",
           "name": "Cross-platform keyboard shortcut listens for both ctrlKey and metaKey",
           "status": "PASS",
-          "durationMs": 1
+          "durationMs": 0
         },
         {
           "id": "T2-EDGE-002",
           "name": "Countdown timer handles zero boundary and negative underflow prevention",
           "status": "PASS",
-          "durationMs": 1
+          "durationMs": 0
         },
         {
           "id": "T2-EDGE-003",
@@ -267,13 +267,13 @@
           "id": "T2-EDGE-005",
           "name": "Font fallbacks defined in CSS prevent blank screens if external CDN is blocked",
           "status": "PASS",
-          "durationMs": 0
+          "durationMs": 1
         },
         {
           "id": "T3-COMB-001",
           "name": "Sidebar navigation and Command Bar targets align 1:1 with screen containers",
           "status": "PASS",
-          "durationMs": 1
+          "durationMs": 0
         },
         {
           "id": "T3-COMB-002",
@@ -298,7 +298,7 @@
           "id": "T4-E2E-001",
           "name": "Persona 1 Journey (Dr. Aarav Sharma - 3rd Year MBBS Student @ MAMC Delhi)",
           "status": "PASS",
-          "durationMs": 0
+          "durationMs": 1
         },
         {
           "id": "T4-E2E-002",
@@ -316,7 +316,7 @@
           "id": "T4-E2E-004",
           "name": "Persona 4 Journey: Comprehensive Forensic Auditor Integrity Pass",
           "status": "PASS",
-          "durationMs": 1
+          "durationMs": 0
         }
       ]
     }

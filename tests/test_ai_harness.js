@@ -47,13 +47,17 @@ assert.strictEqual(cleanApiKey('None'), '');
 console.log('  [PASS] T-AI-003: cleanApiKey removes whitespace, quotes, Bearer prefixes, and placeholders');
 
 console.log('\n=== VECTOR 3: Cloud Provider Presets & Endpoints ===');
+assert.ok(CLOUD_PRESETS.some(p => p.id === 'agentx'), 'AgentX Android edge preset exists');
 assert.ok(CLOUD_PRESETS.some(p => p.id === 'gemini_openai'), 'Gemini OpenAI endpoint preset exists');
 assert.ok(CLOUD_PRESETS.some(p => p.id === 'groq'), 'Groq preset exists');
 assert.ok(CLOUD_PRESETS.some(p => p.id === 'openrouter'), 'OpenRouter preset exists');
 assert.ok(CLOUD_PRESETS.some(p => p.id === 'deepseek'), 'DeepSeek preset exists');
+const agentxPreset = CLOUD_PRESETS.find(p => p.id === 'agentx');
+assert.strictEqual(agentxPreset.defaultModel, 'medimind-v2-q5_k_m');
+assert.strictEqual(agentxPreset.defaultKey, 'agx_adm_cjieyc1e67udrsnxzlye817x327m');
 const openRouterPreset = CLOUD_PRESETS.find(p => p.id === 'openrouter');
 assert.strictEqual(openRouterPreset.defaultModel, 'google/gemini-3.8-flash');
-console.log('  [PASS] T-AI-004: CLOUD_PRESETS properly includes Gemini OpenAI and OpenRouter 3.8 Flash presets');
+console.log('  [PASS] T-AI-004: CLOUD_PRESETS properly includes AgentX Android Edge, Gemini OpenAI and OpenRouter 3.8 Flash presets');
 
 console.log('\n=== VECTOR 4: RFC Endpoint Resolution & Strict CORS Whitelist ===');
 assert.strictEqual(resolveChatEndpoint('localhost:11434'), 'http://localhost:11434/v1/chat/completions');
